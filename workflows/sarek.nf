@@ -493,7 +493,7 @@ workflow SAREK {
             reads]
         }
 
-        sort_bam = true
+        sort_bam = false
         FASTQ_ALIGN_BWAMEM_MEM2_DRAGMAP(ch_reads_to_map, ch_map_index, sort_bam)
 
         // Grouping the bams from the same samples not to stall the workflow
