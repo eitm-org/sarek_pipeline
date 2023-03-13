@@ -32,7 +32,7 @@ process BWA_MEM {
         -t $task.cpus \\
         \$INDEX \\
         $reads \\
-        > ${prefix}.bam -
+        -o ${prefix}.bam
     
     potato
         
