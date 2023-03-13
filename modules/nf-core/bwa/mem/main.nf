@@ -28,14 +28,14 @@ process BWA_MEM {
     INDEX=`find -L ./ -name "*.amb" | sed 's/.amb//'`
 
     bwa mem \\
+        -t 32 \\
         -K 10000000 \\
         -Y \\
-        -R "@RG\tID:null.test.test_L1\tPU:test_L1\tSM:test_test\tLB:test\tDS:s3://ngi-igenomes/igenomes/Homo_sapiens/GATK/GRCh38/Sequence/WholeGenomeFasta/Homo_sapiens_assembly38.fasta\tPL:ILLUMINA"  \\
+        $args \\
         -t $task.cpus \\
         \$INDEX \\
         $reads \\
         > ${prefix}.bam -
-    potato
         
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
