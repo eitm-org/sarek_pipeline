@@ -31,11 +31,12 @@ process BWA_MEM {
         -t 32 \\
         -K 10000000 \\
         -Y \\
-        -R '@RG    ID:sample_rg1    LB:lib1    PL:bar    SM:sample    PU:sample_rg1' \\
+        $args \\
         -t $task.cpus \\
         \$INDEX \\
         $reads \\
         > ${prefix}.bam -
+    potato
         
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
