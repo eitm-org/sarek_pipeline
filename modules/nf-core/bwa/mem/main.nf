@@ -31,7 +31,7 @@ process BWA_MEM {
         -t 32 \\
         -K 10000000 \\
         -Y \\
-        -R '@RG\tID:sample_rg1\tLB:lib1\tPL:bar\tSM:sample\tPU:sample_rg1' \\
+        -R '@RG    ID:sample_rg1    LB:lib1    PL:bar    SM:sample    PU:sample_rg1' \\
         -t $task.cpus \\
         \$INDEX \\
         $reads \\
