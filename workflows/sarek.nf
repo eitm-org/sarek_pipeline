@@ -495,7 +495,6 @@ workflow SAREK {
 
         sort_bam = true
         FASTQ_ALIGN_BWAMEM_MEM2_DRAGMAP(ch_reads_to_map, ch_map_index, sort_bam)
-        potato
 
         // Grouping the bams from the same samples not to stall the workflow
         ch_bam_mapped = FASTQ_ALIGN_BWAMEM_MEM2_DRAGMAP.out.bam.map{ meta, bam ->

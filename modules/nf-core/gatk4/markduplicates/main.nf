@@ -36,6 +36,7 @@ process GATK4_MARKDUPLICATES {
         avail_mem = task.memory.giga
     }
     """
+    potato
     gatk --java-options "-Xmx${avail_mem}g" MarkDuplicates \\
         $input_list \\
         --OUTPUT ${prefix}.bam \\
