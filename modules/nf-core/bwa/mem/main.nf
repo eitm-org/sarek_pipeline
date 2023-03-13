@@ -32,9 +32,7 @@ process BWA_MEM {
         -t $task.cpus \\
         \$INDEX \\
         $reads \\
-        -o ${prefix}.bam
-    
-    potato
+        > ${prefix}.bam -
         
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
