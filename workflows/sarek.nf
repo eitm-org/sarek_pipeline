@@ -104,6 +104,10 @@ if (params.tools && params.tools.split(',').contains('mutect2')){
     }
 }
 
+if (params.tools && params.tools.split(',').contains('clairs')){
+    log.warn('wtf why is this skipping')
+}
+
 // Fails when missing resources for baserecalibrator
 // Warns when missing resources for haplotypecaller
 if (!params.dbsnp && !params.known_indels){

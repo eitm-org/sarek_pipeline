@@ -271,7 +271,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
         cram_pair_clairs = cram_pair_intervals.map{ meta, normal_cram, normal_crai, tumor_cram, tumor_crai, intervals ->
                                 [meta, [normal_cram, tumor_cram], [normal_crai, tumor_crai], intervals]
                             }
-
+        print(cram_pair_clairs)
         BAM_VARIANT_CALLING_SOMATIC_CLAIRS(
             cram_pair_clairs,
             fasta,
