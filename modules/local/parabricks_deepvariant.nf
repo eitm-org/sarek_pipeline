@@ -1,13 +1,13 @@
 process DEEPVARIANT {
     tag "$meta.id"
-    label 'process_low'
+    label 'process_medium'
 
 
     if (params.enable_conda) {
         exit 1, "Conda environments cannot be used with DeepVariant at the moment. Please use Docker or Singularity containers."
     }
 
-    container "google/deepvariant:1.5.0-gpu"
+    container "nvcr.io/nvidia/clara/clara-parabricks:4.0.1-1"
 
     input:
     tuple val(meta), path(input), path(index), path(intervals)
@@ -56,3 +56,22 @@ process DEEPVARIANT {
     END_VERSIONS
     """
 }
+
+
+"""
+docker run -v $(pwd):/workdir -v $(pwd)/results:/outputdir -w /workdir \\
+    --gpus all \\
+    nvcr.io/nvidia/clara/clara-parabricks:4.0.1-1 \\
+    pbrun deepvariant \\
+        --ref /workdir/local_refs/GRCh38/GRCh38.primary_assembly.genome_X.fa \\
+        --in-bam /workdir/data/ont_fastq/HG002_20220916-1898.converted.cram \\
+        --max-read-size-512 \\
+        --run-partition \\
+        --mode pacbio \\
+        --alt-aligned-pileup none \\
+        --vsc-min-fraction-indels 0.06 \\
+        --channel-insert-size \\
+        --channel-gc-content \\
+        --pb-model-file /workdir/deepvariant_extra_model_files_v4.0.1-1/A10/deepvariant.eng \\
+        --out-variants /outputdir/HG002_20220916.vcf
+"""

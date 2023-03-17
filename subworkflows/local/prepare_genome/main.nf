@@ -12,6 +12,7 @@ include { BWA_INDEX as BWAMEM1_INDEX             } from '../../../modules/nf-cor
 include { BWAMEM2_INDEX                          } from '../../../modules/nf-core/bwamem2/index/main'
 include { DRAGMAP_HASHTABLE                      } from '../../../modules/nf-core/dragmap/hashtable/main'
 include { GATK4_CREATESEQUENCEDICTIONARY         } from '../../../modules/nf-core/gatk4/createsequencedictionary/main'
+include { MINIMAP2_INDEX                         } from '../../../modules/local/minimap2/minimap2_index'
 include { MSISENSORPRO_SCAN                      } from '../../../modules/nf-core/msisensorpro/scan/main'
 include { SAMTOOLS_FAIDX                         } from '../../../modules/nf-core/samtools/faidx/main'
 include { TABIX_TABIX as TABIX_DBSNP             } from '../../../modules/nf-core/tabix/tabix/main'
@@ -45,6 +46,7 @@ workflow PREPARE_GENOME {
 
     ch_versions = Channel.empty()
 
+    MINIMAP2_INDEX(fasta.map{ it -> [[id:it[0].baseName], it] }) // If aligner is minimap2 (for ONT reads)
     BWAMEM1_INDEX(fasta.map{ it -> [[id:it[0].baseName], it] }) // If aligner is bwa-mem
     BWAMEM2_INDEX(fasta.map{ it -> [[id:it[0].baseName], it] }) // If aligner is bwa-mem2
     DRAGMAP_HASHTABLE(fasta.map{ it -> [[id:it[0].baseName], it] }) // If aligner is dragmap
@@ -112,6 +114,7 @@ workflow PREPARE_GENOME {
     ch_versions = ch_versions.mix(TABIX_PON.out.versions)
 
     emit:
+        minimap2                         = MINIMAP2_INDEX.out.index.map{ meta, index -> [index] }.collect()       // path: minimap/*
         bwa                              = BWAMEM1_INDEX.out.index.map{ meta, index -> [index] }.collect()       // path: bwa/*
         bwamem2                          = BWAMEM2_INDEX.out.index.map{ meta, index -> [index] }.collect()       // path: bwamem2/*
         hashtable                        = DRAGMAP_HASHTABLE.out.hashmap.map{ meta, index -> [index] }.collect() // path: dragmap/*

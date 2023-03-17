@@ -15,6 +15,7 @@ def checkPathParamList = [
     params.ascat_loci,
     params.ascat_loci_gc,
     params.ascat_loci_rt,
+    params.minimap2,
     params.bwa,
     params.bwamem2,
     params.cf_chrom_len,
@@ -223,7 +224,7 @@ include { FASTP                                          } from '../modules/nf-c
 include { FASTQ_CREATE_UMI_CONSENSUS_FGBIO               } from '../subworkflows/local/fastq_create_umi_consensus_fgbio/main'
 
 // Map input reads to reference genome
-include { FASTQ_ALIGN_BWAMEM_MEM2_DRAGMAP                } from '../subworkflows/local/fastq_align_bwamem_mem2_dragmap/main'
+include { FASTQ_ALIGN_BWAMEM_MEM2_DRAGMAP_MINIMAP2                } from '../subworkflows/local/fastq_align_bwamem_mem2_dragmap/main'
 
 // Merge and index BAM files (optional)
 include { BAM_MERGE_INDEX_SAMTOOLS                       } from '../subworkflows/local/bam_merge_index_samtools/main'
@@ -322,6 +323,7 @@ workflow SAREK {
     // Gather built indices or get them from the params
     allele_files           = PREPARE_GENOME.out.allele_files
     bwa                    = params.fasta                   ? params.bwa                        ? Channel.fromPath(params.bwa).collect()                   : PREPARE_GENOME.out.bwa                   : []
+    minimap2               = params.fasta                   ? params.minimap2                   ? Channel.fromPath(params.minimap2).collect()              : PREPARE_GENOME.out.minimap2              : []
     bwamem2                = params.fasta                   ? params.bwamem2                    ? Channel.fromPath(params.bwamem2).collect()               : PREPARE_GENOME.out.bwamem2               : []
     chr_files              = PREPARE_GENOME.out.chr_files
     dragmap                = params.fasta                   ? params.dragmap                    ? Channel.fromPath(params.dragmap).collect()               : PREPARE_GENOME.out.hashtable             : []
@@ -338,7 +340,8 @@ workflow SAREK {
     rt_file                = PREPARE_GENOME.out.rt_file
 
     // Gather index for mapping given the chosen aligner
-    ch_map_index = params.aligner == "bwa-mem" ? bwa :
+    ch_map_index = params.aligner == "minimap2" ? minimap2 :
+        params.aligner == "bwa-mem" ? bwa :
         params.aligner == "bwa-mem2" ? bwamem2 :
         dragmap
 
@@ -433,7 +436,7 @@ workflow SAREK {
         }
 
         // Trimming and/or splitting
-        if (params.trim_fastq || params.split_fastq > 0) {
+        if (false) {//params.trim_fastq || params.split_fastq > 0) {
 
             save_trimmed_fail = false
             save_merged = false
@@ -494,10 +497,10 @@ workflow SAREK {
         }
 
         sort_bam = true
-        FASTQ_ALIGN_BWAMEM_MEM2_DRAGMAP(ch_reads_to_map, ch_map_index, sort_bam)
+        FASTQ_ALIGN_BWAMEM_MEM2_DRAGMAP_MINIMAP2(ch_reads_to_map, ch_map_index, sort_bam)
 
         // Grouping the bams from the same samples not to stall the workflow
-        ch_bam_mapped = FASTQ_ALIGN_BWAMEM_MEM2_DRAGMAP.out.bam.map{ meta, bam ->
+        ch_bam_mapped = FASTQ_ALIGN_BWAMEM_MEM2_DRAGMAP_MINIMAP2.out.bam.map{ meta, bam ->
             numLanes = meta.numLanes ?: 1
             size     = meta.size     ?: 1
 
@@ -539,7 +542,7 @@ workflow SAREK {
 
         // Gather used softwares versions
         ch_versions = ch_versions.mix(CONVERT_FASTQ_INPUT.out.versions)
-        ch_versions = ch_versions.mix(FASTQ_ALIGN_BWAMEM_MEM2_DRAGMAP.out.versions)
+        ch_versions = ch_versions.mix(FASTQ_ALIGN_BWAMEM_MEM2_DRAGMAP_MINIMAP2.out.versions)
     }
 
     if (params.step in ['mapping', 'markduplicates']) {
@@ -594,7 +597,7 @@ workflow SAREK {
             ch_versions = ch_versions.mix(CRAM_QC_NO_MD.out.versions)
         } else if (params.use_gatk_spark && params.use_gatk_spark.contains('markduplicates')) {
             BAM_MARKDUPLICATES_SPARK(
-                ch_for_markduplicates,
+                ch_for_markduplicates.unique(),
                 dict,
                 fasta,
                 fasta_fai,
@@ -608,7 +611,7 @@ workflow SAREK {
             ch_versions = ch_versions.mix(BAM_MARKDUPLICATES_SPARK.out.versions)
         } else {
             BAM_MARKDUPLICATES(
-                ch_for_markduplicates,
+                ch_for_markduplicates.unique(),
                 fasta,
                 fasta_fai,
                 intervals_for_preprocessing)
@@ -1227,7 +1230,7 @@ def extract_csv(csv_file) {
         if (row.lane && row.fastq_2) {
             meta.id         = "${row.sample}-${row.lane}".toString()
             def fastq_1     = file(row.fastq_1, checkIfExists: true)
-            def fastq_2     = file(row.fastq_2, checkIfExists: true)
+            // def fastq_2     = file(row.fastq_2, checkIfExists: true)
             def CN          = params.seq_center ? "CN:${params.seq_center}\\t" : ''
 
             def flowcell    = flowcellLaneFromFastq(fastq_1)
@@ -1240,7 +1243,7 @@ def extract_csv(csv_file) {
 
             meta.size       = 1 // default number of splitted fastq
 
-            if (params.step == 'mapping') return [meta, [fastq_1, fastq_2]]
+            if (params.step == 'mapping') return [meta, [fastq_1]]
             else {
                 log.error "Samplesheet contains fastq files but step is `$params.step`. Please check your samplesheet or adjust the step parameter.\nhttps://nf-co.re/sarek/usage#input-samplesheet-configurations"
                 System.exit(1)
