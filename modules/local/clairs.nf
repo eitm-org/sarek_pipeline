@@ -29,7 +29,6 @@ process CLAIRS {
     def region_command = intervals ? "--region $intervals" : ""
 
     """
-
     /opt/bin/run_clairs \\
         --tumor_bam_fn ${input.tumor_cram} \\
         --normal_bam_fn ${input.normal_cram} \\
@@ -40,6 +39,8 @@ process CLAIRS {
         --output_prefix $prefix \\
         $region_command \\
         $args
+    
+    potato
 
 
     cat <<-END_VERSIONS > versions.yml
