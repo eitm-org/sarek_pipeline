@@ -54,6 +54,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
     msisensorpro_output  = Channel.empty()
     mutect2_vcf          = Channel.empty()
     tiddit_vcf           = Channel.empty()
+    clairs_vcf           = Channel.empty()
 
     // Remap channel with intervals
     cram_pair_intervals = cram_pair.combine(intervals)

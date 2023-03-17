@@ -39,8 +39,6 @@ process CLAIRS {
         --output_prefix $prefix \\
         $region_command \\
         $args
-    
-    potato
 
 
     cat <<-END_VERSIONS > versions.yml
