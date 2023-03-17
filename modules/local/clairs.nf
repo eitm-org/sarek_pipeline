@@ -1,4 +1,4 @@
-process GATK4_MUTECT2 {
+process CLAIRS {
     tag "$meta.id"
     label 'process_medium'
 
