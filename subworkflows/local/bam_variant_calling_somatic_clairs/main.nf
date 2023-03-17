@@ -13,7 +13,8 @@ include { CLAIRS                          as CLAIRS_PAIRED               } from 
 
 workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     take:
-    input                     // channel: [ val(meta), [ input ], [ input_index ], [which_norm] ]
+    input_normal                     // channel: [ val(meta), [ input ], [ input_index ], [which_norm] ]
+    input_tumor                     // channel: [ val(meta), [ input ], [ input_index ], [which_norm] ]
     fasta                     // channel: /path/to/reference/fasta
     fai                       // channel: /path/to/reference/fasta/index
     dict                      // channel: /path/to/reference/fasta/dictionary
@@ -27,11 +28,12 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     //
     //Perform variant calling using mutect2 module in tumor single mode.
     //
-    input
-    CLAIRS_PAIRED(input,
-            fasta,
-            fai,
-            dict
+    CLAIRS_PAIRED(
+        input_normal,
+        input_tumor,
+        fasta,
+        fai,
+        dict
     )
 
 
