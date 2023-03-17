@@ -280,7 +280,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
             germline_resource_tbi,
         )
 
-        clairs_vcf = BAM_VARIANT_CALLING_SOMATIC_CLAIRS.out.filtered_vcf
+        clairs_vcf = BAM_VARIANT_CALLING_SOMATIC_CLAIRS.out.clairs_vcf
         ch_versions = ch_versions.mix(BAM_VARIANT_CALLING_SOMATIC_CLAIRS.out.versions)
     }
 
