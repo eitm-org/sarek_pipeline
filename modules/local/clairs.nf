@@ -1,6 +1,7 @@
 process CLAIRS {
     tag "$meta.id"
     label 'process_medium'
+    "potato"
 
     // conda (params.enable_conda ? "bioconda::gatk4=4.3.0.0" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -27,14 +28,14 @@ process CLAIRS {
     
     def args = task.ext.args ?: ''
     def inputs_normal = input_normal.collect{ "--normal_bam_fn $it"}.join(" ")
-    def inputs_tumor = inputs_tumor.collect{ "--tumor_bam_fn $it"}.join(" ")
+    def inputs_tumor = input_tumor.collect{ "--tumor_bam_fn $it"}.join(" ")
     def prefix = task.ext.prefix ?: "${meta.id}"
     def region_command = intervals ? "--region $intervals" : ""
 
     """
     /opt/bin/run_clairs \\
-        $inputs_normal \\
-        $inputs_tumor \\
+        $input_normal \\
+        $input_tumor \\
         --ref_fn ${fasta} \\
         --threads ${task.cpus} \\
         --platform ont_r10 \\
