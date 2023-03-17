@@ -2,7 +2,7 @@ process CLAIRS {
     tag "$meta.id"
     label 'process_medium'
 
-    conda (params.enable_conda ? "bioconda::gatk4=4.3.0.0" : null)
+    // conda (params.enable_conda ? "bioconda::gatk4=4.3.0.0" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'docker://hkubal/clairs:latest':
         'hkubal/clairs:latest' }"
@@ -23,9 +23,10 @@ process CLAIRS {
     task.ext.when == null || task.ext.when
 
     script:
+    
+    what
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def inputs = input.collect{ "--input $it"}.join(" ")
     def region_command = intervals ? "--region $intervals" : ""
 
     """
