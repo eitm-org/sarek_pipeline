@@ -66,11 +66,11 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     )
 
     clairs_vcf = Channel.empty().mix(
-        MERGE_MUTECT2.out.vcf,
+        MERGE_CLAIRS.out.vcf,
         clairs_vcf_branch.no_intervals)
 
     clairs_tbi = Channel.empty().mix(
-        MERGE_MUTECT2.out.tbi,
+        MERGE_CLAIRS.out.tbi,
         clairs_tbi_branch.no_intervals)
 
 //     //Merge Mutect2 Stats
