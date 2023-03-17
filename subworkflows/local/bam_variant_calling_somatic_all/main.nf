@@ -270,9 +270,10 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
     if (tools.split(',').contains('clairs')) {
         cram_normal_clairs = cram_pair_intervals.map{ meta, normal_cram, normal_crai, intervals ->
                                 [meta, [normal_cram], [normal_crai], intervals]
-                            }
+        }
         cram_tumor_clairs = cram_pair_intervals.map{ meta, tumor_cram, tumor_crai, intervals ->
                                         [meta, [tumor_cram], [tumor_crai], intervals]
+        }
         BAM_VARIANT_CALLING_SOMATIC_CLAIRS(
             cram_normal_clairs,
             cram_tumor_clairs,
