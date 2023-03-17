@@ -35,8 +35,6 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         fai,
         dict
     )
-    please break
-
 
     // Figure out if using intervals or no_intervals
     CLAIRS_PAIRED.out.vcf.branch{
