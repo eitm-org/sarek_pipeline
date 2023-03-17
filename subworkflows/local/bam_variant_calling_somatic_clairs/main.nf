@@ -28,7 +28,6 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     //
     //Perform variant calling using mutect2 module in tumor single mode.
     //
-    please break
     CLAIRS_PAIRED(
         input_normal,
         input_tumor,
@@ -36,6 +35,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         fai,
         dict
     )
+    please break
 
 
     // Figure out if using intervals or no_intervals
