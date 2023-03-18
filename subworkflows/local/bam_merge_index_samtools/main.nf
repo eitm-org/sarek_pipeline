@@ -24,7 +24,6 @@ workflow BAM_MERGE_INDEX_SAMTOOLS {
     MERGE_BAM(bam_to_merge.multiple, [], [])
     INDEX_MERGE_BAM(bam_to_merge.single.mix(MERGE_BAM.out.bam))
 
-    bam = MERGE_BAM.out.bam
     bam_bai = bam_to_merge.single.map{meta, bam -> [meta, bam[0]]}
         .mix(MERGE_BAM.out.bam)
         .join(INDEX_MERGE_BAM.out.bai)
@@ -34,7 +33,6 @@ workflow BAM_MERGE_INDEX_SAMTOOLS {
     ch_versions = ch_versions.mix(MERGE_BAM.out.versions.first())
 
     emit:
-        bam
         bam_bai
         versions = ch_versions
 }
