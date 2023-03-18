@@ -872,8 +872,10 @@ workflow SAREK {
         //BAM files first must be converted to CRAM files since from this step on we base everything on CRAM format
 
 
-        normal_bam = BAM_MERGE_INDEX_SAMTOOLS(ch_input_sample_status.normal).out.bam
-        tumor_bam = BAM_MERGE_INDEX_SAMTOOLS(ch_input_sample_status.tumor).out.bam
+        BAM_MERGE_INDEX_SAMTOOLS(ch_input_sample_status.normal)
+        normal_bam = BAM_MERGE_INDEX_SAMTOOLS.out.bam
+        BAM_MERGE_INDEX_SAMTOOLS(ch_input_sample_status.tumor)
+        tumor_bam = BAM_MERGE_INDEX_SAMTOOLS.out.bam
 
         normal_alignment_index = BAM_TO_CRAM(normal_bam, fasta, fasta_fai).out.alignment_index
         tumor_alignment_index = BAM_TO_CRAM(tumor_bam, fasta, fasta_fai).out.alignment_index
