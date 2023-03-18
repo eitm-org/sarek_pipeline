@@ -385,16 +385,16 @@ workflow SAREK {
 
         // convert any bam input to fastq
         // Fasta are not needed when converting bam to fastq -> []
-        CONVERT_FASTQ_INPUT(ch_input_sample_type.bam,
-                            [[id:"fasta"], []], // fasta
-                            [],                 // fasta_fai
-                            false)              // Currently don't allow interleaved input
+        // CONVERT_FASTQ_INPUT(ch_input_sample_type.bam,
+        //                     [[id:"fasta"], []], // fasta
+        //                     [],                 // fasta_fai
+        //                     false)              // Currently don't allow interleaved input
 
         // gather fastq (inputed or converted)
         // Theorically this could work on mixed input (fastq for one sample and bam for another)
         // But not sure how to handle that with the samplesheet
         // Or if we really want users to be able to do that
-        ch_input_fastq = ch_input_sample_type.fastq.mix(CONVERT_FASTQ_INPUT.out.reads)
+        ch_input_fastq = ch_input_sample.bam //ch_input_sample_type.fastq.mix(CONVERT_FASTQ_INPUT.out.reads)
 
         // STEP 0: QC & TRIM
         // `--skip_tools fastqc` to skip fastqc
@@ -854,61 +854,6 @@ workflow SAREK {
             // - crams from markduplicates = ch_cram_for_bam_baserecalibrator if skip BQSR but not started from step recalibration
             ch_cram_variant_calling = Channel.empty().mix(ch_cram_for_bam_baserecalibrator)
         }
-    }
-    if (params.step == 'variant_calling') {
-
-
-
-        // STEP 1: MAPPING READS TO REFERENCE GENOME
-        // reads will be sorted
-        // ch_input_sample = ch_input_sample.map{ meta, bam ->
-        //     // update ID when no multiple lanes or splitted fastqs
-        //     new_id = meta.size * meta.numLanes == 1 ? meta.sample : meta.id
-
-        //     [[
-        //         data_type:  meta.data_type,
-        //         id:         new_id,
-        //         numLanes:   meta.numLanes,
-        //         patient:    meta.patient,
-        //         read_group: meta.read_group,
-        //         sample:     meta.sample,
-        //         sex:        meta.sex,
-        //         size:       meta.size,
-        //         status:     meta.status,
-        //         ],
-        //     bam]
-        // }
-
-        // // Grouping the bams from the same samples not to stall the workflow
-        // ch_input_sample_mapped = ch_input_sample.map{ meta, bam ->
-        //     numLanes = meta.numLanes ?: 1
-        //     size     = meta.size     ?: 1
-
-        //     // update ID to be based on the sample name
-        //     // update data_type
-        //     // remove no longer necessary fields:
-        //     //   read_group: Now in the BAM header
-        //     //     numLanes: Was only needed for mapping
-        //     //         size: Was only needed for mapping
-        //     new_meta = [
-        //                 id:meta.sample,
-        //                 data_type:"bam",
-        //                 patient:meta.patient,
-        //                 sample:meta.sample,
-        //                 sex:meta.sex,
-        //                 status:meta.status,
-        //             ]
-
-        //     // Use groupKey to make sure that the correct group can advance as soon as it is complete
-        //     // and not stall the workflow until all reads from all channels are mapped
-        //     [ groupKey(new_meta, numLanes * size), bam]
-        // }.groupTuple()
-
-        BAM_MERGE_INDEX_SAMTOOLS(ch_input_sample)
-        BAM_TO_CRAM_MAPPING(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta, fasta_fai)
-        // Create CSV to restart from this step
-        params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
-        // ch_input_sample = extract_csv(file(params.input, checkIfExists: true))
     }
     if (params.step == 'variant_calling') {
 
