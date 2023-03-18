@@ -25,15 +25,14 @@ process CLAIRS {
     script:
     
     def args = task.ext.args ?: ''
-    def inputs_normal = input.collect{ "--normal_bam_fn $it"}.join(" ")
-    def inputs_tumor = input.collect{ "--tumor_bam_fn $it"}.join(" ")
+    def inputs = "--normal_bam_fn ${input.normal_cram} --tumpr_bam_fn ${input.tumor_cram}"
+    // def inputs_tumor = input.collect{ "--tumor_bam_fn $it"}.join(" ")
     def prefix = task.ext.prefix ?: "${meta.id}"
     def region_command = intervals ? "--region $intervals" : ""
 
     """
     /opt/bin/run_clairs \\
-        $inputs_normal \\
-        $inputs_tumor \\
+        $inputs \\
         --ref_fn ${fasta} \\
         --threads ${task.cpus} \\
         --platform ont_r10 \\
