@@ -855,7 +855,7 @@ workflow SAREK {
             ch_cram_variant_calling = Channel.empty().mix(ch_cram_for_bam_baserecalibrator)
         }
     }
-    if (param.step == 'variant_calling') {
+    if (params.step == 'variant_calling') {
 
         ch_bam_mapped = ch_input_sample.map{meta, bam, bai ->
             numLanes = meta.numLanes ?: 1
