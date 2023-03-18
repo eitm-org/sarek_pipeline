@@ -893,10 +893,10 @@ workflow SAREK {
         ch_versions = ch_versions.mix(BAM_TO_CRAM_MAPPING.out.versions)
         // Create CSV to restart from this step
         params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
-
+        ch_cram_variant_calling = Channel.empty().mix(BAM_TO_CRAM_MAPPING.out.alignment_index, BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai)
     }
-    if (params.step == 'variant_calling') {
-        ch_cram_variant_calling = Channel.empty()
+    // if (params.step == 'variant_calling') {
+    //     ch_cram_variant_calling = Channel.empty()
 
         // ch_input_sample.branch{
         //         bam: it[0].data_type == "bam"
@@ -909,7 +909,7 @@ workflow SAREK {
 
         // ch_cram_variant_calling = Channel.empty().mix(BAM_TO_CRAM.out.alignment_index, ch_convert.cram)
 
-    }
+    // }
 
     if (params.tools) {
 
