@@ -268,7 +268,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
         ch_versions = ch_versions.mix(BAM_VARIANT_CALLING_SOMATIC_MUTECT2.out.versions)
     }
 
-    if (tools.split(',').contains('freebayes')) {
+    if (tools.split(',').contains('clairs')) {
         cram_pair_mutect2 = cram_pair_intervals.map{ meta, normal_cram, normal_crai, tumor_cram, tumor_crai, intervals ->
                                 [meta, [normal_cram, tumor_cram], [normal_crai, tumor_crai], intervals]
                             }
