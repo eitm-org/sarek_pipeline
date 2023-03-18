@@ -874,6 +874,7 @@ workflow SAREK {
                         sample:meta.sample,
                         sex:meta.sex,
                         status:meta.status,
+                        read_group: meta.read_group
                     ]
 
             // Use groupKey to make sure that the correct group can advance as soon as it is complete
