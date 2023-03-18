@@ -855,50 +855,50 @@ workflow SAREK {
             ch_cram_variant_calling = Channel.empty().mix(ch_cram_for_bam_baserecalibrator)
         }
     }
-    if (params.step == 'markduplicates') {
-        ch_input_sample.branch{
-                bam: it[0].data_type == "bam"
-                cram: it[0].data_type == "cram"
-            }.set{ch_convert}
+    // if (params.step == 'markduplicates') {
+    //     ch_input_sample.branch{
+    //             bam: it[0].data_type == "bam"
+    //             cram: it[0].data_type == "cram"
+    //         }.set{ch_convert}
 
-        ch_bam_mapped = ch_convert.bam.map{meta, bam, bai ->
-            numLanes = meta.numLanes ?: 1
-            size     = meta.size     ?: 1
+    //     ch_bam_mapped = ch_convert.bam.map{meta, bam, bai ->
+    //         numLanes = meta.numLanes ?: 1
+    //         size     = meta.size     ?: 1
 
-            // update ID to be based on the sample name
-            // update data_type
-            // remove no longer necessary fields:
-            //   read_group: Now in the BAM header
-            //     numLanes: Was only needed for mapping
-            //         size: Was only needed for mapping
-            new_meta = [
-                        id:meta.sample,
-                        data_type:"bam",
-                        patient:meta.patient,
-                        sample:meta.sample,
-                        sex:meta.sex,
-                        status:meta.status,
-                        read_group: meta.read_group
-                    ]
+    //         // update ID to be based on the sample name
+    //         // update data_type
+    //         // remove no longer necessary fields:
+    //         //   read_group: Now in the BAM header
+    //         //     numLanes: Was only needed for mapping
+    //         //         size: Was only needed for mapping
+    //         new_meta = [
+    //                     id:meta.sample,
+    //                     data_type:"bam",
+    //                     patient:meta.patient,
+    //                     sample:meta.sample,
+    //                     sex:meta.sex,
+    //                     status:meta.status,
+    //                     read_group: meta.read_group
+    //                 ]
 
-            // Use groupKey to make sure that the correct group can advance as soon as it is complete
-            // and not stall the workflow until all reads from all channels are mapped
-            [ groupKey(new_meta, numLanes * size), bam]
-        }.groupTuple()
+    //         // Use groupKey to make sure that the correct group can advance as soon as it is complete
+    //         // and not stall the workflow until all reads from all channels are mapped
+    //         [ groupKey(new_meta, numLanes * size), bam]
+    //     }.groupTuple()
 
-        ch_bam_mapped.view()
-        // bams are merged (when multiple lanes from the same sample), indexed and then converted to cram
-        BAM_MERGE_INDEX_SAMTOOLS(ch_bam_mapped)
+    //     ch_bam_mapped.view()
+    //     // bams are merged (when multiple lanes from the same sample), indexed and then converted to cram
+    //     BAM_MERGE_INDEX_SAMTOOLS(ch_bam_mapped)
 
-        BAM_TO_CRAM_MAPPING(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta, fasta_fai)
+    //     BAM_TO_CRAM_MAPPING(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta, fasta_fai)
 
-        // Gather used softwares versions
-        ch_versions = ch_versions.mix(BAM_MERGE_INDEX_SAMTOOLS.out.versions)
-        ch_versions = ch_versions.mix(BAM_TO_CRAM_MAPPING.out.versions)
-        // Create CSV to restart from this step
-        params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
-        ch_cram_variant_calling = BAM_TO_CRAM_MAPPING.out.alignment_index
-    }
+    //     // Gather used softwares versions
+    //     ch_versions = ch_versions.mix(BAM_MERGE_INDEX_SAMTOOLS.out.versions)
+    //     ch_versions = ch_versions.mix(BAM_TO_CRAM_MAPPING.out.versions)
+    //     // Create CSV to restart from this step
+    //     params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
+    //     ch_cram_variant_calling = BAM_TO_CRAM_MAPPING.out.alignment_index
+    // }
     // if (params.step == 'variant_calling') {
     //     ch_cram_variant_calling = Channel.empty()
 
