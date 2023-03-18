@@ -436,7 +436,7 @@ workflow SAREK {
         }
 
         // Trimming and/or splitting
-        if (false) {//params.trim_fastq || params.split_fastq > 0) {
+        if (params.trim_fastq || params.split_fastq > 0) {
 
             save_trimmed_fail = false
             save_merged = false
@@ -855,7 +855,13 @@ workflow SAREK {
             ch_cram_variant_calling = Channel.empty().mix(ch_cram_for_bam_baserecalibrator)
         }
     }
+    if (params.step == 'variant_calling') {
+        BAM_MERGE_INDEX_SAMTOOLS(ch_input_sample)
+        BAM_TO_CRAM_MAPPING(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta, fasta_fai)
+        // Create CSV to restart from this step
+        params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
 
+    }
     if (params.step == 'variant_calling') {
 
         ch_input_sample.branch{
