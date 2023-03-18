@@ -896,17 +896,18 @@ workflow SAREK {
 
     }
     if (params.step == 'variant_calling') {
+        ch_cram_variant_calling = Channel.empty()
 
-        ch_input_sample.branch{
-                bam: it[0].data_type == "bam"
-                cram: it[0].data_type == "cram"
-            }.set{ch_convert}
+        // ch_input_sample.branch{
+        //         bam: it[0].data_type == "bam"
+        //         cram: it[0].data_type == "cram"
+        //     }.set{ch_convert}
 
-        //BAM files first must be converted to CRAM files since from this step on we base everything on CRAM format
-        BAM_TO_CRAM(ch_convert.bam, fasta, fasta_fai)
-        ch_versions = ch_versions.mix(BAM_TO_CRAM.out.versions)
+        // //BAM files first must be converted to CRAM files since from this step on we base everything on CRAM format
+        // BAM_TO_CRAM(ch_convert.bam, fasta, fasta_fai)
+        // ch_versions = ch_versions.mix(BAM_TO_CRAM.out.versions)
 
-        ch_cram_variant_calling = Channel.empty().mix(BAM_TO_CRAM.out.alignment_index, ch_convert.cram)
+        // ch_cram_variant_calling = Channel.empty().mix(BAM_TO_CRAM.out.alignment_index, ch_convert.cram)
 
     }
 
