@@ -21,21 +21,20 @@ process CLAIRS {
     tuple val(meta), path("*.log")      , emit: log
     path "versions.yml"                   , emit: versions
 
-    // when:
-    // task.ext.when == null || task.ext.when
+    when:
+    task.ext.when == null || task.ext.when
 
     script:
     
     def args = task.ext.args ?: ''
     def inputs_normal = input_normal.collect{ "--normal_bam_fn $it"}.join(" ")
-    def inputs_tumor = input_tumor.collect{ "--tumor_bam_fn $it"}.join(" ")
+    // def inputs_tumor = input_tumor.collect{ "--tumor_bam_fn $it"}.join(" ")
     def prefix = task.ext.prefix ?: "${meta.id}"
     def region_command = intervals ? "--region $intervals" : ""
 
     """
     /opt/bin/run_clairs \\
         $input_normal \\
-        $input_tumor \\
         --ref_fn ${fasta} \\
         --threads ${task.cpus} \\
         --platform ont_r10 \\
