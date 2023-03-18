@@ -855,8 +855,7 @@ workflow SAREK {
             ch_cram_variant_calling = Channel.empty().mix(ch_cram_for_bam_baserecalibrator)
         }
     }
-    if (params.step == 'variant_calling') {
-        ch_input_sample.view()
+    if (params.step == 'markduplicates') {
         ch_input_sample.branch{
                 bam: it[0].data_type == "bam"
                 cram: it[0].data_type == "cram"
