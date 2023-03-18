@@ -855,7 +855,7 @@ workflow SAREK {
             ch_cram_variant_calling = Channel.empty().mix(ch_cram_for_bam_baserecalibrator)
         }
     }
-    if (params.step == 'markduplicates') {
+    if (params.step == 'variant_calling') {
 
         ch_bam_mapped = ch_input_sample.map{meta, bam, bai ->
             numLanes = meta.numLanes ?: 1
@@ -882,7 +882,7 @@ workflow SAREK {
             [ groupKey(new_meta, numLanes * size), bam]
         }.groupTuple()
 
-
+        ch_bam_mapped.view()
         // bams are merged (when multiple lanes from the same sample), indexed and then converted to cram
         BAM_MERGE_INDEX_SAMTOOLS(ch_bam_mapped)
 
