@@ -864,10 +864,11 @@ workflow SAREK {
             }.set{ch_convert}
 
         //BAM files first must be converted to CRAM files since from this step on we base everything on CRAM format
-        BAM_TO_CRAM(ch_convert.bam, fasta, fasta_fai)
-        ch_versions = ch_versions.mix(BAM_TO_CRAM.out.versions)
+        BAM_MERGE_INDEX_SAMTOOLS(ch_bam_mapped)
+        BAM_TO_CRAM_MAPPING(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta, fasta_fai)
+        ch_versions = ch_versions.mix(BAM_TO_CRAM_MAPPING.out.versions)
 
-        ch_cram_variant_calling = Channel.empty().mix(BAM_TO_CRAM.out.alignment_index, ch_convert.cram)
+        ch_cram_variant_calling = Channel.empty().mix(BAM_TO_CRAM_MAPPING.out.alignment_index, ch_convert.cram)
 
     }
 
