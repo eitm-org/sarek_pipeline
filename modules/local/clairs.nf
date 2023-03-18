@@ -9,7 +9,7 @@ process CLAIRS {
 
     input:
     tuple val(meta), path(input_normal), path(input_normal_index), path(intervals)
-    // tuple val(meta2), path(input_tumor), path(input_tumor_index), path(intervals)
+    tuple val(meta2), path(input_tumor), path(input_tumor_index), path(intervals)
     path fasta
     path fai
     path dict
@@ -27,13 +27,14 @@ process CLAIRS {
     
     def args = task.ext.args ?: ''
     def inputs_normal = input_normal.collect{ "--normal_bam_fn $it"}.join(" ")
-    // def inputs_tumor = input_tumor.collect{ "--tumor_bam_fn $it"}.join(" ")
+    def inputs_tumor = input_tumor.collect{ "--tumor_bam_fn $it"}.join(" ")
     def prefix = task.ext.prefix ?: "${meta.id}"
     def region_command = intervals ? "--region $intervals" : ""
 
     """
     /opt/bin/run_clairs \\
-        $input_normal \\
+        $inputs_normal \\
+        $inputs_tumor \\
         --ref_fn ${fasta} \\
         --threads ${task.cpus} \\
         --platform ont_r10 \\
