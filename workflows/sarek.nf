@@ -856,37 +856,55 @@ workflow SAREK {
         }
     }
     if (params.step == 'variant_calling') {
-        ch_input_sample.branch{
-                bam: it[0].data_type == "bam"
-                cram: it[0].data_type == "cram"
-            }.set{ch_convert}
 
 
-        // ch_convert_mapped = ch_convert.bam.map{ meta, bam ->
-        //     numLanes = meta.numLanes ?: 1
-        //     size     = meta.size     ?: 1
 
-        //     // update ID to be based on the sample name
-        //     // update data_type
-        //     // remove no longer necessary fields:
-        //     //   read_group: Now in the BAM header
-        //     //     numLanes: Was only needed for mapping
-        //     //         size: Was only needed for mapping
-        //     new_meta = [
-        //                 id:meta.sample,
-        //                 data_type:"bam",
-        //                 patient:meta.patient,
-        //                 sample:meta.sample,
-        //                 sex:meta.sex,
-        //                 status:meta.status,
-        //             ]
+        // STEP 1: MAPPING READS TO REFERENCE GENOME
+        // reads will be sorted
+        ch_input_sample = ch_input_sample.map{ meta, bam ->
+            // update ID when no multiple lanes or splitted fastqs
+            new_id = meta.size * meta.numLanes == 1 ? meta.sample : meta.id
 
-        //     // Use groupKey to make sure that the correct group can advance as soon as it is complete
-        //     // and not stall the workflow until all reads from all channels are mapped
-        //     [ groupKey(new_meta, numLanes * size), bam]
-        // }.groupTuple()
+            [[
+                data_type:  meta.data_type,
+                id:         new_id,
+                numLanes:   meta.numLanes,
+                patient:    meta.patient,
+                read_group: meta.read_group,
+                sample:     meta.sample,
+                sex:        meta.sex,
+                size:       meta.size,
+                status:     meta.status,
+                ],
+            bam]
+        }
 
-        BAM_MERGE_INDEX_SAMTOOLS(ch_convert.bam)
+        // Grouping the bams from the same samples not to stall the workflow
+        ch_input_sample_mapped = ch_input_sample.map{ meta, bam ->
+            numLanes = meta.numLanes ?: 1
+            size     = meta.size     ?: 1
+
+            // update ID to be based on the sample name
+            // update data_type
+            // remove no longer necessary fields:
+            //   read_group: Now in the BAM header
+            //     numLanes: Was only needed for mapping
+            //         size: Was only needed for mapping
+            new_meta = [
+                        id:meta.sample,
+                        data_type:"bam",
+                        patient:meta.patient,
+                        sample:meta.sample,
+                        sex:meta.sex,
+                        status:meta.status,
+                    ]
+
+            // Use groupKey to make sure that the correct group can advance as soon as it is complete
+            // and not stall the workflow until all reads from all channels are mapped
+            [ groupKey(new_meta, numLanes * size), bam]
+        }.groupTuple()
+
+        BAM_MERGE_INDEX_SAMTOOLS(ch_input_sample_mapped)
         BAM_TO_CRAM_MAPPING(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta, fasta_fai)
         // Create CSV to restart from this step
         params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
@@ -931,6 +949,7 @@ workflow SAREK {
 
         // Downside: this only works by waiting for all tumor samples to finish preprocessing, since no group size is provided
         ch_cram_variant_calling_tumor_grouped = ch_cram_variant_calling_pair_to_cross.groupTuple()
+        
 
         // 2. Join with normal samples, in each channel there is one key per patient now. Patients without matched normal end up with: [patient1, [meta1, meta2], [cram1,crai1, cram2, crai2], null]
         ch_cram_variant_calling_tumor_joined = ch_cram_variant_calling_tumor_grouped.join(ch_cram_variant_calling_normal_to_cross, remainder: true)
