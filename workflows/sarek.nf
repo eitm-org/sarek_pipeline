@@ -859,30 +859,15 @@ workflow SAREK {
     if (params.step == 'variant_calling') {
 
         ch_input_sample.branch{
-            normal: it[0].status == 0
-            tumor:  it[0].status == 1
-        }.set{ch_input_sample_status}
-
-
-        // ch_input_sample_status.branch{
-        //         bam: it[0].data_type == "bam"
-        //         cram: it[0].data_type == "cram"
-        //     }.set{ch_input_sample_status_convert}
+                bam: it[0].data_type == "bam"
+                cram: it[0].data_type == "cram"
+            }.set{ch_convert}
 
         //BAM files first must be converted to CRAM files since from this step on we base everything on CRAM format
-
-
-        BAM_MERGE_INDEX_SAMTOOLS(ch_input_sample_status.normal)
-        normal_bam = BAM_MERGE_INDEX_SAMTOOLS.out.bam
-        BAM_MERGE_INDEX_SAMTOOLS(ch_input_sample_status.tumor)
-        tumor_bam = BAM_MERGE_INDEX_SAMTOOLS.out.bam
-
-        normal_alignment_index = BAM_TO_CRAM(normal_bam, fasta, fasta_fai).out.alignment_index
-        tumor_alignment_index = BAM_TO_CRAM(tumor_bam, fasta, fasta_fai).out.alignment_index
-
+        BAM_TO_CRAM(ch_convert.bam, fasta, fasta_fai)
         ch_versions = ch_versions.mix(BAM_TO_CRAM.out.versions)
 
-        ch_cram_variant_calling = Channel.empty().mix(normal_alignment_index, tumor_alignment_index)
+        ch_cram_variant_calling = Channel.empty().mix(BAM_TO_CRAM.out.alignment_index, ch_convert.cram)
 
     }
 
