@@ -861,23 +861,23 @@ workflow SAREK {
 
         // STEP 1: MAPPING READS TO REFERENCE GENOME
         // reads will be sorted
-        ch_input_sample = ch_input_sample.map{ meta, bam ->
-            // update ID when no multiple lanes or splitted fastqs
-            new_id = meta.size * meta.numLanes == 1 ? meta.sample : meta.id
+        // ch_input_sample = ch_input_sample.map{ meta, bam ->
+        //     // update ID when no multiple lanes or splitted fastqs
+        //     new_id = meta.size * meta.numLanes == 1 ? meta.sample : meta.id
 
-            [[
-                data_type:  meta.data_type,
-                id:         new_id,
-                numLanes:   meta.numLanes,
-                patient:    meta.patient,
-                read_group: meta.read_group,
-                sample:     meta.sample,
-                sex:        meta.sex,
-                size:       meta.size,
-                status:     meta.status,
-                ],
-            bam]
-        }
+        //     [[
+        //         data_type:  meta.data_type,
+        //         id:         new_id,
+        //         numLanes:   meta.numLanes,
+        //         patient:    meta.patient,
+        //         read_group: meta.read_group,
+        //         sample:     meta.sample,
+        //         sex:        meta.sex,
+        //         size:       meta.size,
+        //         status:     meta.status,
+        //         ],
+        //     bam]
+        // }
 
         // // Grouping the bams from the same samples not to stall the workflow
         // ch_input_sample_mapped = ch_input_sample.map{ meta, bam ->
