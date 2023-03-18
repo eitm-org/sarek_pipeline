@@ -567,7 +567,7 @@ workflow SAREK {
 
         // Gather used softwares versions
         ch_versions = ch_versions.mix(CONVERT_FASTQ_INPUT.out.versions)
-        ch_versions = ch_versions.mix(FASTQ_ALIGN_BWAMEM_MEM2_DRAGMAP_MINIMAP2.out.versions)
+        // ch_versions = ch_versions.mix(FASTQ_ALIGN_BWAMEM_MEM2_DRAGMAP_MINIMAP2.out.versions)
     }
 
     if (params.step in ['mapping', 'markduplicates']) {
