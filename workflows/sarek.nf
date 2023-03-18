@@ -856,13 +856,13 @@ workflow SAREK {
         }
     }
     if (params.step == 'variant_calling') {
-        ch_input_sample.branch{
-                bam: it[0].data_type == "bam"
-                cram: it[0].data_type == "cram"
-            }.set{ch_convert}
+        // ch_input_sample.branch{
+        //         bam: it[0].data_type == "bam"
+        //         cram: it[0].data_type == "cram"
+        //     }.set{ch_convert}
 
 
-        ch_convert_mapped = ch_convert.bam.map{ meta, bam ->
+        ch_convert_mapped = ch_input_sample.map{ meta, bam ->
             numLanes = meta.numLanes ?: 1
             size     = meta.size     ?: 1
 
