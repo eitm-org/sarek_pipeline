@@ -856,8 +856,12 @@ workflow SAREK {
         }
     }
     if (params.step == 'variant_calling') {
+        ch_input_sample.branch{
+                bam: it[0].data_type == "bam"
+                cram: it[0].data_type == "cram"
+            }.set{ch_convert}
 
-        ch_bam_mapped = ch_input_sample.map{meta, bam, bai ->
+        ch_bam_mapped = ch_convert.bam.map{meta, bam, bai ->
             numLanes = meta.numLanes ?: 1
             size     = meta.size     ?: 1
 
@@ -898,10 +902,10 @@ workflow SAREK {
     // if (params.step == 'variant_calling') {
     //     ch_cram_variant_calling = Channel.empty()
 
-        // ch_input_sample.branch{
-        //         bam: it[0].data_type == "bam"
-        //         cram: it[0].data_type == "cram"
-        //     }.set{ch_convert}
+        ch_input_sample.branch{
+                bam: it[0].data_type == "bam"
+                cram: it[0].data_type == "cram"
+            }.set{ch_convert}
 
         // //BAM files first must be converted to CRAM files since from this step on we base everything on CRAM format
         // BAM_TO_CRAM(ch_convert.bam, fasta, fasta_fai)
