@@ -496,11 +496,36 @@ workflow SAREK {
             bam, bai]
         }
 
-        sort_bam = true
-        FASTQ_ALIGN_BWAMEM_MEM2_DRAGMAP_MINIMAP2(ch_reads_to_map, ch_map_index, sort_bam)
+        // sort_bam = true
+        // FASTQ_ALIGN_BWAMEM_MEM2_DRAGMAP_MINIMAP2(ch_reads_to_map, ch_map_index, sort_bam)
 
-        // Grouping the bams from the same samples not to stall the workflow
-        ch_bam_mapped = FASTQ_ALIGN_BWAMEM_MEM2_DRAGMAP_MINIMAP2.out.bam.map{ meta, bam ->
+        // // Grouping the bams from the same samples not to stall the workflow
+        // ch_bam_mapped = FASTQ_ALIGN_BWAMEM_MEM2_DRAGMAP_MINIMAP2.out.bam.map{ meta, bam ->
+        //     numLanes = meta.numLanes ?: 1
+        //     size     = meta.size     ?: 1
+
+        //     // update ID to be based on the sample name
+        //     // update data_type
+        //     // remove no longer necessary fields:
+        //     //   read_group: Now in the BAM header
+        //     //     numLanes: Was only needed for mapping
+        //     //         size: Was only needed for mapping
+        //     new_meta = [
+        //                 id:meta.sample,
+        //                 data_type:"bam",
+        //                 patient:meta.patient,
+        //                 sample:meta.sample,
+        //                 sex:meta.sex,
+        //                 status:meta.status,
+        //             ]
+
+        //     // Use groupKey to make sure that the correct group can advance as soon as it is complete
+        //     // and not stall the workflow until all reads from all channels are mapped
+        //     [ groupKey(new_meta, numLanes * size), bam]
+        // }.groupTuple()
+
+
+        ch_bam_mapped = ch_reads_to_map.map{ meta, bam, bai ->
             numLanes = meta.numLanes ?: 1
             size     = meta.size     ?: 1
 
@@ -521,7 +546,7 @@ workflow SAREK {
 
             // Use groupKey to make sure that the correct group can advance as soon as it is complete
             // and not stall the workflow until all reads from all channels are mapped
-            [ groupKey(new_meta, numLanes * size), bam]
+            [ groupKey(new_meta, numLanes * size), bam, bai]
         }.groupTuple()
 
         // gatk4 markduplicates can handle multiple bams as input, so no need to merge/index here
