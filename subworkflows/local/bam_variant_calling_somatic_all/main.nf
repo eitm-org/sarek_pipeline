@@ -253,20 +253,21 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
                                 [meta, [normal_cram, tumor_cram], [normal_crai, tumor_crai], intervals]
                             }
 
-        BAM_VARIANT_CALLING_SOMATIC_MUTECT2(
+        BAM_VARIANT_CALLING_SOMATIC_CLAIRS(
             cram_pair_mutect2,
             fasta,
             fasta_fai,
             dict,
             germline_resource,
             germline_resource_tbi,
-            panel_of_normals,
-            panel_of_normals_tbi
+            // panel_of_normals,
+            // panel_of_normals_tbi
         )
 
         mutect2_vcf = BAM_VARIANT_CALLING_SOMATIC_MUTECT2.out.filtered_vcf
         ch_versions = ch_versions.mix(BAM_VARIANT_CALLING_SOMATIC_MUTECT2.out.versions)
     }
+
     if (tools.split(',').contains('clairs')) {
         cram_pair_mutect2 = cram_pair_intervals.map{ meta, normal_cram, normal_crai, tumor_cram, tumor_crai, intervals ->
                                 [meta, [normal_cram, tumor_cram], [normal_crai, tumor_crai], intervals]
@@ -286,7 +287,6 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
             germline_resource,
             germline_resource_tbi,
         )
-
         clairs_vcf = BAM_VARIANT_CALLING_SOMATIC_CLAIRS.out.clairs_vcf
         ch_versions = ch_versions.mix(BAM_VARIANT_CALLING_SOMATIC_CLAIRS.out.versions)
     }
