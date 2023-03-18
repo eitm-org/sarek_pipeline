@@ -273,15 +273,11 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
         //                         [meta, [normal_cram, tumor_cram], [normal_crai, tumor_crai], intervals]
         //                     }
 
-        cram_normal_clairs = cram_pair_intervals.map{meta, normal_cram, normal_crai, tumor_cram, tumor_crai, intervals ->
-            [meta, normal_cram, normal_crai, intervals]
-        }
-        cram_tumor_clairs = cram_pair_intervals.map{meta, normal_cram, normal_crai, tumor_cram, tumor_crai, intervals ->
-            [meta, tumor_cram, tumor_crai, intervals]
-        }
+        cram_pair_mutect2 = cram_pair_intervals.map{ meta, normal_cram, normal_crai, tumor_cram, tumor_crai, intervals ->
+                                [meta, [normal_cram, tumor_cram], [normal_crai, tumor_crai], intervals]
+                            }
         BAM_VARIANT_CALLING_SOMATIC_CLAIRS(
-            cram_normal_clairs,
-            cram_tumor_clairs,
+            cram_pair_mutect2,
             fasta,
             fasta_fai,
             dict,
