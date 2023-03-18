@@ -394,7 +394,7 @@ workflow SAREK {
         // Theorically this could work on mixed input (fastq for one sample and bam for another)
         // But not sure how to handle that with the samplesheet
         // Or if we really want users to be able to do that
-        ch_input_fastq = ch_input_sample.bam //ch_input_sample_type.fastq.mix(CONVERT_FASTQ_INPUT.out.reads)
+        ch_input_fastq = ch_input_sample_type.bam //ch_input_sample_type.fastq.mix(CONVERT_FASTQ_INPUT.out.reads)
 
         // STEP 0: QC & TRIM
         // `--skip_tools fastqc` to skip fastqc
