@@ -10,7 +10,7 @@ process CLAIRS {
 
     input:
     tuple val(meta), path(input_normal), path(input_normal_index), path(intervals)
-    tuple val(meta2), path(input_tumor), path(input_tumor_index), path(intervals)
+    // tuple val(meta2), path(input_tumor), path(input_tumor_index), path(intervals)
     path fasta
     path fai
     path dict
