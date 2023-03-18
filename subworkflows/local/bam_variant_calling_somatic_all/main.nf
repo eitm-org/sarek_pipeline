@@ -279,7 +279,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
         //     [meta, tumor_cram, tumor_crai, intervals]
         // }
         BAM_VARIANT_CALLING_SOMATIC_CLAIRS(
-            ccram_pair_mutect2,
+            cram_pair_mutect2,
             fasta,
             fasta_fai,
             dict,
