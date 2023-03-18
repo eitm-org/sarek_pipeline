@@ -927,8 +927,8 @@ workflow SAREK {
             .map { normal, tumor ->
                 def meta = [:]
                 meta.patient    = normal[0]
-                meta.normal_id  = normal[1].sample + normal[1].lane
-                meta.tumor_id   = tumor[1].sample + tumor[1].lane
+                meta.normal_id  = normal[1].sample
+                meta.tumor_id   = tumor[1].sample
                 meta.sex        = normal[1].sex
                 meta.id         = "${meta.tumor_id}_vs_${meta.normal_id}".toString()
 
