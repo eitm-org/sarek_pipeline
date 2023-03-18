@@ -478,7 +478,7 @@ workflow SAREK {
 
         // STEP 1: MAPPING READS TO REFERENCE GENOME
         // reads will be sorted
-        ch_reads_to_map = ch_reads_to_map.map{ meta, reads ->
+        ch_reads_to_map = ch_reads_to_map.map{ meta, bam, bai ->
             // update ID when no multiple lanes or splitted fastqs
             new_id = meta.size * meta.numLanes == 1 ? meta.sample : meta.id
 
@@ -493,7 +493,7 @@ workflow SAREK {
                 size:       meta.size,
                 status:     meta.status,
                 ],
-            reads]
+            bam, bai]
         }
 
         sort_bam = true
