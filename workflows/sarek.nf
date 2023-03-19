@@ -951,7 +951,7 @@ workflow SAREK {
         //     // and not stall the workflow until all reads from all channels are mapped
         //     [ groupKey(new_meta, numLanes * size), bam]
         // }.groupTuple()
-        ch_bam_mapped.view()
+        // ch_bam_mapped.view()
 
         //BAM files first must be converted to CRAM files since from this step on we base everything on CRAM format
         // BAM_TO_CRAM(ch_convert.bam, fasta, fasta_fai)
