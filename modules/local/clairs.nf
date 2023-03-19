@@ -41,6 +41,7 @@ process CLAIRS {
         --output_dir . \\
         --output_prefix $prefix \\
         --disable_phasing \\
+        --phase_tumor \\
         $region_command \\
         $args
 
