@@ -927,7 +927,7 @@ workflow SAREK {
         }
         ch_bam_mapped.view()
 
-        ch_bam_grouped_mapped = ch_bam_mapped.map{meta, bam, bai ->
+        ch_bam_grouped_mapped = ch_bam_mapped.bam.map{meta, bam ->
             numLanes = meta.numLanes ?: 1
             size     = meta.size     ?: 1
 
@@ -949,7 +949,7 @@ workflow SAREK {
 
             // Use groupKey to make sure that the correct group can advance as soon as it is complete
             // and not stall the workflow until all reads from all channels are mapped
-            [ groupKey(new_meta, numLanes * size), bam, bai]
+            [ groupKey(new_meta, numLanes * size), bam]
         }.groupTuple()
         ch_bam_grouped_mapped.view()
 
