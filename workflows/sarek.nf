@@ -915,12 +915,14 @@ workflow SAREK {
             // new_id = meta.size * meta.numLanes == 1 ? meta.sample : meta.id
             numLanes = meta.numLanes ?: 1
             size     = meta.size     ?: 1
+            new_read_group  = "\"@RG\\tID:${flowcell}.${row.sample}\\t${CN}PU:${flowcell}\\tSM:${row.patient}_${row.sample}\\tLB:${row.sample}\\tDS:${params.fasta}\\tPL:${params.seq_platform}\""
 
             new_meta = [
                 data_type:  meta.data_type,
                 id:         meta.sample,
                 patient:    meta.patient,
                 sample:     meta.sample,
+                read_group: new_read_group,
                 sex:        meta.sex,
                 status:     meta.status,
                 ]
@@ -933,7 +935,7 @@ workflow SAREK {
         params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
         //BAM files first must be converted to CRAM files since from this step on we base everything on CRAM format
         
-        ch_versions = ch_versions.mix(BAM_TO_CRAM_MAPPING.out.versions)
+        ch_versions = ch_versions.mix(BAM_TO_CRAM.out.versions)
 
         ch_cram_variant_calling = Channel.empty().mix(BAM_TO_CRAM_MAPPING.out.alignment_index)
     }
