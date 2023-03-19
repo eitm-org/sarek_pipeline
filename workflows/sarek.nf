@@ -902,11 +902,10 @@ workflow SAREK {
     if (params.step == 'variant_calling') {
         ch_cram_variant_calling = Channel.empty()
 
-        ch_input_sample.branch{
-                bam: it[0].data_type == "bam"
-                cram: it[0].data_type == "cram"
-            }.set{ch_convert}
-        ch_input_sample.view()
+        // ch_input_sample.branch{
+        //         bam: it[0].data_type == "bam"
+        //         cram: it[0].data_type == "cram"
+        //     }.set{ch_convert}
         ch_bam_mapped = ch_input_sample.map{meta, bam, bai ->
             numLanes = meta.numLanes ?: 1
             size     = meta.size     ?: 1
