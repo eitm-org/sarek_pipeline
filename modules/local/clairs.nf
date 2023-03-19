@@ -33,7 +33,7 @@ process CLAIRS {
     /opt/bin/run_clairs \\
         $inputs \\
         --ref_fn ${fasta} \\
-        --threads 4 \\
+        --threads ${task.cpus} \\
         --platform ont_r10 \\
         --output_dir . \\
         --output_prefix $prefix \\
