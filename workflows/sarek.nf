@@ -910,7 +910,6 @@ workflow SAREK {
             }.set{ch_convert}
         BAM_TO_CRAM(ch_convert.bam, fasta, fasta_fai)
         
-
         ch_cram_mapped = BAM_TO_CRAM.out.alignment_index.map{ meta, cram, crai ->
             // update ID when no multiple lanes or splitted fastqs
             // new_id = meta.size * meta.numLanes == 1 ? meta.sample : meta.id
@@ -927,40 +926,16 @@ workflow SAREK {
                 ]
             [new_meta, cram]
         }.groupTuple()
-        ch_cram_mapped.view()
 
-        // ch_bam_grouped_mapped = ch_bam_mapped.bam.map{meta, bam ->
-        //     numLanes = meta.numLanes ?: 1
-        //     size     = meta.size     ?: 1
+        BAM_MERGE_INDEX_SAMTOOLS(ch_cram_mapped)
 
-        //     // update ID to be based on the sample name
-        //     // update data_type
-        //     // remove no longer necessary fields:
-        //     //   read_group: Now in the BAM header
-        //     //     numLanes: Was only needed for mapping
-        //     //         size: Was only needed for mapping
-        //     new_meta = [
-        //                 id:meta.sample,
-        //                 data_type:"bam",
-        //                 patient:meta.patient,
-        //                 sample:meta.sample,
-        //                 sex:meta.sex,
-        //                 status:meta.status,
-        //                 read_group: meta.read_group
-        //             ]
-
-        //     // Use groupKey to make sure that the correct group can advance as soon as it is complete
-        //     // and not stall the workflow until all reads from all channels are mapped
-        //     [ groupKey(new_meta, numLanes * size), bam]
-        // }.groupTuple()
-        // ch_bam_mapped.view()
-
+        BAM_TO_CRAM_MAPPING(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta, fasta_fai)
+        params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
         //BAM files first must be converted to CRAM files since from this step on we base everything on CRAM format
         
-        // ch_versions = ch_versions.mix(BAM_TO_CRAM.out.versions)
+        ch_versions = ch_versions.mix(BAM_TO_CRAM.out.versions)
 
-        ch_cram_variant_calling = Channel.empty() //.mix(BAM_TO_CRAM.out.alignment_index, ch_convert.cram)
-
+        ch_cram_variant_calling = Channel.empty().mix(BAM_TO_CRAM_MAPPING.out.alignment_index)
     }
 
     if (params.tools) {
