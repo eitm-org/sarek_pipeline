@@ -907,7 +907,7 @@ workflow SAREK {
                 cram: it[0].data_type == "cram"
             }.set{ch_convert}
 
-        ch_bam_mapped = ch_convert.map{meta, bam, bai ->
+        ch_bam_mapped = ch_input_sample.map{meta, bam, bai ->
             numLanes = meta.numLanes ?: 1
             size     = meta.size     ?: 1
 
