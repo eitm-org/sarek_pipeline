@@ -41,7 +41,6 @@ process CLAIRS {
         --output_dir . \\
         --output_prefix $prefix \\
         --disable_phasing \\
-        --call_snp_only \\
         $region_command \\
         $args
 
