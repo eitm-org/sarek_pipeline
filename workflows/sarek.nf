@@ -923,7 +923,7 @@ workflow SAREK {
                 sex:        meta.sex,
                 status:     meta.status,
                 ]
-                [ groupKey(new_meta, numLanes * size), bam]
+                [new_meta, bam]
         }.groupTuple().view()
         // ch_bam_mapped.view()
 
