@@ -16,8 +16,9 @@ process CLAIRS {
     output:
     tuple val(meta), path("*.vcf.gz"), emit: vcf
     tuple val(meta), path("*.tbi")        , emit: tbi
-    tuple val(meta), path("*.log")      , emit: log
     path "versions.yml"                   , emit: versions
+    path "tmp/*"
+    path "logs/*"
 
     when:
     task.ext.when == null || task.ext.when
@@ -52,8 +53,6 @@ process CLAIRS {
     """
     touch ${prefix}.vcf.gz
     touch ${prefix}.vcf.gz.tbi
-    touch run_clairs.log.bak
-    touch run_clairs.log
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
