@@ -925,7 +925,7 @@ workflow SAREK {
                 sex:        meta.sex,
                 status:     meta.status,
                 ]
-            [new_meta, bam]
+            [new_meta, cram]
         }.groupTuple()
         ch_cram_mapped.view()
 
