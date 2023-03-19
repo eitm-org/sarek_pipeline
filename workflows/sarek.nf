@@ -915,16 +915,16 @@ workflow SAREK {
             // new_id = meta.size * meta.numLanes == 1 ? meta.sample : meta.id
             numLanes = meta.numLanes ?: 1
             size     = meta.size     ?: 1
-            new_read_group  = "\"@RG\\tID:${flowcell}.${row.sample}\\t${CN}PU:${flowcell}\\tSM:${row.patient}_${row.sample}\\tLB:${row.sample}\\tDS:${params.fasta}\\tPL:${params.seq_platform}\""
+            new_read_group  = "\"@RG\\tID:${meta.flowcell}_${meta.sample}\\t${CN}PU:${meta.flowcell}\\tSM:${meta.patient}_${meta.sample}\\tLB:${meta.sample}\\tDS:${params.fasta}\\tPL:${params.seq_platform}\""
 
             new_meta = [
                 data_type:  meta.data_type,
                 id:         meta.sample,
                 patient:    meta.patient,
                 sample:     meta.sample,
-                read_group: new_read_group,
                 sex:        meta.sex,
                 status:     meta.status,
+                read_group: new_read_group
                 ]
             [new_meta, cram]
         }.groupTuple()
@@ -1260,6 +1260,7 @@ def extract_csv(csv_file) {
         // Sample should be unique for the patient
         if (row.patient) meta.patient = row.patient.toString()
         if (row.sample)  meta.sample  = row.sample.toString()
+        if (row.flowcell)  meta.flowcell  = row.flowcell.toString()
 
         // If no sex specified, sex is not considered
         // sex is only mandatory for somatic CNV
