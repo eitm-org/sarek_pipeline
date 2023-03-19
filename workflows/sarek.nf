@@ -916,7 +916,7 @@ workflow SAREK {
 
             new_meta = [
                 data_type:  meta.data_type,
-                id:         sample,
+                id:         meta.sample,
                 patient:    meta.patient,
                 read_group: meta.read_group,
                 sample:     meta.sample,
