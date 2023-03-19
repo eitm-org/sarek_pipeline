@@ -38,6 +38,7 @@ process CLAIRS {
         --platform ont_r10 \\
         --output_dir . \\
         --output_prefix $prefix \\
+        --disable_phasing \\
         $region_command \\
         $args
 
