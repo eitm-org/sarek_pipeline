@@ -904,13 +904,13 @@ workflow SAREK {
 
         
 
-        ch_input_sample.branch{
-                bam: it[0].data_type == "bam"
-                cram: it[0].data_type == "cram"
-            }.set{ch_convert}
-        BAM_TO_CRAM(ch_convert.bam, fasta, fasta_fai)
+        // ch_input_sample.branch{
+        //         bam: it[0].data_type == "bam"
+        //         cram: it[0].data_type == "cram"
+        //     }.set{ch_convert}
+        // BAM_TO_CRAM(ch_convert.bam, fasta, fasta_fai)
         
-        ch_cram_mapped = BAM_TO_CRAM.out.alignment_index.map{ meta, cram, crai ->
+        ch_cram_mapped = ch_input_sample.map{ meta, cram, crai ->
             // update ID when no multiple lanes or splitted fastqs
             // new_id = meta.size * meta.numLanes == 1 ? meta.sample : meta.id
             numLanes = meta.numLanes ?: 1
@@ -933,7 +933,7 @@ workflow SAREK {
         params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
         //BAM files first must be converted to CRAM files since from this step on we base everything on CRAM format
         
-        ch_versions = ch_versions.mix(BAM_TO_CRAM.out.versions)
+        ch_versions = ch_versions.mix(BAM_TO_CRAM_MAPPING.out.versions)
 
         ch_cram_variant_calling = Channel.empty().mix(BAM_TO_CRAM_MAPPING.out.alignment_index)
     }
