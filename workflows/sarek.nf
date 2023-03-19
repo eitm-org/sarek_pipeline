@@ -918,12 +918,11 @@ workflow SAREK {
                 data_type:  meta.data_type,
                 id:         meta.sample,
                 patient:    meta.patient,
-                read_group: meta.read_group,
                 sample:     meta.sample,
                 sex:        meta.sex,
                 status:     meta.status,
                 ]
-                [new_meta, bam]
+            [new_meta, bam]
         }.groupTuple().view()
         // ch_bam_mapped.view()
 
