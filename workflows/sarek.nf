@@ -902,34 +902,55 @@ workflow SAREK {
     if (params.step == 'variant_calling') {
         ch_cram_variant_calling = Channel.empty()
 
-        ch_input_sample.branch{
-                bam: it[0].data_type == "bam"
-                cram: it[0].data_type == "cram"
-            }.set{ch_convert}
-        ch_bam_mapped = ch_input_sample.map{meta, bam, bai ->
-            numLanes = meta.numLanes ?: 1
-            size     = meta.size     ?: 1
+        // ch_input_sample.branch{
+        //         bam: it[0].data_type == "bam"
+        //         cram: it[0].data_type == "cram"
+        //     }.set{ch_convert}
+        
 
-            // update ID to be based on the sample name
-            // update data_type
-            // remove no longer necessary fields:
-            //   read_group: Now in the BAM header
-            //     numLanes: Was only needed for mapping
-            //         size: Was only needed for mapping
-            new_meta = [
-                        id:meta.sample,
-                        data_type:"bam",
-                        patient:meta.patient,
-                        sample:meta.sample,
-                        sex:meta.sex,
-                        status:meta.status,
-                        read_group: meta.read_group
-                    ]
+        ch_bam_mapped = ch_input_sample.map{ meta, bam, bai ->
+            // update ID when no multiple lanes or splitted fastqs
+            new_id = meta.size * meta.numLanes == 1 ? meta.sample : meta.id
 
-            // Use groupKey to make sure that the correct group can advance as soon as it is complete
-            // and not stall the workflow until all reads from all channels are mapped
-            [ groupKey(new_meta, numLanes * size), bam, bai]
-        }.groupTuple()
+            [[
+                data_type:  meta.data_type,
+                id:         new_id,
+                numLanes:   meta.numLanes,
+                patient:    meta.patient,
+                read_group: meta.read_group,
+                sample:     meta.sample,
+                sex:        meta.sex,
+                size:       meta.size,
+                status:     meta.status,
+                ],
+            bam, bai]
+        }
+        ch_bam_mapped.view()
+
+        // ch_bam_mapped = ch_input_sample.map{meta, bam, bai ->
+        //     numLanes = meta.numLanes ?: 1
+        //     size     = meta.size     ?: 1
+
+        //     // update ID to be based on the sample name
+        //     // update data_type
+        //     // remove no longer necessary fields:
+        //     //   read_group: Now in the BAM header
+        //     //     numLanes: Was only needed for mapping
+        //     //         size: Was only needed for mapping
+        //     new_meta = [
+        //                 id:meta.sample,
+        //                 data_type:"bam",
+        //                 patient:meta.patient,
+        //                 sample:meta.sample,
+        //                 sex:meta.sex,
+        //                 status:meta.status,
+        //                 read_group: meta.read_group
+        //             ]
+
+        //     // Use groupKey to make sure that the correct group can advance as soon as it is complete
+        //     // and not stall the workflow until all reads from all channels are mapped
+        //     [ groupKey(new_meta, numLanes * size), bam, bai]
+        // }.groupTuple()
         ch_bam_mapped.view()
 
         //BAM files first must be converted to CRAM files since from this step on we base everything on CRAM format
