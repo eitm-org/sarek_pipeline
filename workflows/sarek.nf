@@ -908,7 +908,7 @@ workflow SAREK {
         //     }.set{ch_convert}
         
 
-        ch_bam_mapped = ch_input_sample.map{ meta, bam, bai ->
+        ch_input_sample.map{ meta, bam, bai ->
             // update ID when no multiple lanes or splitted fastqs
             // new_id = meta.size * meta.numLanes == 1 ? meta.sample : meta.id
             numLanes = meta.numLanes ?: 1
@@ -924,7 +924,7 @@ workflow SAREK {
                 status:     meta.status,
                 ]
                 [ groupKey(new_meta, numLanes * size), bam]
-        }.groupTuple()
+        }.groupTuple().view()
         // ch_bam_mapped.view()
 
         // ch_bam_grouped_mapped = ch_bam_mapped.bam.map{meta, bam ->
