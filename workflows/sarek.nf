@@ -927,31 +927,31 @@ workflow SAREK {
         }
         ch_bam_mapped.view()
 
-        // ch_bam_mapped = ch_input_sample.map{meta, bam, bai ->
-        //     numLanes = meta.numLanes ?: 1
-        //     size     = meta.size     ?: 1
+        ch_bam_grouped_mapped = ch_bam_mapped.map{meta, bam, bai ->
+            numLanes = meta.numLanes ?: 1
+            size     = meta.size     ?: 1
 
-        //     // update ID to be based on the sample name
-        //     // update data_type
-        //     // remove no longer necessary fields:
-        //     //   read_group: Now in the BAM header
-        //     //     numLanes: Was only needed for mapping
-        //     //         size: Was only needed for mapping
-        //     new_meta = [
-        //                 id:meta.sample,
-        //                 data_type:"bam",
-        //                 patient:meta.patient,
-        //                 sample:meta.sample,
-        //                 sex:meta.sex,
-        //                 status:meta.status,
-        //                 read_group: meta.read_group
-        //             ]
+            // update ID to be based on the sample name
+            // update data_type
+            // remove no longer necessary fields:
+            //   read_group: Now in the BAM header
+            //     numLanes: Was only needed for mapping
+            //         size: Was only needed for mapping
+            new_meta = [
+                        id:meta.sample,
+                        data_type:"bam",
+                        patient:meta.patient,
+                        sample:meta.sample,
+                        sex:meta.sex,
+                        status:meta.status,
+                        read_group: meta.read_group
+                    ]
 
-        //     // Use groupKey to make sure that the correct group can advance as soon as it is complete
-        //     // and not stall the workflow until all reads from all channels are mapped
-        //     [ groupKey(new_meta, numLanes * size), bam, bai]
-        // }.groupTuple()
-        ch_bam_mapped.view()
+            // Use groupKey to make sure that the correct group can advance as soon as it is complete
+            // and not stall the workflow until all reads from all channels are mapped
+            [ groupKey(new_meta, numLanes * size), bam, bai]
+        }.groupTuple()
+        ch_bam_grouped_mapped.view()
 
         //BAM files first must be converted to CRAM files since from this step on we base everything on CRAM format
         // BAM_TO_CRAM(ch_convert.bam, fasta, fasta_fai)
