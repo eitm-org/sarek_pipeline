@@ -935,7 +935,7 @@ workflow SAREK {
         params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
         //BAM files first must be converted to CRAM files since from this step on we base everything on CRAM format
         
-        ch_versions = ch_versions.mix(BAM_TO_CRAM.out.versions)
+        ch_versions = ch_versions.mix(BAM_TO_CRAM_MAPPING.out.versions)
 
         ch_cram_variant_calling = Channel.empty().mix(BAM_TO_CRAM_MAPPING.out.alignment_index)
     }
