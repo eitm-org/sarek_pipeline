@@ -17,8 +17,6 @@ process CLAIRS {
     tuple val(meta), path("*.vcf.gz"), emit: vcf
     tuple val(meta), path("*.tbi")        , emit: tbi
     path "versions.yml"                   , emit: versions
-    path "tmp"                        
-    path "logs"
 
     when:
     task.ext.when == null || task.ext.when
@@ -31,8 +29,6 @@ process CLAIRS {
     def region_command = intervals ? "-c ${intervals.toString().split('_')[0]}" : ""
 
     """
-    mkdir tmp
-    mkdir logs
     /opt/bin/run_clairs \\
         $inputs \\
         --ref_fn ${fasta} \\
