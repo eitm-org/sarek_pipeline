@@ -922,7 +922,7 @@ workflow SAREK {
                 sample:     meta.sample,
                 sex:        meta.sex,
                 status:     meta.status,
-                ],
+                ]
                 [ groupKey(new_meta, numLanes * size), bam]
         }
         // ch_bam_mapped.view()
