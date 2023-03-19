@@ -925,7 +925,7 @@ workflow SAREK {
                 ],
             bam, bai]
         }
-        ch_bam_mapped.view()
+        // ch_bam_mapped.view()
 
         ch_bam_grouped_mapped = ch_bam_mapped.bam.map{meta, bam ->
             numLanes = meta.numLanes ?: 1
