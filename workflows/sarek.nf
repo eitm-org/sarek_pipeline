@@ -910,12 +910,15 @@ workflow SAREK {
         //     }.set{ch_convert}
         // BAM_TO_CRAM(ch_convert.bam, fasta, fasta_fai)
         
-        ch_cram_mapped = ch_input_sample.map{ meta, cram, crai ->
+        ch_cram_mapped = ch_input_sample.map{ meta, bam, bai ->
             // update ID when no multiple lanes or splitted fastqs
             // new_id = meta.size * meta.numLanes == 1 ? meta.sample : meta.id
             numLanes = meta.numLanes ?: 1
             size     = meta.size     ?: 1
-            new_read_group  = "\"@RG\\tID:${meta.flowcell}_${meta.sample}\\t${CN}PU:${meta.flowcell}\\tSM:${meta.patient}_${meta.sample}\\tLB:${meta.sample}\\tDS:${params.fasta}\\tPL:${params.seq_platform}\""
+
+            flowcell = bam.baseName.toString().splitText('_')[0]
+            CN          = params.seq_center ? "CN:${params.seq_center}\\t" : ''
+            new_read_group  = "\"@RG\\tID:${flowcell}_${meta.sample}\\t${CN}PU:${flowcell}\\tSM:${meta.patient}_${meta.sample}\\tLB:${meta.sample}\\tDS:${params.fasta}\\tPL:${params.seq_platform}\""
 
             new_meta = [
                 data_type:  meta.data_type,
@@ -926,7 +929,7 @@ workflow SAREK {
                 status:     meta.status,
                 read_group: new_read_group
                 ]
-            [new_meta, cram]
+            [new_meta, bam]
         }.groupTuple()
 
         BAM_MERGE_INDEX_SAMTOOLS(ch_cram_mapped)
