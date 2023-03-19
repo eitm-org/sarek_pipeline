@@ -914,19 +914,16 @@ workflow SAREK {
             numLanes = meta.numLanes ?: 1
             size     = meta.size     ?: 1
 
-            [[
+            new_meta = [
                 data_type:  meta.data_type,
                 id:         new_id,
-                // numLanes:   meta.numLanes,
                 patient:    meta.patient,
                 read_group: meta.read_group,
                 sample:     meta.sample,
                 sex:        meta.sex,
-                // size:       meta.size,
                 status:     meta.status,
                 ],
-                [ groupKey(meta, numLanes * size), bam]
-            ]
+                [ groupKey(new_meta, numLanes * size), bam]
         }
         // ch_bam_mapped.view()
 
