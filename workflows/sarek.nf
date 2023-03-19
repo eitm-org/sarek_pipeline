@@ -916,7 +916,7 @@ workflow SAREK {
             numLanes = meta.numLanes ?: 1
             size     = meta.size     ?: 1
 
-            flowcell = bam.baseName.toString().splitText('_')[0]
+            flowcell = bam.baseName.splitText('_')[0]
             CN          = params.seq_center ? "CN:${params.seq_center}\\t" : ''
             new_read_group  = "\"@RG\\tID:${flowcell}_${meta.sample}\\t${CN}PU:${flowcell}\\tSM:${meta.patient}_${meta.sample}\\tLB:${meta.sample}\\tDS:${params.fasta}\\tPL:${params.seq_platform}\""
 
