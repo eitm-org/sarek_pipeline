@@ -924,7 +924,7 @@ workflow SAREK {
                 status:     meta.status,
                 ]
                 [ groupKey(new_meta, numLanes * size), bam]
-        }
+        }.groupTuple()
         // ch_bam_mapped.view()
 
         // ch_bam_grouped_mapped = ch_bam_mapped.bam.map{meta, bam ->
