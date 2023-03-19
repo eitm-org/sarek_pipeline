@@ -910,13 +910,13 @@ workflow SAREK {
 
         ch_bam_mapped = ch_input_sample.map{ meta, bam, bai ->
             // update ID when no multiple lanes or splitted fastqs
-            new_id = meta.size * meta.numLanes == 1 ? meta.sample : meta.id
+            // new_id = meta.size * meta.numLanes == 1 ? meta.sample : meta.id
             numLanes = meta.numLanes ?: 1
             size     = meta.size     ?: 1
 
             new_meta = [
                 data_type:  meta.data_type,
-                id:         new_id,
+                id:         sample,
                 patient:    meta.patient,
                 read_group: meta.read_group,
                 sample:     meta.sample,
