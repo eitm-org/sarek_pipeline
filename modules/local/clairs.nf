@@ -1,6 +1,6 @@
 process CLAIRS {
     tag "$meta.id"
-    label 'process_high'
+    label 'process_medium'
 
     // conda (params.enable_conda ? "bioconda::gatk4=4.3.0.0" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
