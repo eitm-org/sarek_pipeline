@@ -20,7 +20,7 @@ process SAMTOOLS_ADDREPLACERG {
     def args = task.ext.args  ?: ''
 
     """
-    samtools addreplacerg -r  ${meta.read_group} $input -o ${input.baseName}_rg.bam
+    samtools addreplacerg -w -r  ${meta.read_group} $input -o ${input.baseName}_rg.bam
 
 
     cat <<-END_VERSIONS > versions.yml
