@@ -11,7 +11,7 @@ process SAMTOOLS_ADDREPLACERG {
     tuple val(meta), path(input), path(index)
 
     output:
-    tuple val(meta), path("*.{cram,bam}"), emit: bam
+    tuple val(meta), path("*.{_rg.cram,_rg.bam}"), emit: bam
     path  "versions.yml"                                        , emit: versions
 
     when:
