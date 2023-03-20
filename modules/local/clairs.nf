@@ -36,10 +36,8 @@ process CLAIRS {
         $inputs \\
         --ref_fn ${fasta} \\
         --threads ${task.cpus} \\
-        --platform ont_r10 \\
         --output_dir . \\
         --output_prefix $prefix \\
-        --disable_phasing \\
         $region_command \\
         $args
     

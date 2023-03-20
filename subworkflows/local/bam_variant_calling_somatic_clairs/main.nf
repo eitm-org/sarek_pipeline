@@ -26,7 +26,6 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     //
     //Perform variant calling using mutect2 module in tumor single mode.
     //
-    "potato"
     CLAIRS_PAIRED(
         input,
         fasta,
