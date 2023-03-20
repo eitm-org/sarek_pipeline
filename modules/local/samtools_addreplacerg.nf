@@ -19,9 +19,8 @@ process SAMTOOLS_ADDREPLACERG {
     script:
     def args = task.ext.args  ?: ''
     def prefix   = task.ext.prefix ?: "${meta.id}"
-    def file_type = input_files instanceof List ? input_files[0].getExtension() : input_files.getExtension()
     """
-    samtools addreplacerg -w -r  ${meta.read_group} $input -o ${prefix}.${file_type}
+    samtools addreplacerg -w -r  ${meta.read_group} $input -o ${prefix}.${input.getExtension()}
     
 
     cat <<-END_VERSIONS > versions.yml
