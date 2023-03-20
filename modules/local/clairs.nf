@@ -17,6 +17,9 @@ process CLAIRS {
     tuple val(meta), path("*.vcf.gz")     , emit: vcf
     tuple val(meta), path("*.tbi")        , emit: tbi
     path "versions.yml"                   , emit: versions
+    path("tmp")
+    path("logs")
+
 
     when:
     task.ext.when == null || task.ext.when
@@ -49,6 +52,8 @@ process CLAIRS {
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
+    mkdir tmp
+    mkdir logs
     touch ${prefix}.vcf.gz
     touch ${prefix}.vcf.gz.tbi
 
