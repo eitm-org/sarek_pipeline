@@ -34,12 +34,12 @@ process CLAIRS {
         --ref_fn ${fasta} \\
         --threads ${task.cpus} \\
         --platform ont_r10 \\
+        --output_dir . \\
         --output_prefix $prefix \\
         --disable_phasing \\
         $region_command \\
         $args
     
-    mv tmp/* ..
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         clairs: \$(echo \$(/opt/bin/run_clairs --version 2>&1) | sed 's/^.*(clairS) v//; s/ .*\$//')
