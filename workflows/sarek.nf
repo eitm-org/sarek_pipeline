@@ -914,7 +914,7 @@ workflow SAREK {
 
         BAM_ADDREPLACERG(ch_input_sample)
         
-        ch_cram_mapped = BAM_ADDREPLACERG.out.bam.map{ meta, bam, bai ->
+        ch_cram_mapped = BAM_ADDREPLACERG.out.bam.map{ meta, bam ->
             // update ID when no multiple lanes or splitted fastqs
             // new_id = meta.size * meta.numLanes == 1 ? meta.sample : meta.id
             numLanes = meta.numLanes ?: 1
