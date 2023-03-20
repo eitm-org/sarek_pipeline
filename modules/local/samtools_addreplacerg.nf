@@ -18,10 +18,11 @@ process SAMTOOLS_ADDREPLACERG {
     task.ext.when == null || task.ext.when
     script:
     def args = task.ext.args  ?: ''
-
+    def prefix   = task.ext.prefix ?: "${meta.id}"
+    def file_type = input_files instanceof List ? input_files[0].getExtension() : input_files.getExtension()
     """
-    samtools addreplacerg -w -r  ${meta.read_group} $input -o ${input.baseName}_rg.bam
-
+    samtools addreplacerg -w -r  ${meta.read_group} $input -o ${prefix}.${file_type}
+    
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
