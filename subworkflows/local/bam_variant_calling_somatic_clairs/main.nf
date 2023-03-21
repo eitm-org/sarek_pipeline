@@ -10,12 +10,6 @@ include { GATK4_MERGEVCFS                     as MERGE_VCFS_CLAIRS              
 include { GATK4_MERGEVCFS                     as MERGE_NORMAL_VCFS_CLAIRS               } from '../../../modules/nf-core/gatk4/mergevcfs'
 include { GATK4_MERGEVCFS                     as MERGE_TUMOR_VCFS_CLAIRS               } from '../../../modules/nf-core/gatk4/mergevcfs'
 
-// include { GATK4_CALCULATECONTAMINATION    as CALCULATECONTAMINATION      } from '../../../modules/nf-core/gatk4/calculatecontamination/main'
-// include { GATK4_FILTERMUTECTCALLS         as FILTERMUTECTCALLS           } from '../../../modules/nf-core/gatk4/filtermutectcalls/main'
-// include { GATK4_GATHERPILEUPSUMMARIES     as GATHERPILEUPSUMMARIES_NORMAL} from '../../../modules/nf-core/gatk4/gatherpileupsummaries/main'
-// include { GATK4_GATHERPILEUPSUMMARIES     as GATHERPILEUPSUMMARIES_TUMOR } from '../../../modules/nf-core/gatk4/gatherpileupsummaries/main'
-// include { GATK4_GETPILEUPSUMMARIES        as GETPILEUPSUMMARIES_NORMAL   } from '../../../modules/nf-core/gatk4/getpileupsummaries/main'
-// include { GATK4_GETPILEUPSUMMARIES        as GETPILEUPSUMMARIES_TUMOR    } from '../../../modules/nf-core/gatk4/getpileupsummaries/main'
 include { CLAIRS                          as CLAIRS_PAIRED               } from '../../../modules/local/clairs'
 
 workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
@@ -95,6 +89,21 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
             intervals:    it[0].num_intervals > 1
             no_intervals: it[0].num_intervals <= 1
         }.set{ clairs_vcf_germline_normal_branch }
+    
+    clairs_vcf_germline_normal_branch.intervals
+        .map{ meta, vcf ->
+
+            new_meta = [
+                        id:meta.normal_id + "_germline",
+                        normal_id:meta.normal_id,
+                        num_intervals:meta.num_intervals,
+                        patient:meta.patient,
+                        sex:meta.sex,
+                        tumor_id:meta.tumor_id
+                    ]
+
+            [groupKey(new_meta, meta.num_intervals), vcf]
+        }.groupTuple().view()
 
     //Only when using intervals
     MERGE_NORMAL_VCFS_CLAIRS(
@@ -127,7 +136,20 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
             no_intervals: it[0].num_intervals <= 1
         }.set{ clairs_vcf_germline_tumor_branch }
 
-    clairs_vcf_germline_tumor_branch.intervals.view()
+    clairs_vcf_germline_tumor_branch.intervals
+        .map{ meta, vcf ->
+
+            new_meta = [
+                        id:meta.tumor_id + "_tumor",
+                        normal_id:meta.normal_id,
+                        num_intervals:meta.num_intervals,
+                        patient:meta.patient,
+                        sex:meta.sex,
+                        tumor_id:meta.tumor_id
+                    ]
+
+            [groupKey(new_meta, meta.num_intervals), vcf]
+        }.groupTuple().view()
     //Only when using intervals
     MERGE_TUMOR_VCFS_CLAIRS(
         clairs_vcf_germline_tumor_branch.intervals
