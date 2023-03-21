@@ -100,15 +100,15 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
             intervals:    it[0].num_intervals > 1
             no_intervals: it[0].num_intervals <= 1
         }.set{ clairs_tbi_germline_normal_branch }
-    FIX_NORMAL_VCFHEADER_CLAIRS(
-        clairs_vcf_germline_normal_branch.intervals
-        .map{ meta, vcf -> [meta, vcf]},
-        vcf_header
-    )
-    FIX_NORMAL_VCFHEADER_CLAIRS.out.vcf.branch{
-            intervals:    it[0].num_intervals > 1
-            no_intervals: it[0].num_intervals <= 1
-        }.set{ clairs_fixed_vcf_germline_normal_branch }
+    // FIX_NORMAL_VCFHEADER_CLAIRS(
+    //     clairs_vcf_germline_normal_branch.intervals
+    //     .map{ meta, vcf -> [meta, vcf]},
+    //     vcf_header
+    // )
+    // FIX_NORMAL_VCFHEADER_CLAIRS.out.vcf.branch{
+    //         intervals:    it[0].num_intervals > 1
+    //         no_intervals: it[0].num_intervals <= 1
+    //     }.set{ clairs_fixed_vcf_germline_normal_branch }
 
     //Only when using intervals
     MERGE_NORMAL_VCFS_CLAIRS(
@@ -148,19 +148,19 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
             intervals:    it[0].num_intervals > 1
             no_intervals: it[0].num_intervals <= 1
         }.set{ clairs_tbi_germline_tumor_branch }
-    FIX_TUMOR_VCFHEADER_CLAIRS(
-        clairs_vcf_germline_tumor_branch.intervals
-        .map{ meta, vcf -> [meta, vcf]},
-        vcf_header
-    )
-    FIX_TUMOR_VCFHEADER_CLAIRS.out.vcf.branch{
-            intervals:    it[0].num_intervals > 1
-            no_intervals: it[0].num_intervals <= 1
-        }.set{ clairs_fixed_vcf_germline_tumor_branch }
+    // FIX_TUMOR_VCFHEADER_CLAIRS(
+    //     clairs_vcf_germline_tumor_branch.intervals
+    //     .map{ meta, vcf -> [meta, vcf]},
+    //     vcf_header
+    // )
+    // FIX_TUMOR_VCFHEADER_CLAIRS.out.vcf.branch{
+    //         intervals:    it[0].num_intervals > 1
+    //         no_intervals: it[0].num_intervals <= 1
+    //     }.set{ clairs_fixed_vcf_germline_tumor_branch }
 
     //Only when using intervals
     MERGE_TUMOR_VCFS_CLAIRS(
-        clairs_vcf_germline_normal_branch.intervals
+        clairs_vcf_germline_tumor_branch.intervals
         .map{ meta, vcf ->
 
             new_meta = [
