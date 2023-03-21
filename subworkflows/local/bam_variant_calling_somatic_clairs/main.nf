@@ -34,7 +34,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         fasta,
         fai,
         dict,
-        // normal_vcf
+        normal_vcf
     )
 
     // Merge somatic VCF
