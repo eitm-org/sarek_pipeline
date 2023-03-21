@@ -61,6 +61,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
 
             [groupKey(new_meta, meta.num_intervals), vcf]
         }.groupTuple(),
+        fasta
     )
 
     clairs_vcf = Channel.empty().mix(

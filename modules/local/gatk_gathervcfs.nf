@@ -9,6 +9,7 @@ process GATK4_GATHERVCFS {
 
     input:
     tuple val(meta), path(vcf)
+    path  fasta
 
     output:
     tuple val(meta), path('*.vcf.gz'), emit: vcf
@@ -22,6 +23,7 @@ process GATK4_GATHERVCFS {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     def input_list = vcf.collect{ "--INPUT $it"}.join(' ')
+    def reference_command = dict ? "--R $fasta" : ""
 
     def avail_mem = 3
     if (!task.memory) {
@@ -33,6 +35,7 @@ process GATK4_GATHERVCFS {
     gatk --java-options "-Xmx${avail_mem}g" GatherVcfs \\
         $input_list \\
         --OUTPUT ${prefix}.vcf.gz \\
+        $reference_command \\
         --TMP_DIR . \\
         $args
 
