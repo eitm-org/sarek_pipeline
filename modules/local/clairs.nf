@@ -16,11 +16,11 @@ process CLAIRS {
     output:
     tuple val(meta), path("*.vcf.gz")     , emit: vcf
     tuple val(meta), path("*.tbi")        , emit: tbi
+    tuple val(meta), path("tmp//clair3_output/clair3_normal_output/merge_output.vcf.gz"), optional:true, emit: vcf_germline_normal
+    tuple val(meta), path("tmp//clair3_output/clair3_normal_output/merge_output.vcf.gz.tbi"), optional:true, emit: tbi_germline_normal
+    tuple val(meta), path("tmp//clair3_output/clair3_tumor_output/merge_output.vcf.gz"), optional:true, emit: vcf_germline_tumor
+    tuple val(meta), path("tmp//clair3_output/clair3_tumor_output/merge_output.vcf.gz.tbi"), optional:true, emit: tbi_germline_tumor
     path "versions.yml"                   , emit: versions
-    tuple val(meta), path("tmp//clair3_output/clair3_normal_output/merge_output.vcf.gz"), optional:true, emit vcf_germline_normal
-    tuple val(meta), path("tmp//clair3_output/clair3_normal_output/merge_output.vcf.gz.tbi"), optional:true, emit tbi_germline_normal
-    tuple val(meta), path("tmp//clair3_output/clair3_tumor_output/merge_output.vcf.gz"), optional:true, emit vcf_germline_tumor
-    tuple val(meta), path("tmp//clair3_output/clair3_tumor_output/merge_output.vcf.gz.tbi"), optional:true, emit tbi_germline_tumor
 
 
     when:
