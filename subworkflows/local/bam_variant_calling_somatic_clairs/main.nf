@@ -2,8 +2,14 @@
 // Run GATK mutect2 in tumor normal mode, getepileupsummaries, calculatecontamination, learnreadorientationmodel and filtermutectcalls
 //
 
-include { GATK4_FIXVCFHEADER                 as FIXVCFHEADER_CLAIRS               } from '../../../modules/local/gatk_fixvcfheader'
-include { GATK4_MERGEVCFS                     as MERGEVCFS_CLAIRS               } from '../../../modules/nf-core/gatk4/mergevcfs'
+include { GATK4_FIXVCFHEADER                 as FIX_VCFHEADER_CLAIRS               } from '../../../modules/local/gatk_fixvcfheader'
+include { GATK4_FIXVCFHEADER                 as FIX_NORMAL_VCFHEADER_CLAIRS               } from '../../../modules/local/gatk_fixvcfheader'
+include { GATK4_FIXVCFHEADER                 as FIX_TUMOR_VCFHEADER_CLAIRS               } from '../../../modules/local/gatk_fixvcfheader'
+
+include { GATK4_MERGEVCFS                     as MERGE_VCFS_CLAIRS               } from '../../../modules/nf-core/gatk4/mergevcfs'
+include { GATK4_MERGEVCFS                     as MERGE_NORMALVCFS_CLAIRS               } from '../../../modules/nf-core/gatk4/mergevcfs'
+include { GATK4_MERGEVCFS                     as MERGE_TUMOR_VCFS_CLAIRS               } from '../../../modules/nf-core/gatk4/mergevcfs'
+
 // include { GATK4_CALCULATECONTAMINATION    as CALCULATECONTAMINATION      } from '../../../modules/nf-core/gatk4/calculatecontamination/main'
 // include { GATK4_FILTERMUTECTCALLS         as FILTERMUTECTCALLS           } from '../../../modules/nf-core/gatk4/filtermutectcalls/main'
 // include { GATK4_GATHERPILEUPSUMMARIES     as GATHERPILEUPSUMMARIES_NORMAL} from '../../../modules/nf-core/gatk4/gatherpileupsummaries/main'
@@ -35,6 +41,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         dict
     )
 
+    // Merge somatic VCF
     // Figure out if using intervals or no_intervals
     CLAIRS_PAIRED.out.vcf.branch{
             intervals:    it[0].num_intervals > 1
@@ -56,7 +63,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         }.set{ clairs_fixed_vcf_branch }
 
     //Only when using intervals
-    MERGEVCFS_CLAIRS(
+    MERGE_VCFS_CLAIRS(
         clairs_fixed_vcf_branch.intervals
         .map{ meta, vcf ->
 
@@ -75,213 +82,116 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     )
 
     clairs_vcf = Channel.empty().mix(
-        MERGEVCFS_CLAIRS.out.vcf,
+        MERGE_VCFS_CLAIRS.out.vcf,
         clairs_vcf_branch.no_intervals)
 
     clairs_tbi = Channel.empty().mix(
-        MERGEVCFS_CLAIRS.out.tbi,
+        MERGE_VCFS_CLAIRS.out.tbi,
         clairs_tbi_branch.no_intervals)
 
-//     //Merge Mutect2 Stats
-//     MERGEMUTECTSTATS(
-//         mutect2_stats_branch.intervals
-//         .map{ meta, stats ->
+    // Merge normal germline VCF
+    // Figure out if using intervals or no_intervals
+    CLAIRS_PAIRED.out.vcf_germline_normal.branch{
+            intervals:    it[0].num_intervals > 1
+            no_intervals: it[0].num_intervals <= 1
+        }.set{ clairs_vcf_germline_normal_branch }
 
-//             new_meta = [
-//                         id:             meta.tumor_id + "_vs_" + meta.normal_id,
-//                         normal_id:      meta.normal_id,
-//                         num_intervals:  meta.num_intervals,
-//                         patient:        meta.patient,
-//                         sex:            meta.sex,
-//                         tumor_id:       meta.tumor_id
-//                     ]
+    CLAIRS_PAIRED.out.tbi_germline_normal.branch{
+            intervals:    it[0].num_intervals > 1
+            no_intervals: it[0].num_intervals <= 1
+        }.set{ clairs_tbi_germline_normal_branch }
+    FIX_NORMAL_VCFHEADER_CLAIRS(
+        clairs_vcf_germline_normal_branch.intervals
+        .map{ meta, vcf -> [meta, vcf]},
+        vcf_header
+    )
+    FIX_NORMAL_VCFHEADER_CLAIRS.out.vcf.branch{
+            intervals:    it[0].num_intervals > 1
+            no_intervals: it[0].num_intervals <= 1
+        }.set{ clairs_fixed_vcf_germline_normal_branch }
 
-//             [groupKey(new_meta, meta.num_intervals), stats]
-//         }.groupTuple())
+    //Only when using intervals
+    MERGE_NORMAL_VCFS_CLAIRS(
+        clairs_vcf_germline_normal_branch.intervals
+        .map{ meta, vcf ->
 
-//     mutect2_stats = Channel.empty().mix(
-//         MERGEMUTECTSTATS.out.stats,
-//         mutect2_stats_branch.no_intervals)
+            new_meta = [
+                        id:meta.normal_id + "germline",
+                        normal_id:meta.normal_id,
+                        num_intervals:meta.num_intervals,
+                        patient:meta.patient,
+                        sex:meta.sex,
+                        tumor_id:meta.tumor_id
+                    ]
 
-//     //
-//     //Generate artifactpriors using learnreadorientationmodel on the f1r2 output of mutect2.
-//     //
-//     LEARNREADORIENTATIONMODEL(Channel.empty().mix(
-//         mutect2_f1r2_branch.intervals
-//             .map{ meta, f1r2 ->
+            [groupKey(new_meta, meta.num_intervals), vcf]
+        }.groupTuple(),
+        dict
+    )
 
-//                 new_meta = [
-//                             id:             meta.tumor_id + "_vs_" + meta.normal_id,
-//                             normal_id:      meta.normal_id,
-//                             num_intervals:  meta.num_intervals,
-//                             patient:        meta.patient,
-//                             sex:            meta.sex,
-//                             tumor_id:       meta.tumor_id,
-//                         ]
+    clairs_vcf_germline_normal = Channel.empty().mix(
+        MERGE_NORMAL_VCFS_CLAIRS.out.vcf,
+        clairs_vcf_germline_normal_branch.no_intervals)
 
-//                 [groupKey(new_meta, meta.num_intervals), f1r2]
-//             }.groupTuple(),
-//         mutect2_f1r2_branch.no_intervals)
-//     )
+    clairs_tbi_germline_normal = Channel.empty().mix(
+        MERGE_NORMAL_VCFS_CLAIRS.out.tbi,
+        clairs_tbi_germline_normal_branch.no_intervals)
+    
+    // Merge tumor germline VCF
+    // Figure out if using intervals or no_intervals
+    CLAIRS_PAIRED.out.vcf_germline_tumor.branch{
+            intervals:    it[0].num_intervals > 1
+            no_intervals: it[0].num_intervals <= 1
+        }.set{ clairs_vcf_germline_tumor_branch }
 
-//     //
-//     //Generate pileup summary tables using getepileupsummaries. tumor sample should always be passed in as the first input and input list entries of ch_mutect2_in,
-//     //to ensure correct file order for calculatecontamination.
-//     pileup = input.multiMap{  meta, input_list, input_index_list, intervals ->
-//         tumor: [ meta, input_list[1], input_index_list[1], intervals ]
-//         normal: [ meta, input_list[0], input_index_list[0], intervals ]
-//     }
+    CLAIRS_PAIRED.out.tbi_germline_tumor.branch{
+            intervals:    it[0].num_intervals > 1
+            no_intervals: it[0].num_intervals <= 1
+        }.set{ clairs_tbi_germline_tumor_branch }
+    FIX_TUMOR_VCFHEADER_CLAIRS(
+        clairs_vcf_germline_tumor_branch.intervals
+        .map{ meta, vcf -> [meta, vcf]},
+        vcf_header
+    )
+    FIX_TUMOR_VCFHEADER_CLAIRS.out.vcf.branch{
+            intervals:    it[0].num_intervals > 1
+            no_intervals: it[0].num_intervals <= 1
+        }.set{ clairs_fixed_vcf_germline_tumor_branch }
 
-//     germline_resource_pileup = germline_resource_tbi ? germline_resource : Channel.empty()
-//     germline_resource_pileup_tbi = germline_resource_tbi ?: Channel.empty()
-//     GETPILEUPSUMMARIES_TUMOR ( pileup.tumor.map{
-//                                     meta, cram, crai, intervals ->
+    //Only when using intervals
+    MERGE_TUMOR_VCFS_CLAIRS(
+        clairs_vcf_germline_normal_branch.intervals
+        .map{ meta, vcf ->
 
-//                                     [[
-//                                         id:             meta.tumor_id,
-//                                         normal_id:      meta.normal_id,
-//                                         num_intervals:  meta.num_intervals,
-//                                         patient:        meta.patient,
-//                                         sex:            meta.sex,
-//                                         tumor_id:       meta.tumor_id,
-//                                     ],
-//                                         cram, crai, intervals]
-//                                 },
-//                                 fasta, fai, dict, germline_resource_pileup, germline_resource_pileup_tbi )
+            new_meta = [
+                        id:meta.tumor_id + "germline",
+                        normal_id:meta.normal_id,
+                        num_intervals:meta.num_intervals,
+                        patient:meta.patient,
+                        sex:meta.sex,
+                        tumor_id:meta.tumor_id
+                    ]
 
-//     GETPILEUPSUMMARIES_NORMAL ( pileup.normal.map{
-//                                     meta, cram, crai, intervals ->
+            [groupKey(new_meta, meta.num_intervals), vcf]
+        }.groupTuple(),
+        dict
+    )
 
-//                                     [[
-//                                         id:             meta.normal_id,
-//                                         normal_id:      meta.normal_id,
-//                                         num_intervals:  meta.num_intervals,
-//                                         patient:        meta.patient,
-//                                         sex:            meta.sex,
-//                                         tumor_id:       meta.tumor_id,
-//                                     ],
-//                                         cram, crai, intervals]
-//                                 },
-//                                 fasta, fai, dict, germline_resource_pileup, germline_resource_pileup_tbi )
+    clairs_vcf_germline_tumor = Channel.empty().mix(
+        MERGE_TUMOR_VCFS_CLAIRS.out.vcf,
+        clairs_vcf_germline_tumor_branch.no_intervals)
 
-//     GETPILEUPSUMMARIES_NORMAL.out.table.branch{
-//             intervals:    it[0].num_intervals > 1
-//             no_intervals: it[0].num_intervals <= 1
-//         }set{ pileup_table_normal }
-
-//     GETPILEUPSUMMARIES_TUMOR.out.table.branch{
-//             intervals:    it[0].num_intervals > 1
-//             no_intervals: it[0].num_intervals <= 1
-//         }set{ pileup_table_tumor }
-
-//     //Merge Pileup Summaries
-//     GATHERPILEUPSUMMARIES_NORMAL(
-//         GETPILEUPSUMMARIES_NORMAL.out.table
-//         .map{ meta, table ->
-
-//             new_meta = [
-//                             id:             meta.normal_id,
-//                             normal_id:      meta.normal_id,
-//                             num_intervals:  meta.num_intervals,
-//                             patient:        meta.patient,
-//                             sex:            meta.sex,
-//                             tumor_id:       meta.tumor_id,
-//                         ]
-
-//             [groupKey(new_meta, meta.num_intervals), table]
-//         }.groupTuple(),
-//         dict)
-
-//     gather_table_normal = Channel.empty().mix(
-//         GATHERPILEUPSUMMARIES_NORMAL.out.table,
-//         pileup_table_normal.no_intervals).map{ meta, table ->
-
-//             new_meta = [
-//                             id:             meta.tumor_id + "_vs_" + meta.normal_id,
-//                             normal_id:      meta.normal_id,
-//                             num_intervals:  meta.num_intervals,
-//                             patient:        meta.patient,
-//                             sex:            meta.sex,
-//                             tumor_id:       meta.tumor_id,
-//                         ]
-//             [new_meta, table]
-//         }
-
-//     GATHERPILEUPSUMMARIES_TUMOR(
-//         GETPILEUPSUMMARIES_TUMOR.out.table
-//         .map{ meta, table ->
-//             new_meta = [
-//                             id:             meta.tumor_id,
-//                             normal_id:      meta.normal_id,
-//                             num_intervals:  meta.num_intervals,
-//                             patient:        meta.patient,
-//                             sex:            meta.sex,
-//                             tumor_id:       meta.tumor_id,
-//                         ]
-
-//             [groupKey(new_meta, meta.num_intervals), table]
-//         }.groupTuple(),
-//         dict)
-
-//     gather_table_tumor = Channel.empty().mix(
-//         GATHERPILEUPSUMMARIES_TUMOR.out.table,
-//         pileup_table_tumor.no_intervals).map{ meta, table ->
-//             new_meta = [
-//                         id:             meta.tumor_id + "_vs_" + meta.normal_id,
-//                         normal_id:      meta.normal_id,
-//                         num_intervals:  meta.num_intervals,
-//                         patient:        meta.patient,
-//                         sex:            meta.sex,
-//                         tumor_id:       meta.tumor_id,
-//                     ]
-
-//             [new_meta, table]
-//         }
-
-//     //
-//     //Contamination and segmentation tables created using calculatecontamination on the pileup summary table.
-//     //
-//     CALCULATECONTAMINATION ( gather_table_tumor.join(gather_table_normal) )
-
-//     //
-//     //Mutect2 calls filtered by filtermutectcalls using the artifactpriors, contamination and segmentation tables.
-//     //
-//     ch_filtermutect    = mutect2_vcf.join(mutect2_tbi)
-//                                     .join(mutect2_stats)
-//                                     .join(LEARNREADORIENTATIONMODEL.out.artifactprior)
-//                                     .join(CALCULATECONTAMINATION.out.segmentation)
-//                                     .join(CALCULATECONTAMINATION.out.contamination)
-//     ch_filtermutect_in = ch_filtermutect.map{ meta, vcf, tbi, stats, orientation, seg, cont -> [meta, vcf, tbi, stats, orientation, seg, cont, []] }
-
-//     FILTERMUTECTCALLS ( ch_filtermutect_in, fasta, fai, dict )
+    clairs_tbi_germline_tumor = Channel.empty().mix(
+        MERGE_TUMOR_VCFS_CLAIRS.out.tbi,
+        clairs_tbi_germline_tumor_branch.no_intervals)
+    
 
     ch_versions = ch_versions.mix(MERGEVCFS_CLAIRS.out.versions)
-    // ch_versions = ch_versions.mix(CALCULATECONTAMINATION.out.versions)
-    // ch_versions = ch_versions.mix(FILTERMUTECTCALLS.out.versions)
-    // ch_versions = ch_versions.mix(GETPILEUPSUMMARIES_NORMAL.out.versions)
-    // ch_versions = ch_versions.mix(GETPILEUPSUMMARIES_TUMOR.out.versions)
-    // ch_versions = ch_versions.mix(GATHERPILEUPSUMMARIES_NORMAL.out.versions)
-    // ch_versions = ch_versions.mix(GATHERPILEUPSUMMARIES_TUMOR.out.versions)
-    // ch_versions = ch_versions.mix(LEARNREADORIENTATIONMODEL.out.versions)
-    // ch_versions = ch_versions.mix(MERGEMUTECTSTATS.out.versions)
     ch_versions = ch_versions.mix(CLAIRS_PAIRED.out.versions)
 
     emit:
-    clairs_vcf            = clairs_vcf                                    // channel: [ val(meta), [ vcf ] ]
-    // mutect2_stats          = mutect2_stats                                  // channel: [ val(meta), [ stats ] ]
-
-    // artifact_priors        = LEARNREADORIENTATIONMODEL.out.artifactprior    // channel: [ val(meta), [ artifactprior ] ]
-
-    // pileup_table_tumor     = gather_table_tumor                             // channel: [ val(meta), [ table_tumor ] ]
-    // pileup_table_normal    = gather_table_normal                            // channel: [ val(meta), [ table_normal ] ]
-
-    // contamination_table    = CALCULATECONTAMINATION.out.contamination       // channel: [ val(meta), [ contamination ] ]
-    // segmentation_table     = CALCULATECONTAMINATION.out.segmentation        // channel: [ val(meta), [ segmentation ] ]
-
-    // filtered_vcf           = FILTERMUTECTCALLS.out.vcf.map{ meta, vcf -> [[patient:meta.patient, normal_id:meta.normal_id, tumor_id:meta.tumor_id, sex:meta.sex, id:meta.tumor_id + "_vs_" + meta.normal_id, num_intervals:meta.num_intervals, variantcaller:"mutect2"],
-    //                                                                         vcf]} // channel: [ val(meta), [ vcf ] ]
-    // filtered_tbi           = FILTERMUTECTCALLS.out.tbi                      // channel: [ val(meta), [ tbi ] ]
-    // filtered_stats         = FILTERMUTECTCALLS.out.stats                    // channel: [ val(meta), [ stats ] ]
-
-    versions               = ch_versions                                    // channel: [ versions.yml ]
+    clairs_vcf            = clairs_vcf                                     // channel: [ val(meta), [ vcf ] ]
+    clairs_vcf_germline_normal = clairs_vcf_germline_normal                // channel: [ val(meta), [ vcf ] ]
+    clairs_vcf_germline_tumor = clairs_vcf_germline_tumor                  // channel: [ val(meta), [ vcf ] ]
+    versions               = ch_versions                                   // channel: [ versions.yml ]
 }
