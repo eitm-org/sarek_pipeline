@@ -12,7 +12,7 @@ process GATK4_FIXVCFHEADER {
     path  vcf_header
 
     output:
-    tuple val(meta), path('*.vcf.gz'), emit: vcf
+    tuple val(meta), path('*_fixedheader.vcf.gz'), emit: vcf
     path  "versions.yml"             , emit: versions
 
     when:
@@ -32,7 +32,7 @@ process GATK4_FIXVCFHEADER {
     """
     gatk --java-options "-Xmx${avail_mem}g" FixVcfHeader \\
         -I $vcf \\
-        --OUTPUT $vcf \\
+        --OUTPUT ${vcf.basename}_fixedheader.vcf.gz\\
         --HEADER $vcf_header \\
         $args
 
