@@ -12,6 +12,7 @@ process CLAIRS {
     path fasta
     path fai
     path dict
+    path normal_vcf
 
     output:
     tuple val(meta), path("*.clairs.*.vcf.gz")     , emit: vcf
@@ -31,10 +32,13 @@ process CLAIRS {
     def prefix = task.ext.prefix ?: "${meta.id}"
     def suffix = intervals ? "${intervals.toString()}" : ""
     def bed_command = intervals ? "-b ${intervals}" : ""
+    def normal_vcf_fn = normal_vcf ?  "-normal_vcf_fn ${normal_vcf}" : ""
+    def mv_normal_vcf_command = normal_vcf ? "mv tmp/clair3_output/clair3_normal_output/merge_output.vcf.gz ${meta.normal_id}_normal_germline_${suffix}.vcf.gz" : ""
 
     """
     /opt/bin/run_clairs \\
         $inputs \\
+        $normal_vcf_fn \\
         --ref_fn ${fasta} \\
         --threads ${task.cpus} \\
         --output_dir . \\
@@ -42,7 +46,7 @@ process CLAIRS {
         $bed_command \\
         $args
 
-    mv tmp/clair3_output/clair3_normal_output/merge_output.vcf.gz ${meta.normal_id}_normal_germline_${suffix}.vcf.gz
+    $mv_normal_vcf_command
     mv tmp/clair3_output/clair3_tumor_output/merge_output.vcf.gz ${meta.tumor_id}_tumor_germline_${suffix}.vcf.gz
 
     

@@ -48,6 +48,7 @@ def checkPathParamList = [
     params.spliceai_snv_tbi,
     params.vep_cache,
     params.vcf_header,
+    params.normal_vcf
 ]
 
 /*
@@ -164,7 +165,7 @@ known_snps         = params.known_snps         ? Channel.fromPath(params.known_s
 mappability        = params.mappability        ? Channel.fromPath(params.mappability).collect()              : Channel.value([])
 pon                = params.pon                ? Channel.fromPath(params.pon).collect()                      : Channel.value([]) //PON is optional for Mutect2 (but highly recommended)
 vcf_header         = params.vcf_header         ? Channel.fromPath(params.vcf_header).collect()               : Channel.empty() // ClairS VCF merging requires re-headering the interval VCFs
-// normal_vcf         = params.normal_vcf         ? Channel.fromPath(params.normal_vcf).collect()               : Channel.empty() // EXPERIMENTAL: Passing normal germline vcf into ClairS to skip normal germline variant calling
+normal_vcf         = params.normal_vcf         ? Channel.fromPath(params.normal_vcf).collect()               : Channel.empty() // EXPERIMENTAL: Passing normal germline vcf into ClairS to skip normal germline variant calling
 
 
 
@@ -1085,7 +1086,8 @@ workflow SAREK {
             loci_files,
             gc_file,
             rt_file,
-            vcf_header
+            vcf_header,
+            normal_vcf,
         )
 
         // Gather vcf files for annotation and QC

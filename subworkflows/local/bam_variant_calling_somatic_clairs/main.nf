@@ -21,6 +21,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     germline_resource         // channel: /path/to/germline/resource
     germline_resource_tbi     // channel: /path/to/germline/index
     vcf_header                // channel: /path/to/vcf_header
+    normal_vcf                // channel: /path/to/normal_germline_vcf
 
     main:
     ch_versions = Channel.empty()
@@ -32,7 +33,8 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         input,
         fasta,
         fai,
-        dict
+        dict,
+        normal_vcf
     )
 
     // Merge somatic VCF
@@ -140,7 +142,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         .map{ meta, vcf ->
 
             new_meta = [
-                        id:meta.tumor_id + "_tumor",
+                        id:meta.tumor_id + "_germline",
                         normal_id:meta.normal_id,
                         num_intervals:meta.num_intervals,
                         patient:meta.patient,
@@ -156,7 +158,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         .map{ meta, vcf ->
 
             new_meta = [
-                        id:meta.tumor_id + "_tumor",
+                        id:meta.tumor_id + "_germline",
                         normal_id:meta.normal_id,
                         num_intervals:meta.num_intervals,
                         patient:meta.patient,
