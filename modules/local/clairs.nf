@@ -14,9 +14,8 @@ process CLAIRS {
     path dict
 
     output:
-    def prefix = task.ext.prefix ?: "${meta.id}"
-    tuple val(meta), path("${prefix}.vcf.gz")     , emit: vcf
-    tuple val(meta), path("${prefix}.vcf.gz.tbi")        , emit: tbi
+    tuple val(meta), path("${meta.id}.vcf.gz")     , emit: vcf
+    tuple val(meta), path("${meta.id}.vcf.gz.tbi")        , emit: tbi
     tuple val(meta), path("${meta.normal_id}_normal_germline.vcf.gz.tbi"), optional:true, emit: vcf_germline_normal
     tuple val(meta), path("${meta.normal_id}_normal_germline.vcf.gz.tbi"), optional:true, emit: tbi_germline_normal
     tuple val(meta), path("${meta.tumor_id}_tumor_germline.vcf.gz"), optional:true, emit: vcf_germline_tumor
