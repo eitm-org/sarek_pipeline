@@ -23,7 +23,7 @@ process GATK4_GATHERVCFS {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     def input_list = vcf.collect{ "--INPUT $it"}.join(' ')
-    def reference_command = dict ? "--R $fasta" : ""
+    def reference_command = fasta ? "--R $fasta" : ""
 
     def avail_mem = 3
     if (!task.memory) {
