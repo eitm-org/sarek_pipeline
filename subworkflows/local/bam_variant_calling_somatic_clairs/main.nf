@@ -7,7 +7,7 @@ include { GATK4_FIXVCFHEADER                 as FIX_NORMAL_VCFHEADER_CLAIRS     
 include { GATK4_FIXVCFHEADER                 as FIX_TUMOR_VCFHEADER_CLAIRS               } from '../../../modules/local/gatk_fixvcfheader'
 
 include { GATK4_MERGEVCFS                     as MERGE_VCFS_CLAIRS               } from '../../../modules/nf-core/gatk4/mergevcfs'
-include { GATK4_MERGEVCFS                     as MERGE_NORMALVCFS_CLAIRS               } from '../../../modules/nf-core/gatk4/mergevcfs'
+include { GATK4_MERGEVCFS                     as MERGE_NORMAL_VCFS_CLAIRS               } from '../../../modules/nf-core/gatk4/mergevcfs'
 include { GATK4_MERGEVCFS                     as MERGE_TUMOR_VCFS_CLAIRS               } from '../../../modules/nf-core/gatk4/mergevcfs'
 
 // include { GATK4_CALCULATECONTAMINATION    as CALCULATECONTAMINATION      } from '../../../modules/nf-core/gatk4/calculatecontamination/main'
