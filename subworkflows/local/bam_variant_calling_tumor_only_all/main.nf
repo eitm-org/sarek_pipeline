@@ -34,6 +34,7 @@ workflow BAM_VARIANT_CALLING_TUMOR_ONLY_ALL {
         panel_of_normals              // channel: [optional]  panel_of_normals
         panel_of_normals_tbi          // channel: [optional]  panel_of_normals_tbi
 
+
     main:
 
     ch_versions         = Channel.empty()

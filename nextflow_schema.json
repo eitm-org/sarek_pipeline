@@ -363,6 +363,12 @@
                     "description": "Do not analyze soft clipped bases in the reads for GATK Mutect2.",
                     "help_text": "use the `--dont-use-soft-clipped-bases` params with GATK Mutect2.",
                     "hidden": true
+                },
+                "vcf_header": {
+                    "type": "string",
+                    "description": "Path to vcf header file for fixing clairS vcf outputs when calling with intervals > 1",
+                    "help_text": "",
+                    "hidden": true
                 }
             }
         },

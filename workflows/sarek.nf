@@ -46,7 +46,8 @@ def checkPathParamList = [
     params.spliceai_indel_tbi,
     params.spliceai_snv,
     params.spliceai_snv_tbi,
-    params.vep_cache
+    params.vep_cache,
+    params.vcf_header,
 ]
 
 /*
@@ -162,6 +163,8 @@ known_indels       = params.known_indels       ? Channel.fromPath(params.known_i
 known_snps         = params.known_snps         ? Channel.fromPath(params.known_snps).collect()               : Channel.value([])
 mappability        = params.mappability        ? Channel.fromPath(params.mappability).collect()              : Channel.value([])
 pon                = params.pon                ? Channel.fromPath(params.pon).collect()                      : Channel.value([]) //PON is optional for Mutect2 (but highly recommended)
+vcf_header         = params.vcf_header         ? Channel.fromPath(params.vcf_header).collect()                    : Channel.empty()
+
 
 // Initialize value channels based on params, defined in the params.genomes[params.genome] scope
 ascat_genome       = params.ascat_genome       ?: Channel.empty()
@@ -1079,7 +1082,8 @@ workflow SAREK {
             allele_files,
             loci_files,
             gc_file,
-            rt_file
+            rt_file,
+            vcf_header
         )
 
         // Gather vcf files for annotation and QC

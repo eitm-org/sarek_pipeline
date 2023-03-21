@@ -2,6 +2,7 @@
 // Run GATK mutect2 in tumor normal mode, getepileupsummaries, calculatecontamination, learnreadorientationmodel and filtermutectcalls
 //
 
+include { GATK4_FIXVCFHEADER                 as FIXVCFHEADER_CLAIRS               } from '../../../modules/local/gatk_fixvcfheader'
 include { GATK4_GATHERVCFS                 as GATHERVCFS_CLAIRS               } from '../../../modules/local/gatk_gathervcfs'
 // include { GATK4_CALCULATECONTAMINATION    as CALCULATECONTAMINATION      } from '../../../modules/nf-core/gatk4/calculatecontamination/main'
 // include { GATK4_FILTERMUTECTCALLS         as FILTERMUTECTCALLS           } from '../../../modules/nf-core/gatk4/filtermutectcalls/main'
@@ -19,6 +20,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     dict                      // channel: /path/to/reference/fasta/dictionary
     germline_resource         // channel: /path/to/germline/resource
     germline_resource_tbi     // channel: /path/to/germline/index
+    vcf_header                // channel: /path/to/vcf_header
 
     main:
     ch_versions = Channel.empty()
@@ -43,8 +45,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
             intervals:    it[0].num_intervals > 1
             no_intervals: it[0].num_intervals <= 1
         }.set{ clairs_tbi_branch }
-
-
+    FIXVCFHEADER_CLAIRS(clairs_vcf_branch, vcf_header)
     //Only when using intervals
     GATHERVCFS_CLAIRS(
         clairs_vcf_branch.intervals

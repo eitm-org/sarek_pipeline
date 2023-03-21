@@ -42,6 +42,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
         loci_files                    // channel: [optional]  ascat loci files
         gc_file                       // channel: [optional]  ascat gc content file
         rt_file                       // channel: [optional]  ascat rt file
+        vcf_header                    // channel: [optional] /path/to/vcf_header
 
     main:
 
@@ -282,7 +283,8 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
             fasta_fai,
             dict,
             germline_resource,
-            germline_resource_tbi
+            germline_resource_tbi,
+            vcf_header
         )
 
         clairs_vcf = BAM_VARIANT_CALLING_SOMATIC_CLAIRS.out.clairs_vcf
