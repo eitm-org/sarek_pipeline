@@ -45,10 +45,7 @@ process CLAIRS {
         $args
 
     mv tmp/clair3_output/clair3_normal_output/merge_output.vcf.gz ${meta.normal_id}_normal_germline.vcf.gz.tbi
-    mv tmp/clair3_output/clair3_normal_output/merge_output.vcf.gz.tbi ${meta.normal_id}_normal_germline.vcf.gz.tbi
     mv tmp/clair3_output/clair3_tumor_output/merge_output.vcf.gz ${meta.tumor_id}_tumor_germline.vcf.gz
-    mv tmp/clair3_output/clair3_tumor_output/merge_output.vcf.gz.tbi ${meta.tumor_id}_tumor_germline.vcf.gz.tbi
-    
     
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -62,10 +59,8 @@ process CLAIRS {
     touch ${prefix}.vcf.gz
     touch ${prefix}.vcf.gz.tbi
 
-    touch ${meta.normal_id}_normal_germline.vcf.gz.tbi
-    touch ${meta.normal_id}_normal_germline.vcf.gz.tbi
+    touch ${meta.normal_id}_normal_germline.vcf.gz
     touch ${meta.tumor_id}_tumor_germline.vcf.gz
-    touch ${meta.tumor_id}_germline.vcf.gz.tbi
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
