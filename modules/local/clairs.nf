@@ -12,7 +12,6 @@ process CLAIRS {
     path fasta
     path fai
     path dict
-    path normal_vcf
 
     output:
     tuple val(meta), path("*.clairs.*.vcf.gz")     , emit: vcf
