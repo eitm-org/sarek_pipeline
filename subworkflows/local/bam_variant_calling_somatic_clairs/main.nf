@@ -2,7 +2,7 @@
 // Run GATK mutect2 in tumor normal mode, getepileupsummaries, calculatecontamination, learnreadorientationmodel and filtermutectcalls
 //
 
-include { GATK4_MERGEVCFS                 as MERGE_CLAIRS               } from '../../../modules/nf-core/gatk4/mergevcfs/main'
+include { GATK4_GATHERVCFS                 as GATHERVCFS_CLAIRS               } from '../../../modules/local/gatk_gathervcfs'
 // include { GATK4_CALCULATECONTAMINATION    as CALCULATECONTAMINATION      } from '../../../modules/nf-core/gatk4/calculatecontamination/main'
 // include { GATK4_FILTERMUTECTCALLS         as FILTERMUTECTCALLS           } from '../../../modules/nf-core/gatk4/filtermutectcalls/main'
 // include { GATK4_GATHERPILEUPSUMMARIES     as GATHERPILEUPSUMMARIES_NORMAL} from '../../../modules/nf-core/gatk4/gatherpileupsummaries/main'
@@ -46,7 +46,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
 
 
     //Only when using intervals
-    MERGE_CLAIRS(
+    GATHERVCFS_CLAIRS(
         clairs_vcf_branch.intervals
         .map{ meta, vcf ->
 
@@ -61,7 +61,6 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
 
             [groupKey(new_meta, meta.num_intervals), vcf]
         }.groupTuple(),
-        dict
     )
 
     clairs_vcf = Channel.empty().mix(
