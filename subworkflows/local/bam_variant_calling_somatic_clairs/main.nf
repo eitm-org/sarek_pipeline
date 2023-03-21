@@ -186,7 +186,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         clairs_tbi_germline_tumor_branch.no_intervals)
     
 
-    ch_versions = ch_versions.mix(MERGEVCFS_CLAIRS.out.versions)
+    ch_versions = ch_versions.mix(MERGE_VCFS_CLAIRS.out.versions)
     ch_versions = ch_versions.mix(CLAIRS_PAIRED.out.versions)
 
     emit:
