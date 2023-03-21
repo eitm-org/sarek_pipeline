@@ -36,28 +36,28 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     )
 
     // Figure out if using intervals or no_intervals
-    // CLAIRS_PAIRED.out.vcf.branch{
-    //         intervals:    it[0].num_intervals > 1
-    //         no_intervals: it[0].num_intervals <= 1
-    //     }.set{ clairs_vcf_branch }
+    CLAIRS_PAIRED.out.vcf.branch{
+            intervals:    it[0].num_intervals > 1
+            no_intervals: it[0].num_intervals <= 1
+        }.set{ clairs_vcf_branch }
 
-    // CLAIRS_PAIRED.out.tbi.branch{
-    //         intervals:    it[0].num_intervals > 1
-    //         no_intervals: it[0].num_intervals <= 1
-    //     }.set{ clairs_tbi_branch }
-    // FIXVCFHEADER_CLAIRS(
-    //     clairs_vcf_branch.intervals
-    //     .map{ meta, vcf -> [meta, vcf]},
-    //     vcf_header
-    // )
-    // FIXVCFHEADER_CLAIRS.out.vcf.branch{
-    //         intervals:    it[0].num_intervals > 1
-    //         no_intervals: it[0].num_intervals <= 1
-    //     }.set{ clairs_fixed_vcf_branch }
+    CLAIRS_PAIRED.out.tbi.branch{
+            intervals:    it[0].num_intervals > 1
+            no_intervals: it[0].num_intervals <= 1
+        }.set{ clairs_tbi_branch }
+    FIXVCFHEADER_CLAIRS(
+        clairs_vcf_branch.intervals
+        .map{ meta, vcf -> [meta, vcf]},
+        vcf_header
+    )
+    FIXVCFHEADER_CLAIRS.out.vcf.branch{
+            intervals:    it[0].num_intervals > 1
+            no_intervals: it[0].num_intervals <= 1
+        }.set{ clairs_fixed_vcf_branch }
 
     //Only when using intervals
     GATHERVCFS_CLAIRS(
-        clairs_vcf_branch
+        clairs_fixed_vcf_branch.intervals
         .map{ meta, vcf ->
 
             new_meta = [
