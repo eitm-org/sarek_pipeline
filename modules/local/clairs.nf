@@ -32,8 +32,8 @@ process CLAIRS {
     def prefix = task.ext.prefix ?: "${meta.id}"
     def suffix = intervals ? "${intervals.toString()}" : ""
     def bed_command = intervals ? "-b ${intervals}" : ""
-    def normal_vcf_fn = normal_vcf.toString().contains('dummy.vcf') ? "--normal_vcf_fn ${normal_vcf}" : "" 
-    def mv_normal_vcf_command = normal_vcf.contains('dummy.vcf') ? "mv tmp/clair3_output/clair3_normal_output/merge_output.vcf.gz ${meta.normal_id}_normal_germline_${suffix}.vcf.gz": ""
+    def normal_vcf_fn = normal_vcf.baseName.contains('dummy') ? "--normal_vcf_fn ${normal_vcf}" : "" 
+    def mv_normal_vcf_command = normal_vcf.baseName.contains('dummy') ? "mv tmp/clair3_output/clair3_normal_output/merge_output.vcf.gz ${meta.normal_id}_normal_germline_${suffix}.vcf.gz": ""
 
     """
     /opt/bin/run_clairs \\
