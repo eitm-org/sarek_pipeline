@@ -3,7 +3,7 @@
 //
 
 include { GATK4_FIXVCFHEADER                 as FIXVCFHEADER_CLAIRS               } from '../../../modules/local/gatk_fixvcfheader'
-include { GATK4_GATHERVCFS                 as GATHERVCFS_CLAIRS               } from '../../../modules/local/gatk_gathervcfs'
+include { GATK4_MERGECFS                     as MERGEVCFS_CLAIRS               } from '../../../modules/nf-core/gatk4/mergevcfs'
 // include { GATK4_CALCULATECONTAMINATION    as CALCULATECONTAMINATION      } from '../../../modules/nf-core/gatk4/calculatecontamination/main'
 // include { GATK4_FILTERMUTECTCALLS         as FILTERMUTECTCALLS           } from '../../../modules/nf-core/gatk4/filtermutectcalls/main'
 // include { GATK4_GATHERPILEUPSUMMARIES     as GATHERPILEUPSUMMARIES_NORMAL} from '../../../modules/nf-core/gatk4/gatherpileupsummaries/main'
@@ -56,7 +56,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         }.set{ clairs_fixed_vcf_branch }
 
     //Only when using intervals
-    GATHERVCFS_CLAIRS(
+    MERGEVCFS_CLAIRS(
         clairs_fixed_vcf_branch.intervals
         .map{ meta, vcf ->
 
@@ -71,15 +71,15 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
 
             [groupKey(new_meta, meta.num_intervals), vcf]
         }.groupTuple(),
-        fasta
+        dict
     )
 
     clairs_vcf = Channel.empty().mix(
-        GATHERVCFS_CLAIRS.out.vcf,
+        MERGEVCFS_CLAIRS.out.vcf,
         clairs_vcf_branch.no_intervals)
 
     clairs_tbi = Channel.empty().mix(
-        GATHERVCFS_CLAIRS.out.tbi,
+        MERGEVCFS_CLAIRS.out.tbi,
         clairs_tbi_branch.no_intervals)
 
 //     //Merge Mutect2 Stats
@@ -255,7 +255,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
 
 //     FILTERMUTECTCALLS ( ch_filtermutect_in, fasta, fai, dict )
 
-    ch_versions = ch_versions.mix(GATHERVCFS_CLAIRS.out.versions)
+    ch_versions = ch_versions.mix(MERGEVCFS_CLAIRS.out.versions)
     // ch_versions = ch_versions.mix(CALCULATECONTAMINATION.out.versions)
     // ch_versions = ch_versions.mix(FILTERMUTECTCALLS.out.versions)
     // ch_versions = ch_versions.mix(GETPILEUPSUMMARIES_NORMAL.out.versions)
