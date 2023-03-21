@@ -244,7 +244,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
 
 //     FILTERMUTECTCALLS ( ch_filtermutect_in, fasta, fai, dict )
 
-    ch_versions = ch_versions.mix(MERGE_CLAIRS.out.versions)
+    ch_versions = ch_versions.mix(GATHERVCFS_CLAIRS.out.versions)
     // ch_versions = ch_versions.mix(CALCULATECONTAMINATION.out.versions)
     // ch_versions = ch_versions.mix(FILTERMUTECTCALLS.out.versions)
     // ch_versions = ch_versions.mix(GETPILEUPSUMMARIES_NORMAL.out.versions)
