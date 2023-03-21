@@ -16,10 +16,10 @@ process CLAIRS {
     output:
     tuple val(meta), path("*.vcf.gz")     , emit: vcf
     tuple val(meta), path("*.tbi")        , emit: tbi
-    tuple val(meta), path("tmp/clair3_output/clair3_normal_output/merge_output.vcf.gz"), optional:true, emit: vcf_germline_normal
-    tuple val(meta), path("tmp/clair3_output/clair3_normal_output/merge_output.vcf.gz.tbi"), optional:true, emit: tbi_germline_normal
-    tuple val(meta), path("tmp/clair3_output/clair3_tumor_output/merge_output.vcf.gz"), optional:true, emit: vcf_germline_tumor
-    tuple val(meta), path("tmp/clair3_output/clair3_tumor_output/merge_output.vcf.gz.tbi"), optional:true, emit: tbi_germline_tumor
+    tuple val(meta), path("${meta.normal_id}_normal_germline.vcf.gz.tbi"), optional:true, emit: vcf_germline_normal
+    tuple val(meta), path("${meta.normal_id}_normal_germline.vcf.gz.tbi"), optional:true, emit: tbi_germline_normal
+    tuple val(meta), path("${meta.tumor_id}_tumor_germline.vcf.gz"), optional:true, emit: vcf_germline_tumor
+    tuple val(meta), path("${meta.tumor_id}_tumor_germline.vcf.gz.tbi"), optional:true, emit: tbi_germline_tumor
     path "versions.yml"                   , emit: versions
 
 
@@ -43,6 +43,12 @@ process CLAIRS {
         --output_prefix $prefix \\
         $bed_command \\
         $args
+
+    mv tmp/clair3_output/clair3_normal_output/merge_output.vcf.gz ${meta.normal_id}_normal_germline.vcf.gz.tbi
+    mv tmp/clair3_output/clair3_normal_output/merge_output.vcf.gz.tbi ${meta.normal_id}_normal_germline.vcf.gz.tbi
+    mv tmp/clair3_output/clair3_tumor_output/merge_output.vcf.gz ${meta.tumor_id}_tumor_germline.vcf.gz
+    mv tmp/clair3_output/clair3_tumor_output/merge_output.vcf.gz.tbi ${meta.tumor_id}_tumor_germline.vcf.gz.tbi
+    
     
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -55,6 +61,11 @@ process CLAIRS {
     """
     touch ${prefix}.vcf.gz
     touch ${prefix}.vcf.gz.tbi
+
+    touch ${meta.normal_id}_normal_germline.vcf.gz.tbi
+    touch ${meta.normal_id}_normal_germline.vcf.gz.tbi
+    touch ${meta.tumor_id}_tumor_germline.vcf.gz
+    touch ${meta.tumor_id}_germline.vcf.gz.tbi
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

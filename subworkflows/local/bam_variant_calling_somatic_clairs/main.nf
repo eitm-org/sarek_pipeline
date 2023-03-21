@@ -116,7 +116,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         .map{ meta, vcf ->
 
             new_meta = [
-                        id:meta.normal_id + "germline",
+                        id:meta.normal_id + "_germline",
                         normal_id:meta.normal_id,
                         num_intervals:meta.num_intervals,
                         patient:meta.patient,
@@ -164,7 +164,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         .map{ meta, vcf ->
 
             new_meta = [
-                        id:meta.tumor_id + "germline",
+                        id:meta.tumor_id + "_germline",
                         normal_id:meta.normal_id,
                         num_intervals:meta.num_intervals,
                         patient:meta.patient,
