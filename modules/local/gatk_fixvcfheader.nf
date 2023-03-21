@@ -32,7 +32,7 @@ process GATK4_FIXVCFHEADER {
     """
     gatk --java-options "-Xmx${avail_mem}g" FixVcfHeader \\
         -I $vcf \\
-        --OUTPUT ${vcf.basename}_fixedheader.vcf.gz\\
+        --OUTPUT ${vcf.baseName}_fixedheader.vcf.gz\\
         --HEADER $vcf_header \\
         $args
 
