@@ -119,9 +119,6 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         MERGE_NORMAL_VCFS_CLAIRS.out.vcf,
         clairs_vcf_germline_normal_branch.no_intervals)
 
-    // clairs_tbi_germline_normal = Channel.empty().mix(
-    //     MERGE_NORMAL_VCFS_CLAIRS.out.tbi,
-    //     clairs_tbi_germline_normal_branch.no_intervals)
     
     // Merge tumor germline VCF
     // Figure out if using intervals or no_intervals
@@ -129,7 +126,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
             intervals:    it[0].num_intervals > 1
             no_intervals: it[0].num_intervals <= 1
         }.set{ clairs_vcf_germline_tumor_branch }
-    clairs_vcf_germline_tumor_branch.intervals.view()
+
     //Only when using intervals
     MERGE_TUMOR_VCFS_CLAIRS(
         clairs_vcf_germline_tumor_branch.intervals
