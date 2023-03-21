@@ -12,6 +12,7 @@ process CLAIRS {
     path fasta
     path fai
     path dict
+    path normal_vcf
 
     output:
     tuple val(meta), path("*.clairs.*.vcf.gz")     , emit: vcf
@@ -44,6 +45,7 @@ process CLAIRS {
         --output_prefix $prefix \\
         $bed_command \\
         $args
+
 
     $mv_normal_vcf_command
     mv tmp/clair3_output/clair3_tumor_output/merge_output.vcf.gz ${meta.tumor_id}_tumor_germline_${suffix}.vcf.gz
