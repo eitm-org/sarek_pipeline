@@ -3,7 +3,7 @@
 //
 
 include { GATK4_FIXVCFHEADER                 as FIXVCFHEADER_CLAIRS               } from '../../../modules/local/gatk_fixvcfheader'
-include { GATK4_MERGECFS                     as MERGEVCFS_CLAIRS               } from '../../../modules/nf-core/gatk4/mergevcfs'
+include { GATK4_MERGEVCFS                     as MERGEVCFS_CLAIRS               } from '../../../modules/nf-core/gatk4/mergevcfs'
 // include { GATK4_CALCULATECONTAMINATION    as CALCULATECONTAMINATION      } from '../../../modules/nf-core/gatk4/calculatecontamination/main'
 // include { GATK4_FILTERMUTECTCALLS         as FILTERMUTECTCALLS           } from '../../../modules/nf-core/gatk4/filtermutectcalls/main'
 // include { GATK4_GATHERPILEUPSUMMARIES     as GATHERPILEUPSUMMARIES_NORMAL} from '../../../modules/nf-core/gatk4/gatherpileupsummaries/main'
