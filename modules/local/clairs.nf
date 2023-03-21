@@ -16,10 +16,8 @@ process CLAIRS {
     output:
     tuple val(meta), path("*.clairs.*.vcf.gz")     , emit: vcf
     tuple val(meta), path("*.clairs.*.vcf.gz.tbi")        , emit: tbi
-    tuple val(meta), path("${meta.normal_id}_normal_germline.vcf.gz.tbi"), optional:true, emit: vcf_germline_normal
-    tuple val(meta), path("${meta.normal_id}_normal_germline.vcf.gz.tbi"), optional:true, emit: tbi_germline_normal
-    tuple val(meta), path("${meta.tumor_id}_tumor_germline.vcf.gz"), optional:true, emit: vcf_germline_tumor
-    tuple val(meta), path("${meta.tumor_id}_tumor_germline.vcf.gz.tbi"), optional:true, emit: tbi_germline_tumor
+    tuple val(meta), path("*_normal_germline_*.vcf.gz"), optional:true, emit: vcf_germline_normal
+    tuple val(meta), path("*_tumor_germline_*.vcf.gz"), optional:true, emit: vcf_germline_tumor
     path "versions.yml"                   , emit: versions
 
 
@@ -31,7 +29,7 @@ process CLAIRS {
     def args = task.ext.args ?: ''
     def inputs = "--normal_bam_fn ${input[0]} --tumor_bam_fn ${input[1]}"
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def region_command = intervals ? "-c ${intervals.toString().split('_')[0]}" : ""
+    def suffix = intervals ? "${intervals.toString()}" : ""
     def bed_command = intervals ? "-b ${intervals}" : ""
 
     """
@@ -44,8 +42,9 @@ process CLAIRS {
         $bed_command \\
         $args
 
-    mv tmp/clair3_output/clair3_normal_output/merge_output.vcf.gz ${meta.normal_id}_normal_germline.vcf.gz.tbi
-    mv tmp/clair3_output/clair3_tumor_output/merge_output.vcf.gz ${meta.tumor_id}_tumor_germline.vcf.gz
+    mv tmp/clair3_output/clair3_normal_output/merge_output.vcf.gz ${meta.normal_id}_normal_germline_${suffix}.vcf.gz
+    mv tmp/clair3_output/clair3_tumor_output/merge_output.vcf.gz ${meta.tumor_id}_tumor_germline_${suffix}.vcf.gz
+
     
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -58,9 +57,8 @@ process CLAIRS {
     """
     touch ${prefix}.vcf.gz
     touch ${prefix}.vcf.gz.tbi
-
-    touch ${meta.normal_id}_normal_germline.vcf.gz
-    touch ${meta.tumor_id}_tumor_germline.vcf.gz
+    touch ${meta.normal_id}_normal_germline_${suffix}.vcf.gz
+    touch ${meta.tumor_id}_tumor_germline_${suffix}.vcf.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
