@@ -716,6 +716,7 @@ workflow SAREK {
                                                         cram, crai]
                                                     }
         }
+        ch_cram_for_bam_baserecalibrator.view()
 
         // STEP 3: Create recalibration tables
         if (!(params.skip_tools && params.skip_tools.split(',').contains('baserecalibrator'))) {
@@ -865,6 +866,7 @@ workflow SAREK {
             // ch_cram_variant_calling contains either:
             // - crams from markduplicates = ch_cram_for_bam_baserecalibrator if skip BQSR but not started from step recalibration
             ch_cram_variant_calling = Channel.empty().mix(ch_cram_for_bam_baserecalibrator)
+            ch_cram_variant_calling.view()
         }
     }
     // if (params.step == 'markduplicates') {
@@ -1233,12 +1235,12 @@ def extract_csv(csv_file) {
                     patient_sample_lane_combinations_in_samplesheet.add(patient_sample_lane)
                 }
             }
-            // if (!sample2patient.containsKey(row.sample.toString())) {
-            //     sample2patient[row.sample.toString()] = row.patient.toString()
-            // } else if (sample2patient[row.sample.toString()] != row.patient.toString()) {
-            //     log.error('The sample "' + row.sample.toString() + '" is registered for both patient "' + row.patient.toString() + '" and "' + sample2patient[row.sample.toString()] + '" in the sample sheet.')
-            //     System.exit(1)
-            // }
+            if (!sample2patient.containsKey(row.sample.toString())) {
+                sample2patient[row.sample.toString()] = row.patient.toString()
+            } else if (sample2patient[row.sample.toString()] != row.patient.toString()) {
+                log.error('The sample "' + row.sample.toString() + '" is registered for both patient "' + row.patient.toString() + '" and "' + sample2patient[row.sample.toString()] + '" in the sample sheet.')
+                System.exit(1)
+            }
         }
 
     sample_count_all = 0
