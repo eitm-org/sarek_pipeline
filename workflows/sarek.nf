@@ -642,7 +642,7 @@ workflow SAREK {
             ch_cram_markduplicates_spark).map{ meta, cram, crai ->
                         //Make sure correct data types are carried through
                         [[
-                            data_type:  "cram",
+                            data_type:  "bam",
                             id:         meta.id,
                             patient:    meta.patient,
                             sample:     meta.sample,
@@ -651,6 +651,7 @@ workflow SAREK {
                             ],
                         cram, crai]
                     }
+        ch_md_cram_for_restart.view()
         if (params.save_output_as_bam) {
             //If params.save_output_as_bam, then convert CRAM files to BAM
             CRAM_TO_BAM(ch_md_cram_for_restart, fasta, fasta_fai)
