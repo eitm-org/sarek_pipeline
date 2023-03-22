@@ -149,8 +149,8 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     ch_versions = ch_versions.mix(CLAIRS_PAIRED.out.versions)
 
     emit:
-    clairs_vcf            = clairs_vcf                                     // channel: [ val(meta), [ vcf ] ]
-    clairs_vcf_germline_normal = clairs_vcf_germline_normal                // channel: [ val(meta), [ vcf ] ]
-    clairs_vcf_germline_tumor = clairs_vcf_germline_tumor                  // channel: [ val(meta), [ vcf ] ]
-    versions               = ch_versions                                   // channel: [ versions.yml ]
+    clairs_vcf                  = clairs_vcf                                     // channel: [ val(meta), [ vcf ] ]
+    clairs_vcf_germline_normal  = clairs_vcf_germline_normal                // channel: [ val(meta), [ vcf ] ]
+    clairs_vcf_germline_tumor   = clairs_vcf_germline_tumor                  // channel: [ val(meta), [ vcf ] ]
+    versions                    = ch_versions                                   // channel: [ versions.yml ]
 }

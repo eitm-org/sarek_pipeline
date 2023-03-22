@@ -5,7 +5,7 @@ process CLAIRS {
     // conda (params.enable_conda ? "bioconda::gatk4=4.3.0.0" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'docker://hkubal/clairs:latest':
-        'hkubal/clairs:latest' }"
+        'clairs_input_normal_vcf:latest' }"
 
     input:
     tuple val(meta), path(input), path(inputl_index), path(intervals)
