@@ -104,8 +104,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
                         sex:meta.sex,
                         tumor_id:meta.tumor_id
                     ]
-
-            [new_meta, vcf_tumor]
+            [groupKey(new_meta, meta.num_intervals), vcf_tumor]
         }.groupTuple().view()
 
     MERGE_TUMOR_VCFS_CLAIRS(
