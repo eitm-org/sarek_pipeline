@@ -36,26 +36,31 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         dict,
         normal_vcf
     )
-    // Merge tumor germline VCF
+
     // Figure out if using intervals or no_intervals
     CLAIRS_PAIRED.out.vcf_germline_tumor.branch{
             intervals:    it[0].num_intervals > 1
             no_intervals: it[0].num_intervals <= 1
         }.set{ clairs_vcf_germline_tumor_branch }
-    // Merge normal germline VCF
-    // Figure out if using intervals or no_intervals
+    
 
     CLAIRS_PAIRED.out.vcf_germline_normal.branch{
             intervals:    it[0].num_intervals > 1
             no_intervals: it[0].num_intervals <= 1
         }.set{ clairs_vcf_germline_normal_branch }
 
-    //Only when using intervals
-    clairs_vcf_germline_normal_branch.intervals.collect()
+    CLAIRS_PAIRED.out.vcf.branch{
+            intervals:    it[0].num_intervals > 1
+            no_intervals: it[0].num_intervals <= 1
+        }.set{ clairs_vcf_branch }
 
-    //Only when using intervals
-    clairs_vcf_germline_tumor_branch.intervals.collect()
-
+    CLAIRS_PAIRED.out.tbi.branch{
+            intervals:    it[0].num_intervals > 1
+            no_intervals: it[0].num_intervals <= 1
+        }.set{ clairs_tbi_branch }
+    
+    // Merge tumor germline VCF
+    // Only when using intervals
     MERGE_TUMOR_VCFS_CLAIRS(
         clairs_vcf_germline_tumor_branch.intervals
         .map{ meta, vcf_tumor ->
@@ -78,16 +83,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         MERGE_TUMOR_VCFS_CLAIRS.out.vcf,
         clairs_vcf_germline_tumor_branch.no_intervals)
 
-
-
     // Merge normal germline VCF
-    // Figure out if using intervals or no_intervals
-
-    CLAIRS_PAIRED.out.vcf_germline_normal.branch{
-            intervals:    it[0].num_intervals > 1
-            no_intervals: it[0].num_intervals <= 1
-        }.set{ clairs_vcf_germline_normal_branch }
-
     //Only when using intervals
     clairs_vcf_germline_normal_branch.intervals
         .map{ meta, vcf_normal ->
@@ -122,18 +118,8 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         MERGE_NORMAL_VCFS_CLAIRS.out.vcf,
         clairs_vcf_germline_normal_branch.no_intervals)
 
-
     // Merge somatic VCF
-    // Figure out if using intervals or no_intervals
-    CLAIRS_PAIRED.out.vcf.branch{
-            intervals:    it[0].num_intervals > 1
-            no_intervals: it[0].num_intervals <= 1
-        }.set{ clairs_vcf_branch }
-
-    CLAIRS_PAIRED.out.tbi.branch{
-            intervals:    it[0].num_intervals > 1
-            no_intervals: it[0].num_intervals <= 1
-        }.set{ clairs_tbi_branch }
+    // First fix headers
     FIX_VCFHEADER_CLAIRS(
         clairs_vcf_branch.intervals
         .map{ meta, vcf -> [meta, vcf]},
