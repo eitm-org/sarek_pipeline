@@ -636,6 +636,7 @@ workflow SAREK {
         // - crams from markduplicates
         // - crams from markduplicates_spark
         // - crams from input step markduplicates --> from the converted ones only?
+        
         ch_md_cram_for_restart = Channel.empty().mix(
             ch_cram_markduplicates_no_spark,
             ch_cram_markduplicates_spark).map{ meta, cram, crai ->
@@ -650,15 +651,17 @@ workflow SAREK {
                             ],
                         cram, crai]
                     }
-
-        //If params.save_output_as_bam, then convert CRAM files to BAM
-        CRAM_TO_BAM(ch_md_cram_for_restart, fasta, fasta_fai)
-        ch_versions = ch_versions.mix(CRAM_TO_BAM.out.versions)
-
-        // CSV should be written for the file actually out, either CRAM or BAM
-        // Create CSV to restart from this step
-        params.save_output_as_bam ? CHANNEL_MARKDUPLICATES_CREATE_CSV(CRAM_TO_BAM.out.alignment_index) : CHANNEL_MARKDUPLICATES_CREATE_CSV(ch_md_cram_for_restart)
-
+        if (params.save_output_as_bam) {
+            //If params.save_output_as_bam, then convert CRAM files to BAM
+            CRAM_TO_BAM(ch_md_cram_for_restart, fasta, fasta_fai)
+            ch_versions = ch_versions.mix(CRAM_TO_BAM.out.versions)
+            // CSV should be written for the file actually out, either CRAM or BAM
+            // Create CSV to restart from this step
+            CHANNEL_MARKDUPLICATES_CREATE_CSV(CRAM_TO_BAM.out.alignment_index)
+        else:
+            // CSV should be written for the file actually out, either CRAM or BAM
+            // Create CSV to restart from this step
+            CHANNEL_MARKDUPLICATES_CREATE_CSV(ch_md_cram_for_restart)
     }
 
     if (params.step in ['mapping', 'markduplicates', 'prepare_recalibration']) {
