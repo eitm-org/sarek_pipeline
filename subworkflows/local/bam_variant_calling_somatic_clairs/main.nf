@@ -108,21 +108,6 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
             [new_meta, vcf_tumor]
         }.groupTuple().view()
 
-    clairs_vcf_germline_normal_branch.intervals
-        .map{ meta, vcf_tumor ->
-
-            new_meta = [
-                        id:meta.normal_id + "_germline",
-                        normal_id:meta.normal_id,
-                        num_intervals:meta.num_intervals,
-                        patient:meta.patient,
-                        sex:meta.sex,
-                        tumor_id:meta.tumor_id
-                    ]
-
-            [new_meta, vcf_tumor]
-        }.groupTuple().view()
-
     MERGE_TUMOR_VCFS_CLAIRS(
         clairs_vcf_germline_tumor_branch.intervals
         .map{ meta, vcf_tumor ->
@@ -149,6 +134,21 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
 
     // Merge normal germline VCF
     // Figure out if using intervals or no_intervals
+    clairs_vcf_germline_normal_branch.intervals
+        .map{ meta, vcf_tumor ->
+
+            new_meta = [
+                        id:meta.normal_id + "_germline",
+                        normal_id:meta.normal_id,
+                        num_intervals:meta.num_intervals,
+                        patient:meta.patient,
+                        sex:meta.sex,
+                        tumor_id:meta.tumor_id
+                    ]
+
+            [new_meta, vcf_tumor]
+        }.groupTuple().view()
+
     CLAIRS_PAIRED.out.vcf_germline_normal.branch{
             intervals:    it[0].num_intervals > 1
             no_intervals: it[0].num_intervals <= 1
