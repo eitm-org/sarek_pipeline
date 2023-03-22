@@ -72,7 +72,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
                         tumor_id:meta.tumor_id
                     ]
 
-            [groupKey(new_meta, meta.num_intervals), vcf]
+            [new_meta, vcf]
         }.groupTuple(),
         dict
     )
