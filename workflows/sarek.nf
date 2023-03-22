@@ -1222,7 +1222,7 @@ def extract_csv(csv_file) {
     // 1. If params.step == "mapping", then each row should specify a lane and the same combination of patient, sample and lane shouldn't be present in different rows.
     // 2. The same sample shouldn't be listed for different patients.
     def patient_sample_lane_combinations_in_samplesheet = []
-    def sample2patient = [:]
+    // def sample2patient = [:]
 
     Channel.of(csv_file).splitCsv(header: true)
         .map{ row ->
@@ -1239,12 +1239,12 @@ def extract_csv(csv_file) {
                     patient_sample_lane_combinations_in_samplesheet.add(patient_sample_lane)
                 }
             }
-            if (!sample2patient.containsKey(row.sample.toString())) {
-                sample2patient[row.sample.toString()] = row.patient.toString()
-            } else if (sample2patient[row.sample.toString()] != row.patient.toString()) {
-                log.error('The sample "' + row.sample.toString() + '" is registered for both patient "' + row.patient.toString() + '" and "' + sample2patient[row.sample.toString()] + '" in the sample sheet.')
-                System.exit(1)
-            }
+            // if (!sample2patient.containsKey(row.sample.toString())) {
+            //     sample2patient[row.sample.toString()] = row.patient.toString()
+            // } else if (sample2patient[row.sample.toString()] != row.patient.toString()) {
+            //     log.error('The sample "' + row.sample.toString() + '" is registered for both patient "' + row.patient.toString() + '" and "' + sample2patient[row.sample.toString()] + '" in the sample sheet.')
+            //     System.exit(1)
+            // }
         }
 
     sample_count_all = 0
