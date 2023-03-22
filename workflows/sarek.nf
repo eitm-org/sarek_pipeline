@@ -716,7 +716,7 @@ workflow SAREK {
                                                         cram, crai]
                                                     }
         }
-        ch_cram_for_bam_baserecalibrator.view()
+        // ch_cram_for_bam_baserecalibrator.view()
 
         // STEP 3: Create recalibration tables
         if (!(params.skip_tools && params.skip_tools.split(',').contains('baserecalibrator'))) {
