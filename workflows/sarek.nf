@@ -651,7 +651,6 @@ workflow SAREK {
                             ],
                         cram, crai]
                     }
-        ch_md_cram_for_restart.view()
         if (params.save_output_as_bam) {
             //If params.save_output_as_bam, then convert CRAM files to BAM
             CRAM_TO_BAM(ch_md_cram_for_restart, fasta, fasta_fai)
