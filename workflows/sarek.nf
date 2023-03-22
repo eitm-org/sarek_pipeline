@@ -647,7 +647,8 @@ workflow SAREK {
                             patient:    meta.patient,
                             sample:     meta.sample,
                             sex:        meta.sex,
-                            status:     meta.status
+                            status:     meta.status,
+                            read_group: meta.read_group,
                             ],
                         cram, crai]
                     }
