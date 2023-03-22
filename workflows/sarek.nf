@@ -1218,7 +1218,7 @@ def extract_csv(csv_file) {
     // 1. If params.step == "mapping", then each row should specify a lane and the same combination of patient, sample and lane shouldn't be present in different rows.
     // 2. The same sample shouldn't be listed for different patients.
     def patient_sample_lane_combinations_in_samplesheet = []
-    // def sample2patient = [:]
+    def sample2patient = [:]
 
     Channel.of(csv_file).splitCsv(header: true)
         .map{ row ->
