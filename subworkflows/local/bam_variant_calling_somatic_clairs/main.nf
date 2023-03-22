@@ -41,18 +41,18 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     CLAIRS_PAIRED.out.vcf_germline_tumor.branch{
             intervals:    it[0].num_intervals > 1
             no_intervals: it[0].num_intervals <= 1
-        }.collect().set{ clairs_vcf_germline_tumor_branch }
-    
+        }.set{ clairs_vcf_germline_tumor_branch }
+    clairs_vcf_germline_tumor_branch.collect()
 
     CLAIRS_PAIRED.out.vcf_germline_normal.branch{
             intervals:    it[0].num_intervals > 1
             no_intervals: it[0].num_intervals <= 1
-        }.collect().set{ clairs_vcf_germline_normal_branch }
-
+        }.set{ clairs_vcf_germline_normal_branch }
+    clairs_vcf_germline_normal_branch.collect()
     CLAIRS_PAIRED.out.vcf.branch{
             intervals:    it[0].num_intervals > 1
             no_intervals: it[0].num_intervals <= 1
-        }.collect().set{ clairs_vcf_branch }
+        }.set{ clairs_vcf_branch }
 
     CLAIRS_PAIRED.out.tbi.branch{
             intervals:    it[0].num_intervals > 1
