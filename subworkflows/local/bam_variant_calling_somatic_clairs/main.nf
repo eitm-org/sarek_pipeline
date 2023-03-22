@@ -134,6 +134,14 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
 
     // Merge normal germline VCF
     // Figure out if using intervals or no_intervals
+
+    CLAIRS_PAIRED.out.vcf_germline_normal.branch{
+            intervals:    it[0].num_intervals > 1
+            no_intervals: it[0].num_intervals <= 1
+        }.set{ clairs_vcf_germline_normal_branch }
+
+    //Only when using intervals
+
     clairs_vcf_germline_normal_branch.intervals
         .map{ meta, vcf_tumor ->
 
@@ -149,12 +157,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
             [new_meta, vcf_tumor]
         }.groupTuple().view()
 
-    CLAIRS_PAIRED.out.vcf_germline_normal.branch{
-            intervals:    it[0].num_intervals > 1
-            no_intervals: it[0].num_intervals <= 1
-        }.set{ clairs_vcf_germline_normal_branch }
 
-    //Only when using intervals
     MERGE_NORMAL_VCFS_CLAIRS(
         clairs_vcf_germline_normal_branch.intervals
         .map{ meta, vcf_normal ->
