@@ -36,55 +36,6 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         dict,
         normal_vcf
     )
-
-    // Merge somatic VCF
-    // Figure out if using intervals or no_intervals
-    CLAIRS_PAIRED.out.vcf.branch{
-            intervals:    it[0].num_intervals > 1
-            no_intervals: it[0].num_intervals <= 1
-        }.set{ clairs_vcf_branch }
-
-    CLAIRS_PAIRED.out.tbi.branch{
-            intervals:    it[0].num_intervals > 1
-            no_intervals: it[0].num_intervals <= 1
-        }.set{ clairs_tbi_branch }
-    FIX_VCFHEADER_CLAIRS(
-        clairs_vcf_branch.intervals
-        .map{ meta, vcf -> [meta, vcf]},
-        vcf_header
-    )
-    FIX_VCFHEADER_CLAIRS.out.vcf.branch{
-            intervals:    it[0].num_intervals > 1
-            no_intervals: it[0].num_intervals <= 1
-        }.set{ clairs_fixed_vcf_branch }
-
-    //Only when using intervals
-    MERGE_VCFS_CLAIRS(
-        clairs_fixed_vcf_branch.intervals
-        .map{ meta, vcf ->
-
-            new_meta = [
-                        id:meta.tumor_id + "_vs_" + meta.normal_id,
-                        normal_id:meta.normal_id,
-                        num_intervals:meta.num_intervals,
-                        patient:meta.patient,
-                        sex:meta.sex,
-                        tumor_id:meta.tumor_id
-                    ]
-
-            [new_meta, vcf]
-        }.groupTuple(),
-        dict
-    )
-
-    clairs_vcf = Channel.empty().mix(
-        MERGE_VCFS_CLAIRS.out.vcf,
-        clairs_vcf_branch.no_intervals)
-
-    clairs_tbi = Channel.empty().mix(
-        MERGE_VCFS_CLAIRS.out.tbi,
-        clairs_tbi_branch.no_intervals)
-
     // Merge tumor germline VCF
     // Figure out if using intervals or no_intervals
     CLAIRS_PAIRED.out.vcf_germline_tumor.branch{
@@ -150,7 +101,6 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
                         sex:meta.sex,
                         tumor_id:meta.tumor_id
                     ]
-
             [new_meta, vcf_normal]
         }.view()
     MERGE_NORMAL_VCFS_CLAIRS(
@@ -174,7 +124,54 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         MERGE_NORMAL_VCFS_CLAIRS.out.vcf,
         clairs_vcf_germline_normal_branch.no_intervals)
 
-    
+
+    // Merge somatic VCF
+    // Figure out if using intervals or no_intervals
+    CLAIRS_PAIRED.out.vcf.branch{
+            intervals:    it[0].num_intervals > 1
+            no_intervals: it[0].num_intervals <= 1
+        }.set{ clairs_vcf_branch }
+
+    CLAIRS_PAIRED.out.tbi.branch{
+            intervals:    it[0].num_intervals > 1
+            no_intervals: it[0].num_intervals <= 1
+        }.set{ clairs_tbi_branch }
+    FIX_VCFHEADER_CLAIRS(
+        clairs_vcf_branch.intervals
+        .map{ meta, vcf -> [meta, vcf]},
+        vcf_header
+    )
+    FIX_VCFHEADER_CLAIRS.out.vcf.branch{
+            intervals:    it[0].num_intervals > 1
+            no_intervals: it[0].num_intervals <= 1
+        }.set{ clairs_fixed_vcf_branch }
+
+    //Only when using intervals
+    MERGE_VCFS_CLAIRS(
+        clairs_fixed_vcf_branch.intervals
+        .map{ meta, vcf ->
+
+            new_meta = [
+                        id:meta.tumor_id + "_vs_" + meta.normal_id,
+                        normal_id:meta.normal_id,
+                        num_intervals:meta.num_intervals,
+                        patient:meta.patient,
+                        sex:meta.sex,
+                        tumor_id:meta.tumor_id
+                    ]
+
+            [new_meta, vcf]
+        }.groupTuple(),
+        dict
+    )
+
+    clairs_vcf = Channel.empty().mix(
+        MERGE_VCFS_CLAIRS.out.vcf,
+        clairs_vcf_branch.no_intervals)
+
+    clairs_tbi = Channel.empty().mix(
+        MERGE_VCFS_CLAIRS.out.tbi,
+        clairs_tbi_branch.no_intervals)
 
     ch_versions = ch_versions.mix(MERGE_VCFS_CLAIRS.out.versions)
     ch_versions = ch_versions.mix(CLAIRS_PAIRED.out.versions)
