@@ -658,10 +658,12 @@ workflow SAREK {
             // CSV should be written for the file actually out, either CRAM or BAM
             // Create CSV to restart from this step
             CHANNEL_MARKDUPLICATES_CREATE_CSV(CRAM_TO_BAM.out.alignment_index)
-        else:
+        }
+        else {
             // CSV should be written for the file actually out, either CRAM or BAM
             // Create CSV to restart from this step
             CHANNEL_MARKDUPLICATES_CREATE_CSV(ch_md_cram_for_restart)
+        }
     }
 
     if (params.step in ['mapping', 'markduplicates', 'prepare_recalibration']) {
