@@ -906,18 +906,8 @@ workflow SAREK {
     //     params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
     //     ch_cram_variant_calling = BAM_TO_CRAM_MAPPING.out.alignment_index
     // }
-    if (params.step == 'variant_calling') {
+    if (params.step in ['variant_calling', 'markduplicates']) {
         ch_cram_variant_calling = Channel.empty()
-
-        
-
-        // ch_input_sample.branch{
-        //         bam: it[0].data_type == "bam"
-        //         cram: it[0].data_type == "cram"
-        //     }.set{ch_convert}
-        // BAM_TO_CRAM(ch_convert.bam, fasta, fasta_fai)
-
-
         BAM_ADDREPLACERG(ch_input_sample)
         
         ch_cram_mapped = BAM_ADDREPLACERG.out.bam.map{ meta, bam ->
