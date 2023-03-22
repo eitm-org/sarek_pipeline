@@ -866,7 +866,6 @@ workflow SAREK {
             // ch_cram_variant_calling contains either:
             // - crams from markduplicates = ch_cram_for_bam_baserecalibrator if skip BQSR but not started from step recalibration
             ch_cram_variant_calling = Channel.empty().mix(ch_cram_for_bam_baserecalibrator)
-            ch_cram_variant_calling.view()
         }
     }
     // if (params.step == 'markduplicates') {
@@ -914,6 +913,7 @@ workflow SAREK {
     //     ch_cram_variant_calling = BAM_TO_CRAM_MAPPING.out.alignment_index
     // }
     if (params.step in ['variant_calling', 'markduplicates']) {
+        ch_cram_variant_calling.view()
         BAM_ADDREPLACERG(ch_cram_variant_calling)
         
         ch_cram_mapped = BAM_ADDREPLACERG.out.bam.map{ meta, bam ->
