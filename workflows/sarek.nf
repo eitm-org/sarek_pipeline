@@ -915,7 +915,7 @@ workflow SAREK {
     if (params.step in ['variant_calling', 'markduplicates']) {
         // BAM_ADDREPLACERG(ch_cram_variant_calling)
         
-        ch_cram_mapped = ch_cram_variant_calling.map{ meta, bam ->
+        ch_cram_mapped = ch_cram_variant_calling.map{ meta, bam, bai ->
             // update ID when no multiple lanes or splitted fastqs
             // new_id = meta.size * meta.numLanes == 1 ? meta.sample : meta.id
             numLanes = meta.numLanes ?: 1
