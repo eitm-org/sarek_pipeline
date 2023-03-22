@@ -42,13 +42,13 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
             intervals:    it[0].num_intervals > 1
             no_intervals: it[0].num_intervals <= 1
         }.set{ clairs_vcf_germline_tumor_branch }
-    clairs_vcf_germline_tumor_branch.collect()
+
 
     CLAIRS_PAIRED.out.vcf_germline_normal.branch{
             intervals:    it[0].num_intervals > 1
             no_intervals: it[0].num_intervals <= 1
         }.set{ clairs_vcf_germline_normal_branch }
-    clairs_vcf_germline_normal_branch.collect()
+
     CLAIRS_PAIRED.out.vcf.branch{
             intervals:    it[0].num_intervals > 1
             no_intervals: it[0].num_intervals <= 1
@@ -74,7 +74,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
                         tumor_id:meta.tumor_id
                     ]
 
-            [groupKey(new_meta, meta.num_intervals), vcf_tumor]
+            [new_meta, vcf_tumor]
         }.groupTuple(),
         dict
     )
@@ -98,7 +98,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
                         tumor_id:meta.tumor_id
                     ]
 
-            [groupKey(new_meta, meta.num_intervals), vcf_normal]
+            [new_meta, vcf_normal]
         }.groupTuple(),
         dict
     )
