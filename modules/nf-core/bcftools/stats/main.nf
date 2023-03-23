@@ -8,7 +8,7 @@ process BCFTOOLS_STATS {
         'quay.io/biocontainers/bcftools:1.16--hfe4b78e_1' }"
 
     input:
-    tuple val(meta), path(vcf)
+    tuple val(meta), path(vcf), path(tbi)
     path regions
     path targets
     path samples
