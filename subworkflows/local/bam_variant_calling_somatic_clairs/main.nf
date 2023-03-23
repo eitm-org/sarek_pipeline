@@ -93,10 +93,9 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     }.set{ch_clairs_vcf_normal_germline}
     
 
-    clairs_vcfs_branch.intervals
-        .map{ meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline ->
-            [meta,  vcf_paired]
-        }.set{ch_clairs_vcf_paired_for_fixheader}
+    clairs_vcfs_branch_grouped.map{meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline -> 
+        [meta, vcf_paired]
+    }.set{ch_clairs_vcf_paired}
 
     // Merge tumor germline VCF
     // Only when using intervals
@@ -183,11 +182,11 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
             no_intervals: it[0].num_intervals <= 1
         }.set{ clairs_fixed_vcf_paired_branch }
     
-    FIX_VCFHEADER_CLAIRS.out.vcf.map{meta, vcf_paired -> [meta, vcf_paired]}.view()
+    FIX_VCFHEADER_CLAIRS.out.vcf.view()
 
     //Only when using intervals
     MERGE_VCFS_PAIRED_CLAIRS(
-        clairs_fixed_vcf_paired_branch.intervals.groupTuple(),
+        ch_clairs_vcf_paired,
         dict
     )
 
