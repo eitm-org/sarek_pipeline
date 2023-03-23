@@ -290,6 +290,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
         )
 
         clairs_vcf = BAM_VARIANT_CALLING_SOMATIC_CLAIRS.out.clairs_vcf
+        clairs_tbi = BAM_VARIANT_CALLING_SOMATIC_CLAIRS.out.clairs_tbi
         ch_versions = ch_versions.mix(BAM_VARIANT_CALLING_SOMATIC_CLAIRS.out.versions)
     }
 
@@ -313,6 +314,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
     msisensorpro_output
     mutect2_vcf
     clairs_vcf
+    clairs_tbi
     strelka_vcf
     tiddit_vcf
 
