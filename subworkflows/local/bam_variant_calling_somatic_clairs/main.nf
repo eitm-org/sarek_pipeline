@@ -182,6 +182,8 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
             intervals:    it[0].num_intervals > 1
             no_intervals: it[0].num_intervals <= 1
         }.set{ clairs_fixed_vcf_paired_branch }
+    
+    clairs_fixed_vcf_paired_branch.map{meta, vcf_paired -> [meta, vcf_paired]}.groupTuple().view()
 
     //Only when using intervals
     MERGE_VCFS_PAIRED_CLAIRS(
