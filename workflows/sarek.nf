@@ -382,13 +382,55 @@ workflow SAREK {
 
     // PREPROCESSING
 
+    // Figure out if input is bam or fastq
+    ch_input_sample.branch{
+        bam:   it[0].data_type == "bam"
+        fastq: it[0].data_type == "fastq"
+    }.set{ch_input_sample_type}
+
+    
+    BAM_ADDREPLACERG(ch_input_sample_type.bam)
+        
+    ch_bam_mapped = BAM_ADDREPLACERG.out.bam.map{ meta, bam ->
+        // update ID when no multiple lanes or splitted fastqs
+        // new_id = meta.size * meta.numLanes == 1 ? meta.sample : meta.id
+        numLanes = meta.numLanes ?: 1
+        size     = meta.size     ?: 1
+
+        flowcell = bam.baseName.split('_')[0]
+        CN          = params.seq_center ? "CN:${params.seq_center}\\t" : ''
+        new_read_group  = "\"@RG\\tID:${flowcell}_${meta.sample}\\t${CN}PU:${flowcell}\\tSM:${meta.patient}_${meta.sample}\\tLB:${meta.sample}\\tDS:${params.fasta}\\tPL:${params.seq_platform}\""
+
+        new_meta = [
+            data_type:  meta.data_type,
+            id:         meta.sample,
+            patient:    meta.patient,
+            sample:     meta.sample,
+            sex:        meta.sex,
+            status:     meta.status,
+            read_group: new_read_group
+            ]
+        [new_meta, bam]
+    }.groupTuple()
+
+    BAM_MERGE_INDEX_SAMTOOLS(ch_bam_mapped)
+
+    BAM_TO_CRAM_MAPPING(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta, fasta_fai)
+    params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
+    //BAM files first must be converted to CRAM files since from this step on we base everything on CRAM format
+    
+    ch_versions = ch_versions.mix(BAM_TO_CRAM_MAPPING.out.versions)
+
+
+
+
     if (params.step == 'mapping') {
 
         // Figure out if input is bam or fastq
-        ch_input_sample.branch{
-            bam:   it[0].data_type == "bam"
-            fastq: it[0].data_type == "fastq"
-        }.set{ch_input_sample_type}
+        // ch_input_sample.branch{
+        //     bam:   it[0].data_type == "bam"
+        //     fastq: it[0].data_type == "fastq"
+        // }.set{ch_input_sample_type}
 
         // convert any bam input to fastq
         // Fasta are not needed when converting bam to fastq -> []
@@ -562,7 +604,7 @@ workflow SAREK {
 
         // ch_bam_for_markduplicates will countain bam mapped with FASTQ_ALIGN_BWAMEM_MEM2_DRAGMAP when step is mapping
         // Or bams that are specified in the samplesheet.csv when step is prepare_recalibration
-        ch_for_markduplicates = params.step == 'mapping'? ch_bam_mapped : ch_input_sample.map{ meta, input, index -> [meta, input] }
+        ch_for_markduplicates = params.step == 'mapping'? ch_bam_mapped : BAM_TO_CRAM_MAPPING.out.alignment_index
 
         // if no MD is done, then run QC on mapped & converted CRAM files
         // or the input BAM (+converted) or CRAM files
@@ -894,37 +936,37 @@ workflow SAREK {
     //     ch_cram_variant_calling = BAM_TO_CRAM_MAPPING.out.alignment_index
     // }
     if (params.step in ['variant_calling', 'markduplicates']) {
-        BAM_ADDREPLACERG(ch_input_sample)
+        // BAM_ADDREPLACERG(ch_input_sample)
         
-        ch_cram_mapped = BAM_ADDREPLACERG.out.bam.map{ meta, bam ->
-            // update ID when no multiple lanes or splitted fastqs
-            // new_id = meta.size * meta.numLanes == 1 ? meta.sample : meta.id
-            numLanes = meta.numLanes ?: 1
-            size     = meta.size     ?: 1
+        // ch_cram_mapped = BAM_ADDREPLACERG.out.bam.map{ meta, bam ->
+        //     // update ID when no multiple lanes or splitted fastqs
+        //     // new_id = meta.size * meta.numLanes == 1 ? meta.sample : meta.id
+        //     numLanes = meta.numLanes ?: 1
+        //     size     = meta.size     ?: 1
 
-            flowcell = bam.baseName.split('_')[0]
-            CN          = params.seq_center ? "CN:${params.seq_center}\\t" : ''
-            new_read_group  = "\"@RG\\tID:${flowcell}_${meta.sample}\\t${CN}PU:${flowcell}\\tSM:${meta.patient}_${meta.sample}\\tLB:${meta.sample}\\tDS:${params.fasta}\\tPL:${params.seq_platform}\""
+        //     flowcell = bam.baseName.split('_')[0]
+        //     CN          = params.seq_center ? "CN:${params.seq_center}\\t" : ''
+        //     new_read_group  = "\"@RG\\tID:${flowcell}_${meta.sample}\\t${CN}PU:${flowcell}\\tSM:${meta.patient}_${meta.sample}\\tLB:${meta.sample}\\tDS:${params.fasta}\\tPL:${params.seq_platform}\""
 
-            new_meta = [
-                data_type:  meta.data_type,
-                id:         meta.sample,
-                patient:    meta.patient,
-                sample:     meta.sample,
-                sex:        meta.sex,
-                status:     meta.status,
-                read_group: new_read_group
-                ]
-            [new_meta, bam]
-        }.groupTuple()
+        //     new_meta = [
+        //         data_type:  meta.data_type,
+        //         id:         meta.sample,
+        //         patient:    meta.patient,
+        //         sample:     meta.sample,
+        //         sex:        meta.sex,
+        //         status:     meta.status,
+        //         read_group: new_read_group
+        //         ]
+        //     [new_meta, bam]
+        // }.groupTuple()
 
-        BAM_MERGE_INDEX_SAMTOOLS(ch_cram_mapped)
+        // BAM_MERGE_INDEX_SAMTOOLS(ch_cram_mapped)
 
-        BAM_TO_CRAM_MAPPING(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta, fasta_fai)
-        params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
-        //BAM files first must be converted to CRAM files since from this step on we base everything on CRAM format
+        // BAM_TO_CRAM_MAPPING(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta, fasta_fai)
+        // params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
+        // //BAM files first must be converted to CRAM files since from this step on we base everything on CRAM format
         
-        ch_versions = ch_versions.mix(BAM_TO_CRAM_MAPPING.out.versions)
+        // ch_versions = ch_versions.mix(BAM_TO_CRAM_MAPPING.out.versions)
 
         ch_cram_variant_calling = Channel.empty().mix(BAM_TO_CRAM_MAPPING.out.alignment_index)
     }
