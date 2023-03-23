@@ -15,11 +15,13 @@ process CLAIRS {
     path normal_vcf
 
     output:
-    tuple val(meta), path("*.clairs.*.vcf.gz")     , emit: vcf
-    tuple val(meta), path("*.clairs.*.vcf.gz.tbi")        , emit: tbi
-    tuple val(meta), path("*_normal_germline_*.vcf.gz"), optional:true, emit: vcf_germline_normal
-    tuple val(meta), path("*_tumor_germline_*.vcf.gz"), optional:false, emit: vcf_germline_tumor
-    path "versions.yml"                   , emit: versions
+    tuple   val(meta), 
+            path("*.clairs.*.vcf.gz"),
+            path("*_tumor_germline_*.vcf.gz"),
+            path("*_tumor_pileup_*.vcf.gz"),
+            path("*_normal_germline_*.vcf.gz"),         emit: vcfs
+    tuple val(meta), path("*.clairs.*.vcf.gz.tbi"),     emit: tbi
+    path "versions.yml",                                emit: versions
 
 
     when:
@@ -49,6 +51,7 @@ process CLAIRS {
 
     $mv_normal_vcf_command
     mv tmp/clair3_output/clair3_tumor_output/merge_output.vcf.gz ${meta.tumor_id}_tumor_germline_${suffix}.vcf.gz
+    mv tmp/clair3_output/clair3_tumor_output/pileup.vcf.gz.vcf.gz ${meta.tumor_id}_tumor_pileup_${suffix}.vcf.gz
 
     
     cat <<-END_VERSIONS > versions.yml
@@ -64,6 +67,7 @@ process CLAIRS {
     touch ${prefix}.vcf.gz.tbi
     touch ${meta.normal_id}_normal_germline_${suffix}.vcf.gz
     touch ${meta.tumor_id}_tumor_germline_${suffix}.vcf.gz
+    touch ${meta.tumor_id}_tumor_pileup_${suffix}.vcf.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
