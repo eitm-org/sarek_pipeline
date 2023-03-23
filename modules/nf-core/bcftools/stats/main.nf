@@ -33,7 +33,7 @@ process BCFTOOLS_STATS {
         $regions_file \\
         $targets_file \\
         $samples_file \\
-        $vcf > ${prefix}.bcftools_stats.txt
+        $vcf > ${prefix}.bcftools_stats.txt \\
         --include DP
 
     cat <<-END_VERSIONS > versions.yml
