@@ -604,7 +604,7 @@ workflow SAREK {
 
         // ch_bam_for_markduplicates will countain bam mapped with FASTQ_ALIGN_BWAMEM_MEM2_DRAGMAP when step is mapping
         // Or bams that are specified in the samplesheet.csv when step is prepare_recalibration
-        ch_for_markduplicates = params.step == 'mapping'? ch_bam_mapped : BAM_TO_CRAM_MAPPING.out.alignment_index.map(meta, cram, crai -> 
+        ch_for_markduplicates = params.step == 'mapping'? ch_bam_mapped : BAM_TO_CRAM_MAPPING.out.alignment_index.map{meta, cram, crai -> 
             new_meta = [
                             id:meta.sample,
                             data_type:"cram",
@@ -614,7 +614,7 @@ workflow SAREK {
                             status:meta.status,
                         ]
             [new_meta, cram]
-        )
+        }
         // if no MD is done, then run QC on mapped & converted CRAM files
         // or the input BAM (+converted) or CRAM files
         ch_cram_skip_markduplicates = Channel.empty()
