@@ -66,7 +66,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
                         tumor_id:meta.tumor_id
                     ]
         [new_meta, vcf_tumor_germline]
-    }.view()
+    }.set{ch_clairs_vcf_tumor_germline}
 
     clairs_vcfs_branch_grouped.map{meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline -> 
         new_meta = [
@@ -78,7 +78,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
                         tumor_id:meta.tumor_id
                     ]
         [new_meta, vcf_tumor_pileup]
-    }.view()
+    }.set{ch_clairs_vcf_tumor_pileup}
 
     clairs_vcfs_branch_grouped.map{meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline -> 
         new_meta = [
@@ -90,32 +90,17 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
                         tumor_id:meta.tumor_id
                     ]
         [new_meta, vcf_normal_germline]
-    }.view()
+    }.set{ch_clairs_vcf_normal_germline}
     
 
     clairs_vcfs_branch.intervals
         .map{ meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline ->
             [meta,  vcf_paired]
-        }.view()
-    
+        }.set{ch_clairs_vcf_paired_for_fixheader}
+
     // Merge tumor germline VCF
     // Only when using intervals
-    MERGE_VCFS_TUMOR_GERMLINE_CLAIRS(
-        clairs_vcfs_branch.intervals
-        .map{ meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline ->
-
-            new_meta = [
-                        id:meta.tumor_id + "_germline",
-                        normal_id:meta.normal_id,
-                        num_intervals:meta.num_intervals,
-                        patient:meta.patient,
-                        sex:meta.sex,
-                        tumor_id:meta.tumor_id
-                    ]
-            [groupKey(new_meta, meta.num_intervals), vcf_tumor_germline]
-        }.groupTuple(),
-        dict
-    )
+    MERGE_VCFS_TUMOR_GERMLINE_CLAIRS(ch_clairs_vcf_tumor_germline)
 
     clairs_vcf_tumor_germline = Channel.empty().mix(
         MERGE_VCFS_TUMOR_GERMLINE_CLAIRS.out.vcf,
@@ -134,20 +119,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
 
     // Merge tumor pilep VCF
     //Only when using intervals
-    MERGE_VCFS_TUMOR_PILEUP_CLAIRS(
-        clairs_vcfs_branch.intervals.map{ meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline ->
-            new_meta = [
-                        id:meta.tumor_id + "_pileup",
-                        normal_id:meta.normal_id,
-                        num_intervals:meta.num_intervals,
-                        patient:meta.patient,
-                        sex:meta.sex,
-                        tumor_id:meta.tumor_id
-                    ]
-            [groupKey(new_meta, meta.num_intervals), vcf_tumor_pileup]
-        }.groupTuple(),
-        dict
-    )
+    MERGE_VCFS_TUMOR_PILEUP_CLAIRS(ch_clairs_vcf_tumor_pileup)
 
     clairs_vcf_tumor_pileup = Channel.empty().mix(
         MERGE_VCFS_TUMOR_PILEUP_CLAIRS.out.vcf,
@@ -167,20 +139,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     // Merge normal germline VCF
     //Only when using intervals
 
-    MERGE_VCFS_NORMAL_GERMLINE_CLAIRS(
-        clairs_vcfs_branch.intervals.map{ meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline ->
-            new_meta = [
-                        id:meta.normal_id + "_germline",
-                        normal_id:meta.normal_id,
-                        num_intervals:meta.num_intervals,
-                        patient:meta.patient,
-                        sex:meta.sex,
-                        tumor_id:meta.tumor_id
-                    ]
-            [groupKey(new_meta, meta.num_intervals), vcf_normal_germline]
-        }.groupTuple(),
-        dict
-    )
+    MERGE_VCFS_NORMAL_GERMLINE_CLAIRS(ch_clairs_vcf_normal_germline)
 
     clairs_vcf_normal_germline = Channel.empty().mix(
         MERGE_VCFS_NORMAL_GERMLINE_CLAIRS.out.vcf,
