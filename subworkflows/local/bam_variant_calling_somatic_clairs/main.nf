@@ -162,20 +162,20 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     // First fix headers
 
 
-    clairs_vcfs_branch.intervals.map{ meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline ->
-        new_meta = [
-                    id:meta.normal_id + "_vs_" + meta.tumor_id,
-                    normal_id:meta.normal_id,
-                    num_intervals:meta.num_intervals,
-                    patient:meta.patient,
-                    sex:meta.sex,
-                    tumor_id:meta.tumor_id
-                ]
-        [new_meta, vcf_paired]
-    }.set{ch_clairs_vcfs_paired}
+    // clairs_vcfs_branch.intervals.map{ meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline ->
+    //     new_meta = [
+    //                 id:meta.normal_id + "_vs_" + meta.tumor_id,
+    //                 normal_id:meta.normal_id,
+    //                 num_intervals:meta.num_intervals,
+    //                 patient:meta.patient,
+    //                 sex:meta.sex,
+    //                 tumor_id:meta.tumor_id
+    //             ]
+    //     [new_meta, vcf_paired]
+    // }.set{ch_clairs_vcfs_paired}
 
     FIX_VCFHEADER_CLAIRS(
-        ch_clairs_vcfs_paired,
+        ch_clairs_vcf_paired_for_fixheader,
         vcf_header
     )
     FIX_VCFHEADER_CLAIRS.out.vcf.branch{
