@@ -10,6 +10,8 @@ include { SAMTOOLS_MERGE as MERGE_BAM       } from '../../../modules/nf-core/sam
 workflow BAM_MERGE_INDEX_SAMTOOLS {
     take:
         bam // channel: [mandatory] meta, bam
+        path fasta
+        path fai
 
     main:
     ch_versions = Channel.empty()
@@ -21,7 +23,7 @@ workflow BAM_MERGE_INDEX_SAMTOOLS {
         multiple: it[1].size() > 1
     }.set{bam_to_merge}
 
-    MERGE_BAM(bam_to_merge.multiple, [], [])
+    MERGE_BAM(bam_to_merge.multiple, fasta, fai)
     INDEX_MERGE_BAM(bam_to_merge.single.mix(MERGE_BAM.out.bam))
 
     bam_bai = bam_to_merge.single.map{meta, bam -> [meta, bam[0]]}

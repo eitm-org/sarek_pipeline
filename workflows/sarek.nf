@@ -642,7 +642,7 @@ workflow SAREK {
             ch_cram_markduplicates_spark).map{ meta, cram, crai ->
                         //Make sure correct data types are carried through
                         [[
-                            data_type:  "bam",
+                            data_type:  "cram",
                             id:         meta.id,
                             patient:    meta.patient,
                             sample:     meta.sample,
@@ -716,7 +716,6 @@ workflow SAREK {
                                                         cram, crai]
                                                     }
         }
-        // ch_cram_for_bam_baserecalibrator.view()
 
         // STEP 3: Create recalibration tables
         if (!(params.skip_tools && params.skip_tools.split(',').contains('baserecalibrator'))) {
@@ -913,9 +912,9 @@ workflow SAREK {
     //     ch_cram_variant_calling = BAM_TO_CRAM_MAPPING.out.alignment_index
     // }
     if (params.step in ['variant_calling', 'markduplicates']) {
-        // BAM_ADDREPLACERG(ch_cram_variant_calling)
+        BAM_ADDREPLACERG(ch_input_sample)
         
-        ch_cram_mapped = ch_cram_variant_calling.map{ meta, bam, bai ->
+        ch_cram_mapped = BAM_ADDREPLACERG.out.bam.map{ meta, bam ->
             // update ID when no multiple lanes or splitted fastqs
             // new_id = meta.size * meta.numLanes == 1 ? meta.sample : meta.id
             numLanes = meta.numLanes ?: 1
@@ -937,7 +936,7 @@ workflow SAREK {
             [new_meta, bam]
         }.groupTuple()
 
-        BAM_MERGE_INDEX_SAMTOOLS(ch_cram_mapped, fasta, fasta_fai)
+        BAM_MERGE_INDEX_SAMTOOLS(ch_cram_mapped)
 
         BAM_TO_CRAM_MAPPING(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta, fasta_fai)
         params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
@@ -1217,7 +1216,7 @@ def extract_csv(csv_file) {
     // 1. If params.step == "mapping", then each row should specify a lane and the same combination of patient, sample and lane shouldn't be present in different rows.
     // 2. The same sample shouldn't be listed for different patients.
     def patient_sample_lane_combinations_in_samplesheet = []
-    def sample2patient = [:]
+    // def sample2patient = [:]
 
     Channel.of(csv_file).splitCsv(header: true)
         .map{ row ->
@@ -1234,12 +1233,12 @@ def extract_csv(csv_file) {
                     patient_sample_lane_combinations_in_samplesheet.add(patient_sample_lane)
                 }
             }
-            if (!sample2patient.containsKey(row.sample.toString())) {
-                sample2patient[row.sample.toString()] = row.patient.toString()
-            } else if (sample2patient[row.sample.toString()] != row.patient.toString()) {
-                log.error('The sample "' + row.sample.toString() + '" is registered for both patient "' + row.patient.toString() + '" and "' + sample2patient[row.sample.toString()] + '" in the sample sheet.')
-                System.exit(1)
-            }
+            // if (!sample2patient.containsKey(row.sample.toString())) {
+            //     sample2patient[row.sample.toString()] = row.patient.toString()
+            // } else if (sample2patient[row.sample.toString()] != row.patient.toString()) {
+            //     log.error('The sample "' + row.sample.toString() + '" is registered for both patient "' + row.patient.toString() + '" and "' + sample2patient[row.sample.toString()] + '" in the sample sheet.')
+            //     System.exit(1)
+            // }
         }
 
     sample_count_all = 0
