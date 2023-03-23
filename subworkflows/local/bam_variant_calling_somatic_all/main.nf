@@ -42,6 +42,8 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
         loci_files                    // channel: [optional]  ascat loci files
         gc_file                       // channel: [optional]  ascat gc content file
         rt_file                       // channel: [optional]  ascat rt file
+        vcf_header                    // channel: [optional] /path/to/vcf_header
+        normal_vcf                // channel: /path/to/normal_germline_vcf
 
     main:
 
@@ -49,11 +51,16 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
 
     //TODO: Temporary until the if's can be removed and printing to terminal is prevented with "when" in the modules.config
     freebayes_vcf        = Channel.empty()
+    freebayes_tbi        = Channel.empty()
     manta_vcf            = Channel.empty()
+    manta_tbi            = Channel.empty()
     strelka_vcf          = Channel.empty()
     msisensorpro_output  = Channel.empty()
     mutect2_vcf          = Channel.empty()
+    mutect2_tbi          = Channel.empty()
     tiddit_vcf           = Channel.empty()
+    clairs_vcf           = Channel.empty()
+    clairs_tbi           = Channel.empty()
 
     // Remap channel with intervals
     cram_pair_intervals = cram_pair.combine(intervals)
@@ -181,6 +188,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
         )
 
         freebayes_vcf = BAM_VARIANT_CALLING_FREEBAYES.out.freebayes_vcf
+        freebayes_tbi = BAM_VARIANT_CALLING_FREEBAYES.out.freebayes_tbi
         ch_versions   = ch_versions.mix(BAM_VARIANT_CALLING_FREEBAYES.out.versions)
     }
 
@@ -264,13 +272,18 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
         )
 
         mutect2_vcf = BAM_VARIANT_CALLING_SOMATIC_MUTECT2.out.filtered_vcf
+        mutect2_tbi = BAM_VARIANT_CALLING_SOMATIC_MUTECT2.out.filtered_tbi
         ch_versions = ch_versions.mix(BAM_VARIANT_CALLING_SOMATIC_MUTECT2.out.versions)
     }
+
     if (tools.split(',').contains('clairs')) {
+        // cram_pair_mutect2 = cram_pair_intervals.map{ meta, normal_cram, normal_crai, tumor_cram, tumor_crai, intervals ->
+        //                         [meta, [normal_cram, tumor_cram], [normal_crai, tumor_crai], intervals]
+        //                     }
+
         cram_pair_mutect2 = cram_pair_intervals.map{ meta, normal_cram, normal_crai, tumor_cram, tumor_crai, intervals ->
                                 [meta, [normal_cram, tumor_cram], [normal_crai, tumor_crai], intervals]
                             }
-
         BAM_VARIANT_CALLING_SOMATIC_CLAIRS(
             cram_pair_mutect2,
             fasta,
@@ -278,9 +291,12 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
             dict,
             germline_resource,
             germline_resource_tbi,
+            vcf_header,
+            normal_vcf
         )
 
-        clairs_vcf = BAM_VARIANT_CALLING_SOMATIC_CLAIRS.out.filtered_vcf
+        clairs_vcf = BAM_VARIANT_CALLING_SOMATIC_CLAIRS.out.clairs_vcf
+        clairs_tbi = BAM_VARIANT_CALLING_SOMATIC_CLAIRS.out.clairs_tbi
         ch_versions = ch_versions.mix(BAM_VARIANT_CALLING_SOMATIC_CLAIRS.out.versions)
     }
 
@@ -300,9 +316,13 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
 
     emit:
     freebayes_vcf
+    freebayes_tbi
     manta_vcf
     msisensorpro_output
     mutect2_vcf
+    mutect2_tbi
+    clairs_vcf
+    clairs_tbi
     strelka_vcf
     tiddit_vcf
 

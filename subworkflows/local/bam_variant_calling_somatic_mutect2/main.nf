@@ -273,6 +273,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_MUTECT2 {
 
     emit:
     mutect2_vcf            = mutect2_vcf                                    // channel: [ val(meta), [ vcf ] ]
+    mutect2_tbi            = mutect2_tbi
     mutect2_stats          = mutect2_stats                                  // channel: [ val(meta), [ stats ] ]
 
     artifact_priors        = LEARNREADORIENTATIONMODEL.out.artifactprior    // channel: [ val(meta), [ artifactprior ] ]

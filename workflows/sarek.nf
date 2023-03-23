@@ -46,7 +46,9 @@ def checkPathParamList = [
     params.spliceai_indel_tbi,
     params.spliceai_snv,
     params.spliceai_snv_tbi,
-    params.vep_cache
+    params.vep_cache,
+    params.vcf_header,
+    params.normal_vcf
 ]
 
 /*
@@ -162,6 +164,10 @@ known_indels       = params.known_indels       ? Channel.fromPath(params.known_i
 known_snps         = params.known_snps         ? Channel.fromPath(params.known_snps).collect()               : Channel.value([])
 mappability        = params.mappability        ? Channel.fromPath(params.mappability).collect()              : Channel.value([])
 pon                = params.pon                ? Channel.fromPath(params.pon).collect()                      : Channel.value([]) //PON is optional for Mutect2 (but highly recommended)
+vcf_header         = params.vcf_header         ? Channel.fromPath(params.vcf_header).collect()               : Channel.empty() // ClairS VCF merging requires re-headering the interval VCFs
+normal_vcf         = params.normal_vcf         ? Channel.fromPath(params.normal_vcf).collect()               : Channel.value([]) // EXPERIMENTAL: Passing normal germline vcf into ClairS to skip normal germline variant calling
+
+
 
 // Initialize value channels based on params, defined in the params.genomes[params.genome] scope
 ascat_genome       = params.ascat_genome       ?: Channel.empty()
@@ -232,6 +238,7 @@ include { BAM_MERGE_INDEX_SAMTOOLS                       } from '../subworkflows
 // Convert BAM files
 include { SAMTOOLS_CONVERT as BAM_TO_CRAM                } from '../modules/nf-core/samtools/convert/main'
 include { SAMTOOLS_CONVERT as BAM_TO_CRAM_MAPPING        } from '../modules/nf-core/samtools/convert/main'
+include {SAMTOOLS_ADDREPLACERG as BAM_ADDREPLACERG       } from '../modules/local/samtools_addreplacerg'
 
 // Convert CRAM files (optional)
 include { SAMTOOLS_CONVERT as CRAM_TO_BAM                } from '../modules/nf-core/samtools/convert/main'
@@ -375,13 +382,55 @@ workflow SAREK {
 
     // PREPROCESSING
 
+    // Figure out if input is bam or fastq
+    ch_input_sample.branch{
+        bam:   it[0].data_type == "bam"
+        fastq: it[0].data_type == "fastq"
+    }.set{ch_input_sample_type}
+
+    
+    BAM_ADDREPLACERG(ch_input_sample_type.bam)
+        
+    ch_bam_mapped = BAM_ADDREPLACERG.out.bam.map{ meta, bam ->
+        // update ID when no multiple lanes or splitted fastqs
+        // new_id = meta.size * meta.numLanes == 1 ? meta.sample : meta.id
+        numLanes = meta.numLanes ?: 1
+        size     = meta.size     ?: 1
+
+        flowcell = bam.baseName.split('_')[0]
+        CN          = params.seq_center ? "CN:${params.seq_center}\\t" : ''
+        new_read_group  = "\"@RG\\tID:${flowcell}_${meta.sample}\\t${CN}PU:${flowcell}\\tSM:${meta.patient}_${meta.sample}\\tLB:${meta.sample}\\tDS:${params.fasta}\\tPL:${params.seq_platform}\""
+
+        new_meta = [
+            data_type:  meta.data_type,
+            id:         meta.sample,
+            patient:    meta.patient,
+            sample:     meta.sample,
+            sex:        meta.sex,
+            status:     meta.status,
+            read_group: new_read_group
+            ]
+        [new_meta, bam]
+    }.groupTuple()
+
+    BAM_MERGE_INDEX_SAMTOOLS(ch_bam_mapped)
+
+    BAM_TO_CRAM_MAPPING(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta, fasta_fai)
+    params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
+    //BAM files first must be converted to CRAM files since from this step on we base everything on CRAM format
+    
+    ch_versions = ch_versions.mix(BAM_TO_CRAM_MAPPING.out.versions)
+
+
+
+
     if (params.step == 'mapping') {
 
         // Figure out if input is bam or fastq
-        ch_input_sample.branch{
-            bam:   it[0].data_type == "bam"
-            fastq: it[0].data_type == "fastq"
-        }.set{ch_input_sample_type}
+        // ch_input_sample.branch{
+        //     bam:   it[0].data_type == "bam"
+        //     fastq: it[0].data_type == "fastq"
+        // }.set{ch_input_sample_type}
 
         // convert any bam input to fastq
         // Fasta are not needed when converting bam to fastq -> []
@@ -436,7 +485,7 @@ workflow SAREK {
         }
 
         // Trimming and/or splitting
-        if (false) {//params.trim_fastq || params.split_fastq > 0) {
+        if (params.trim_fastq || params.split_fastq > 0) {
 
             save_trimmed_fail = false
             save_merged = false
@@ -547,7 +596,7 @@ workflow SAREK {
 
     if (params.step in ['mapping', 'markduplicates']) {
 
-        //ch_cram_no_markduplicates_restart = Channel.empty()
+        // ch_cram_no_markduplicates_restart = Channel.empty()
         ch_cram_markduplicates_no_spark   = Channel.empty()
         ch_cram_markduplicates_spark      = Channel.empty()
 
@@ -555,8 +604,17 @@ workflow SAREK {
 
         // ch_bam_for_markduplicates will countain bam mapped with FASTQ_ALIGN_BWAMEM_MEM2_DRAGMAP when step is mapping
         // Or bams that are specified in the samplesheet.csv when step is prepare_recalibration
-        ch_for_markduplicates = params.step == 'mapping'? ch_bam_mapped : ch_input_sample.map{ meta, input, index -> [meta, input] }
-
+        ch_for_markduplicates = params.step == 'mapping'? ch_bam_mapped : BAM_TO_CRAM_MAPPING.out.alignment_index.map{meta, cram, crai -> 
+            new_meta = [
+                            id:meta.sample,
+                            data_type:"cram",
+                            patient:meta.patient,
+                            sample:meta.sample,
+                            sex:meta.sex,
+                            status:meta.status,
+                        ]
+            [new_meta, cram]
+        }
         // if no MD is done, then run QC on mapped & converted CRAM files
         // or the input BAM (+converted) or CRAM files
         ch_cram_skip_markduplicates = Channel.empty()
@@ -564,24 +622,6 @@ workflow SAREK {
         if (params.step == 'mapping'){
             if(params.skip_tools && params.skip_tools.split(',').contains('markduplicates')) ch_cram_skip_markduplicates = BAM_TO_CRAM_MAPPING.out.alignment_index
         }
-        else {
-            ch_input_sample.branch{
-                bam:  it[0].data_type == "bam"
-                cram: it[0].data_type == "cram"
-            }.set{ch_convert}
-
-            // Convert any input BAMs to CRAM
-            BAM_TO_CRAM(ch_convert.bam, fasta, fasta_fai)
-            if(params.skip_tools && params.skip_tools.split(',').contains('markduplicates')){
-                ch_cram_skip_markduplicates = Channel.empty().mix(ch_convert.cram, BAM_TO_CRAM.out.alignment_index)
-            }
-
-            // Should it be possible to restart from converted crams?
-            //ch_cram_no_markduplicates_restart = ch_convert.cram
-
-            ch_versions = ch_versions.mix(BAM_TO_CRAM.out.versions)
-        }
-
         if (params.skip_tools && params.skip_tools.split(',').contains('markduplicates')) {
 
             CRAM_QC_NO_MD(
@@ -629,6 +669,7 @@ workflow SAREK {
         // - crams from markduplicates
         // - crams from markduplicates_spark
         // - crams from input step markduplicates --> from the converted ones only?
+        
         ch_md_cram_for_restart = Channel.empty().mix(
             ch_cram_markduplicates_no_spark,
             ch_cram_markduplicates_spark).map{ meta, cram, crai ->
@@ -643,15 +684,19 @@ workflow SAREK {
                             ],
                         cram, crai]
                     }
-
-        //If params.save_output_as_bam, then convert CRAM files to BAM
-        CRAM_TO_BAM(ch_md_cram_for_restart, fasta, fasta_fai)
-        ch_versions = ch_versions.mix(CRAM_TO_BAM.out.versions)
-
-        // CSV should be written for the file actually out, either CRAM or BAM
-        // Create CSV to restart from this step
-        params.save_output_as_bam ? CHANNEL_MARKDUPLICATES_CREATE_CSV(CRAM_TO_BAM.out.alignment_index) : CHANNEL_MARKDUPLICATES_CREATE_CSV(ch_md_cram_for_restart)
-
+        if (params.save_output_as_bam) {
+            //If params.save_output_as_bam, then convert CRAM files to BAM
+            CRAM_TO_BAM(ch_md_cram_for_restart, fasta, fasta_fai)
+            ch_versions = ch_versions.mix(CRAM_TO_BAM.out.versions)
+            // CSV should be written for the file actually out, either CRAM or BAM
+            // Create CSV to restart from this step
+            CHANNEL_MARKDUPLICATES_CREATE_CSV(CRAM_TO_BAM.out.alignment_index)
+        }
+        else {
+            // CSV should be written for the file actually out, either CRAM or BAM
+            // Create CSV to restart from this step
+            CHANNEL_MARKDUPLICATES_CREATE_CSV(ch_md_cram_for_restart)
+        }
     }
 
     if (params.step in ['mapping', 'markduplicates', 'prepare_recalibration']) {
@@ -855,20 +900,84 @@ workflow SAREK {
             ch_cram_variant_calling = Channel.empty().mix(ch_cram_for_bam_baserecalibrator)
         }
     }
+    // if (params.step == 'markduplicates') {
+    //     ch_input_sample.branch{
+    //             bam: it[0].data_type == "bam"
+    //             cram: it[0].data_type == "cram"
+    //         }.set{ch_convert}
 
-    if (params.step == 'variant_calling') {
+    //     ch_bam_mapped = ch_convert.bam.map{meta, bam, bai ->
+    //         numLanes = meta.numLanes ?: 1
+    //         size     = meta.size     ?: 1
 
-        ch_input_sample.branch{
-                bam: it[0].data_type == "bam"
-                cram: it[0].data_type == "cram"
-            }.set{ch_convert}
+    //         // update ID to be based on the sample name
+    //         // update data_type
+    //         // remove no longer necessary fields:
+    //         //   read_group: Now in the BAM header
+    //         //     numLanes: Was only needed for mapping
+    //         //         size: Was only needed for mapping
+    //         new_meta = [
+    //                     id:meta.sample,
+    //                     data_type:"bam",
+    //                     patient:meta.patient,
+    //                     sample:meta.sample,
+    //                     sex:meta.sex,
+    //                     status:meta.status,
+    //                     read_group: meta.read_group
+    //                 ]
 
-        //BAM files first must be converted to CRAM files since from this step on we base everything on CRAM format
-        BAM_TO_CRAM(ch_convert.bam, fasta, fasta_fai)
-        ch_versions = ch_versions.mix(BAM_TO_CRAM.out.versions)
+    //         // Use groupKey to make sure that the correct group can advance as soon as it is complete
+    //         // and not stall the workflow until all reads from all channels are mapped
+    //         [ groupKey(new_meta, numLanes * size), bam]
+    //     }.groupTuple()
 
-        ch_cram_variant_calling = Channel.empty().mix(BAM_TO_CRAM.out.alignment_index, ch_convert.cram)
+    //     ch_bam_mapped.view()
+    //     // bams are merged (when multiple lanes from the same sample), indexed and then converted to cram
+    //     BAM_MERGE_INDEX_SAMTOOLS(ch_bam_mapped)
 
+    //     BAM_TO_CRAM_MAPPING(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta, fasta_fai)
+
+    //     // Gather used softwares versions
+    //     ch_versions = ch_versions.mix(BAM_MERGE_INDEX_SAMTOOLS.out.versions)
+    //     ch_versions = ch_versions.mix(BAM_TO_CRAM_MAPPING.out.versions)
+    //     // Create CSV to restart from this step
+    //     params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
+    //     ch_cram_variant_calling = BAM_TO_CRAM_MAPPING.out.alignment_index
+    // }
+    if (params.step in ['variant_calling', 'markduplicates']) {
+        // BAM_ADDREPLACERG(ch_input_sample)
+        
+        // ch_cram_mapped = BAM_ADDREPLACERG.out.bam.map{ meta, bam ->
+        //     // update ID when no multiple lanes or splitted fastqs
+        //     // new_id = meta.size * meta.numLanes == 1 ? meta.sample : meta.id
+        //     numLanes = meta.numLanes ?: 1
+        //     size     = meta.size     ?: 1
+
+        //     flowcell = bam.baseName.split('_')[0]
+        //     CN          = params.seq_center ? "CN:${params.seq_center}\\t" : ''
+        //     new_read_group  = "\"@RG\\tID:${flowcell}_${meta.sample}\\t${CN}PU:${flowcell}\\tSM:${meta.patient}_${meta.sample}\\tLB:${meta.sample}\\tDS:${params.fasta}\\tPL:${params.seq_platform}\""
+
+        //     new_meta = [
+        //         data_type:  meta.data_type,
+        //         id:         meta.sample,
+        //         patient:    meta.patient,
+        //         sample:     meta.sample,
+        //         sex:        meta.sex,
+        //         status:     meta.status,
+        //         read_group: new_read_group
+        //         ]
+        //     [new_meta, bam]
+        // }.groupTuple()
+
+        // BAM_MERGE_INDEX_SAMTOOLS(ch_cram_mapped)
+
+        // BAM_TO_CRAM_MAPPING(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta, fasta_fai)
+        // params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
+        // //BAM files first must be converted to CRAM files since from this step on we base everything on CRAM format
+        
+        // ch_versions = ch_versions.mix(BAM_TO_CRAM_MAPPING.out.versions)
+
+        ch_cram_variant_calling = Channel.empty().mix(BAM_TO_CRAM_MAPPING.out.alignment_index)
     }
 
     if (params.tools) {
@@ -883,6 +992,7 @@ workflow SAREK {
             tumor:  it[0].status == 1
         }.set{ch_cram_variant_calling_status}
 
+
         // All Germline samples
         ch_cram_variant_calling_normal_to_cross = ch_cram_variant_calling_status.normal.map{ meta, cram, crai -> [meta.patient, meta, cram, crai] }
 
@@ -894,6 +1004,7 @@ workflow SAREK {
 
         // Downside: this only works by waiting for all tumor samples to finish preprocessing, since no group size is provided
         ch_cram_variant_calling_tumor_grouped = ch_cram_variant_calling_pair_to_cross.groupTuple()
+        
 
         // 2. Join with normal samples, in each channel there is one key per patient now. Patients without matched normal end up with: [patient1, [meta1, meta2], [cram1,crai1, cram2, crai2], null]
         ch_cram_variant_calling_tumor_joined = ch_cram_variant_calling_tumor_grouped.join(ch_cram_variant_calling_normal_to_cross, remainder: true)
@@ -1001,7 +1112,9 @@ workflow SAREK {
             allele_files,
             loci_files,
             gc_file,
-            rt_file
+            rt_file,
+            vcf_header,
+            normal_vcf,
         )
 
         // Gather vcf files for annotation and QC
@@ -1019,9 +1132,17 @@ workflow SAREK {
         vcf_to_annotate = vcf_to_annotate.mix(BAM_VARIANT_CALLING_TUMOR_ONLY_ALL.out.tiddit_vcf)
         vcf_to_annotate = vcf_to_annotate.mix(BAM_VARIANT_CALLING_SOMATIC_ALL.out.freebayes_vcf)
         vcf_to_annotate = vcf_to_annotate.mix(BAM_VARIANT_CALLING_SOMATIC_ALL.out.mutect2_vcf)
+        vcf_to_annotate = vcf_to_annotate.mix(BAM_VARIANT_CALLING_SOMATIC_ALL.out.clairs_vcf)
         vcf_to_annotate = vcf_to_annotate.mix(BAM_VARIANT_CALLING_SOMATIC_ALL.out.manta_vcf)
         vcf_to_annotate = vcf_to_annotate.mix(BAM_VARIANT_CALLING_SOMATIC_ALL.out.strelka_vcf)
         vcf_to_annotate = vcf_to_annotate.mix(BAM_VARIANT_CALLING_SOMATIC_ALL.out.tiddit_vcf)
+
+
+
+        tbi_to_annotate = Channel.empty()
+        tbi_to_annotate = tbi_to_annotate.mix(BAM_VARIANT_CALLING_SOMATIC_ALL.out.freebayes_tbi)
+        tbi_to_annotate = tbi_to_annotate.mix(BAM_VARIANT_CALLING_SOMATIC_ALL.out.mutect2_tbi)
+        tbi_to_annotate = tbi_to_annotate.mix(BAM_VARIANT_CALLING_SOMATIC_ALL.out.clairs_tbi)
 
         // Gather used softwares versions
         ch_versions = ch_versions.mix(BAM_VARIANT_CALLING_GERMLINE_ALL.out.versions)
@@ -1029,13 +1150,14 @@ workflow SAREK {
         ch_versions = ch_versions.mix(BAM_VARIANT_CALLING_TUMOR_ONLY_ALL.out.versions)
 
         //QC
-        VCF_QC_BCFTOOLS_VCFTOOLS(vcf_to_annotate, intervals_bed_combined)
+        VCF_QC_BCFTOOLS_VCFTOOLS(vcf_to_annotate, tbi_to_annotate, intervals_bed_combined)
 
         ch_versions = ch_versions.mix(VCF_QC_BCFTOOLS_VCFTOOLS.out.versions)
         ch_reports  = ch_reports.mix(VCF_QC_BCFTOOLS_VCFTOOLS.out.bcftools_stats.collect{meta, stats -> stats})
         ch_reports  = ch_reports.mix(VCF_QC_BCFTOOLS_VCFTOOLS.out.vcftools_tstv_counts.collect{ meta, counts -> counts})
         ch_reports  = ch_reports.mix(VCF_QC_BCFTOOLS_VCFTOOLS.out.vcftools_tstv_qual.collect{ meta, qual -> qual })
         ch_reports  = ch_reports.mix(VCF_QC_BCFTOOLS_VCFTOOLS.out.vcftools_filter_summary.collect{meta, summary -> summary})
+        ch_reports  = ch_reports.mix(VCF_QC_BCFTOOLS_VCFTOOLS.out.vcftools_ldepth.collect{meta, ldepth -> ldepth})
 
         CHANNEL_VARIANT_CALLING_CREATE_CSV(vcf_to_annotate)
 
@@ -1188,6 +1310,7 @@ def extract_csv(csv_file) {
         // Sample should be unique for the patient
         if (row.patient) meta.patient = row.patient.toString()
         if (row.sample)  meta.sample  = row.sample.toString()
+        if (row.flowcell)  meta.flowcell  = row.flowcell.toString()
 
         // If no sex specified, sex is not considered
         // sex is only mandatory for somatic CNV

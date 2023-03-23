@@ -26,13 +26,16 @@ process BCFTOOLS_STATS {
     def regions_file = regions ? "--regions-file ${regions}" : ""
     def targets_file = targets ? "--targets-file ${targets}" : ""
     def samples_file =  samples ? "--samples-file ${samples}" : ""
+    def sample_command = tbi ? "-s SAMPLE" : ""
     """
     bcftools stats \\
+        --verbose \\
         $args \\
         $regions_file \\
         $targets_file \\
         $samples_file \\
-        $vcf > ${prefix}.bcftools_stats.txt
+        $sample_command \\
+        $vcf > ${prefix}.bcftools_stats.txt 
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

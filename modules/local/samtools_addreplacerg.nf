@@ -1,6 +1,6 @@
-process SAMTOOLS_CONVERT {
+process SAMTOOLS_ADDREPLACERG {
     tag "$meta.id"
-    label 'process_high'
+    label 'process_low'
 
     conda (params.enable_conda ? "bioconda::samtools=1.16.1" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -9,32 +9,19 @@ process SAMTOOLS_CONVERT {
 
     input:
     tuple val(meta), path(input), path(index)
-    path  fasta
-    path  fai
 
     output:
-    tuple val(meta), path("*.{cram,bam}"), path("*.{crai,bai}") , emit: alignment_index
+    tuple val(meta), path("*.{cram,bam}"), emit: bam
     path  "versions.yml"                                        , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
     script:
     def args = task.ext.args  ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
-    def output_extension = input.getExtension() == "bam" ? "cram" : "bam"
-
+    def prefix   = task.ext.prefix ?: "${meta.id}"
     """
-
-    samtools view \\
-        --threads ${task.cpus} \\
-        --reference ${fasta} \\
-        $args \\
-        -F 2820 \\
-        $input \\
-        -o ${prefix}.${output_extension}
-
-    samtools index -@${task.cpus} ${prefix}.${output_extension}
-
+    samtools addreplacerg -r  ${meta.read_group} $input -o ${prefix}.${input.getExtension()}
+    
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
