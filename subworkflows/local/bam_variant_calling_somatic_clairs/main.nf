@@ -70,7 +70,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     )
 
     clairs_vcf_tumor_germline = Channel.empty().mix(
-        MERGE_TUMOR_VCFS_CLAIRS.out.vcf,
+        MERGE_VCFS_TUMOR_GERMLINE_CLAIRS.out.vcf,
         clairs_vcfs_branch.no_intervals.map{ meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline ->
             new_meta = [
                         id:meta.tumor_id + "_germline",
@@ -135,7 +135,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     )
 
     clairs_vcf_normal_germline = Channel.empty().mix(
-        MERGE_VCFS_TUMOR_PILEUP_CLAIRS.out.vcf,
+        MERGE_VCFS_NORMAL_GERMLINE_CLAIRS.out.vcf,
         clairs_vcfs_branch.no_intervals.map{ meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline ->
             new_meta = [
                         id:meta.normal_id + "_germline",
@@ -211,10 +211,10 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         )
 
     clairs_tbi = Channel.empty().mix(
-        MERGE_VCFS_CLAIRS.out.tbi,
+        MERGE_VCFS_PAIRED_CLAIRS.out.tbi,
         clairs_tbi_branch.no_intervals)
 
-    ch_versions = ch_versions.mix(MERGE_VCFS_CLAIRS.out.versions)
+    ch_versions = ch_versions.mix(MERGE_VCFS_PAIRED_CLAIRS.out.versions)
     ch_versions = ch_versions.mix(CLAIRS_PAIRED.out.versions)
 
     emit:
