@@ -209,6 +209,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
 
     emit:
     clairs_vcf                  = clairs_vcf
+    clairs_tbi                  = clairs_tbi
     clairs_vcf_tumor_germline   = clairs_vcf_tumor_germline
     clairs_vcf_tumor_pileup     = clairs_vcf_tumor_pileup 
     clairs_vcf_normal_germline  = clairs_vcf_normal_germline                                      // channel: [ val(meta), [ vcf ] ]

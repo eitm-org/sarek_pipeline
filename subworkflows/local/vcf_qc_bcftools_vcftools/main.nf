@@ -5,14 +5,15 @@ include { VCFTOOLS as VCFTOOLS_TSTV_QUAL  } from '../../../modules/nf-core/vcfto
 
 workflow VCF_QC_BCFTOOLS_VCFTOOLS {
     take:
-    vcf
+    vcf,
+    tbi,
     target_bed
 
     main:
 
     ch_versions = Channel.empty()
 
-    BCFTOOLS_STATS(vcf.map{meta, vcf -> [meta, vcf, []]}, target_bed, [], [])
+    BCFTOOLS_STATS(vcf.combine(tbi, by=0).map{meta, vcf, tbi -> [meta, vcf, tbi]}, target_bed, [], [])
     VCFTOOLS_TSTV_COUNT(vcf, target_bed, [])
     VCFTOOLS_TSTV_QUAL(vcf, target_bed, [])
     VCFTOOLS_SUMMARY(vcf, target_bed, [])
