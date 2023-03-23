@@ -64,6 +64,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
             [groupKey(new_meta, meta.num_intervals),  vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline]
         }.groupTuple().set{clairs_vcfs_branch_grouped}
     
+    clairs_vcfs_branch_grouped.view()
     clairs_vcfs_branch_grouped.map{meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline -> [meta, vcf_paired]}.view()
     
     // Merge tumor germline VCF
