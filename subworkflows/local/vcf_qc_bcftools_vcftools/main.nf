@@ -13,7 +13,10 @@ workflow VCF_QC_BCFTOOLS_VCFTOOLS {
 
     ch_versions = Channel.empty()
 
-    BCFTOOLS_STATS(vcf.combine(tbi, by=0).map{meta, vcf, tbi -> [meta, vcf, tbi]}, target_bed, [], [])
+    vcf.view()
+    tbi.view()
+
+    BCFTOOLS_STATS(vcf.map{meta, vcf, tbi -> [meta, vcf, tbi]}, target_bed, [], [])
     VCFTOOLS_TSTV_COUNT(vcf, target_bed, [])
     VCFTOOLS_TSTV_QUAL(vcf, target_bed, [])
     VCFTOOLS_SUMMARY(vcf, target_bed, [])
