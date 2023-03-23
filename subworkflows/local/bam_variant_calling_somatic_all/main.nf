@@ -184,6 +184,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
         )
 
         freebayes_vcf = BAM_VARIANT_CALLING_FREEBAYES.out.freebayes_vcf
+        freebayes_tbi = BAM_VARIANT_CALLING_FREEBAYES.out.freebayes_tbi
         ch_versions   = ch_versions.mix(BAM_VARIANT_CALLING_FREEBAYES.out.versions)
     }
 
@@ -267,6 +268,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
         )
 
         mutect2_vcf = BAM_VARIANT_CALLING_SOMATIC_MUTECT2.out.filtered_vcf
+        mutect2_tbi = BAM_VARIANT_CALLING_SOMATIC_MUTECT2.out.filtered_tbi
         ch_versions = ch_versions.mix(BAM_VARIANT_CALLING_SOMATIC_MUTECT2.out.versions)
     }
 
@@ -310,9 +312,11 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
 
     emit:
     freebayes_vcf
+    freebayes_tbi
     manta_vcf
     msisensorpro_output
     mutect2_vcf
+    mutect2_tbi
     clairs_vcf
     clairs_tbi
     strelka_vcf
