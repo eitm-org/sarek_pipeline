@@ -177,7 +177,6 @@ workflow BAM_VARIANT_CALLING_SOMATIC_MANTA {
     emit:
     manta_vcf
     manta_candidate_small_indels_vcf
-    manta_candidate_small_indels_vcf_tbi
     versions = ch_versions
 
 }

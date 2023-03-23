@@ -78,6 +78,7 @@ workflow BAM_VARIANT_CALLING_FREEBAYES {
     ch_versions = ch_versions.mix(TABIX_VC_FREEBAYES.out.versions)
 
     emit:
-    freebayes_vcf
+    freebayes_vcf = freebayes_vcf
+    freebayes_tbi = MERGE_FREEBAYES.out.tbi
     versions = ch_versions
 }

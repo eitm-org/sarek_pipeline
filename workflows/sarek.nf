@@ -1140,6 +1140,8 @@ workflow SAREK {
 
 
         tbi_to_annotate = Channel.empty()
+        tbi_to_annotate = tbi_to_annotate.mix(BAM_VARIANT_CALLING_SOMATIC_ALL.out.freebayes_tbi)
+        tbi_to_annotate = tbi_to_annotate.mix(BAM_VARIANT_CALLING_SOMATIC_ALL.out.mutect2_tbi)
         tbi_to_annotate = tbi_to_annotate.mix(BAM_VARIANT_CALLING_SOMATIC_ALL.out.clairs_tbi)
 
         // Gather used softwares versions

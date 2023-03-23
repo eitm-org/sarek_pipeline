@@ -13,8 +13,9 @@ workflow VCF_QC_BCFTOOLS_VCFTOOLS {
     main:
 
     ch_versions = Channel.empty()
-
-    BCFTOOLS_STATS(vcf.join(tbi), target_bed, [], [])
+    
+    vcf_maybe_tbi = tbi ? : vcf.join(tbi) : vcf
+    BCFTOOLS_STATS(vcf_maybe_tbi target_bed, [], [])
     VCFTOOLS_TSTV_COUNT(vcf, target_bed, [])
     VCFTOOLS_TSTV_QUAL(vcf, target_bed, [])
     VCFTOOLS_SUMMARY(vcf, target_bed, [])
