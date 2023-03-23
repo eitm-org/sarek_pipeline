@@ -28,6 +28,7 @@ process BCFTOOLS_STATS {
     def samples_file =  samples ? "--samples-file ${samples}" : ""
     """
     bcftools stats \\
+        --debug
         $args \\
         $regions_file \\
         $targets_file \\
