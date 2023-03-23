@@ -51,7 +51,7 @@ process CLAIRS {
 
     $mv_normal_vcf_command
     mv tmp/clair3_output/clair3_tumor_output/merge_output.vcf.gz ${meta.tumor_id}_tumor_germline_${suffix}.vcf.gz
-    mv tmp/clair3_output/clair3_tumor_output/pileup.vcf.gz.vcf.gz ${meta.tumor_id}_tumor_pileup_${suffix}.vcf.gz
+    mv tmp/clair3_output/clair3_tumor_output/pileup.vcf.gz ${meta.tumor_id}_tumor_pileup_${suffix}.vcf.gz
 
     
     cat <<-END_VERSIONS > versions.yml
