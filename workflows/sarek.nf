@@ -912,41 +912,41 @@ workflow SAREK {
     //     params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
     //     ch_cram_variant_calling = BAM_TO_CRAM_MAPPING.out.alignment_index
     // }
-    // if (params.step in ['variant_calling', 'markduplicates']) {
-    //     // BAM_ADDREPLACERG(ch_cram_variant_calling)
+    if (params.step in ['variant_calling', 'markduplicates']) {
+        // BAM_ADDREPLACERG(ch_cram_variant_calling)
         
-    //     ch_cram_mapped = ch_cram_variant_calling.map{ meta, bam, bai ->
-    //         // update ID when no multiple lanes or splitted fastqs
-    //         // new_id = meta.size * meta.numLanes == 1 ? meta.sample : meta.id
-    //         numLanes = meta.numLanes ?: 1
-    //         size     = meta.size     ?: 1
+        ch_cram_mapped = ch_cram_variant_calling.map{ meta, bam, bai ->
+            // update ID when no multiple lanes or splitted fastqs
+            // new_id = meta.size * meta.numLanes == 1 ? meta.sample : meta.id
+            numLanes = meta.numLanes ?: 1
+            size     = meta.size     ?: 1
 
-    //         flowcell = bam.baseName.split('_')[0]
-    //         CN          = params.seq_center ? "CN:${params.seq_center}\\t" : ''
-    //         new_read_group  = "\"@RG\\tID:${flowcell}_${meta.sample}\\t${CN}PU:${flowcell}\\tSM:${meta.patient}_${meta.sample}\\tLB:${meta.sample}\\tDS:${params.fasta}\\tPL:${params.seq_platform}\""
+            flowcell = bam.baseName.split('_')[0]
+            CN          = params.seq_center ? "CN:${params.seq_center}\\t" : ''
+            new_read_group  = "\"@RG\\tID:${flowcell}_${meta.sample}\\t${CN}PU:${flowcell}\\tSM:${meta.patient}_${meta.sample}\\tLB:${meta.sample}\\tDS:${params.fasta}\\tPL:${params.seq_platform}\""
 
-    //         new_meta = [
-    //             data_type:  meta.data_type,
-    //             id:         meta.sample,
-    //             patient:    meta.patient,
-    //             sample:     meta.sample,
-    //             sex:        meta.sex,
-    //             status:     meta.status,
-    //             read_group: new_read_group
-    //             ]
-    //         [new_meta, bam]
-    //     }.groupTuple()
+            new_meta = [
+                data_type:  meta.data_type,
+                id:         meta.sample,
+                patient:    meta.patient,
+                sample:     meta.sample,
+                sex:        meta.sex,
+                status:     meta.status,
+                read_group: new_read_group
+                ]
+            [new_meta, bam]
+        }.groupTuple()
 
-    //     BAM_MERGE_INDEX_SAMTOOLS(ch_cram_mapped)
+        BAM_MERGE_INDEX_SAMTOOLS(ch_cram_mapped, fasta, fasta_fai)
 
-    //     BAM_TO_CRAM_MAPPING(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta, fasta_fai)
-    //     params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
-    //     //BAM files first must be converted to CRAM files since from this step on we base everything on CRAM format
+        BAM_TO_CRAM_MAPPING(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta, fasta_fai)
+        params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
+        //BAM files first must be converted to CRAM files since from this step on we base everything on CRAM format
         
-    //     ch_versions = ch_versions.mix(BAM_TO_CRAM_MAPPING.out.versions)
+        ch_versions = ch_versions.mix(BAM_TO_CRAM_MAPPING.out.versions)
 
-    //     ch_cram_variant_calling = Channel.empty().mix(BAM_TO_CRAM_MAPPING.out.alignment_index)
-    // }
+        ch_cram_variant_calling = Channel.empty().mix(BAM_TO_CRAM_MAPPING.out.alignment_index)
+    }
 
     if (params.tools) {
 
