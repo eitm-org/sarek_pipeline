@@ -1138,13 +1138,17 @@ workflow SAREK {
         vcf_to_annotate = vcf_to_annotate.mix(BAM_VARIANT_CALLING_SOMATIC_ALL.out.tiddit_vcf)
 
 
+
+        tbi_to_annotate = Channel.empty()
+        tbi_to_annotate = tbi_to_annotate.mix(BAM_VARIANT_CALLING_SOMATIC_ALL.out.clairs_tbi)
+
         // Gather used softwares versions
         ch_versions = ch_versions.mix(BAM_VARIANT_CALLING_GERMLINE_ALL.out.versions)
         ch_versions = ch_versions.mix(BAM_VARIANT_CALLING_SOMATIC_ALL.out.versions)
         ch_versions = ch_versions.mix(BAM_VARIANT_CALLING_TUMOR_ONLY_ALL.out.versions)
 
         //QC
-        VCF_QC_BCFTOOLS_VCFTOOLS(vcf_to_annotate, intervals_bed_combined)
+        VCF_QC_BCFTOOLS_VCFTOOLS(vcf_to_annotate, tbi_to_annotate, intervals_bed_combined)
 
         ch_versions = ch_versions.mix(VCF_QC_BCFTOOLS_VCFTOOLS.out.versions)
         ch_reports  = ch_reports.mix(VCF_QC_BCFTOOLS_VCFTOOLS.out.bcftools_stats.collect{meta, stats -> stats})
@@ -1152,7 +1156,6 @@ workflow SAREK {
         ch_reports  = ch_reports.mix(VCF_QC_BCFTOOLS_VCFTOOLS.out.vcftools_tstv_qual.collect{ meta, qual -> qual })
         ch_reports  = ch_reports.mix(VCF_QC_BCFTOOLS_VCFTOOLS.out.vcftools_filter_summary.collect{meta, summary -> summary})
         ch_reports  = ch_reports.mix(VCF_QC_BCFTOOLS_VCFTOOLS.out.vcftools_ldepth.collect{meta, ldepth -> ldepth})
-        // ch_reports  = ch_reports.mix(VCF_QC_BCFTOOLS_VCFTOOLS.out.vcftools_ldepth_mean.collect{meta, ldepth_mean -> ldepth_mean})
 
         CHANNEL_VARIANT_CALLING_CREATE_CSV(vcf_to_annotate)
 
