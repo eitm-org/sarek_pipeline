@@ -53,6 +53,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
     freebayes_vcf        = Channel.empty()
     freebayes_tbi        = Channel.empty()
     manta_vcf            = Channel.empty()
+    manta_tbi            = Channel.empty()
     strelka_vcf          = Channel.empty()
     msisensorpro_output  = Channel.empty()
     mutect2_vcf          = Channel.empty()
