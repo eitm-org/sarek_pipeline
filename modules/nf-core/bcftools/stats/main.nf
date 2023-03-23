@@ -34,6 +34,7 @@ process BCFTOOLS_STATS {
         $targets_file \\
         $samples_file \\
         $vcf > ${prefix}.bcftools_stats.txt
+        --include DP
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
