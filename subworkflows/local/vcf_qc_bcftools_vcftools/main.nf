@@ -5,9 +5,9 @@ include { VCFTOOLS as VCFTOOLS_TSTV_QUAL  } from '../../../modules/nf-core/vcfto
 
 workflow VCF_QC_BCFTOOLS_VCFTOOLS {
     take:
-    vcf,
-    tbi,
-    target_bed
+        vcf
+        tbi
+        target_bed
 
     main:
 
