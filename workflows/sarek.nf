@@ -1156,7 +1156,7 @@ workflow SAREK {
         ch_reports  = ch_reports.mix(VCF_QC_BCFTOOLS_VCFTOOLS.out.vcftools_tstv_qual.collect{ meta, qual -> qual })
         ch_reports  = ch_reports.mix(VCF_QC_BCFTOOLS_VCFTOOLS.out.vcftools_filter_summary.collect{meta, summary -> summary})
         ch_reports  = ch_reports.mix(VCF_QC_BCFTOOLS_VCFTOOLS.out.vcftools_ldepth.collect{meta, ldepth -> ldepth})
-        ch_reports  = ch_reports.mix(VCF_QC_BCFTOOLS_VCFTOOLS.out.vcftools_ldepth_mean.collect{meta, ldepth_mean -> ldepth_mean})
+        // ch_reports  = ch_reports.mix(VCF_QC_BCFTOOLS_VCFTOOLS.out.vcftools_ldepth_mean.collect{meta, ldepth_mean -> ldepth_mean})
 
         CHANNEL_VARIANT_CALLING_CREATE_CSV(vcf_to_annotate)
 
