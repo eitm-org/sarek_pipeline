@@ -170,7 +170,17 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
 
     //Only when using intervals
     MERGE_VCFS_PAIRED_CLAIRS(
-        clairs_fixed_vcf_paired_branch.intervals.groupTuple(),
+        clairs_fixed_vcf_paired_branch.intervals..map{meta, vcf_paired ->
+            new_meta = [
+                        id:meta.normal_id + "_vs_" + meta.tumor_id,
+                        normal_id:meta.normal_id,
+                        num_intervals:meta.num_intervals,
+                        patient:meta.patient,
+                        sex:meta.sex,
+                        tumor_id:meta.tumor_id,
+                        variantcaller: "clairs",
+                    ]
+            [grouppKey(new_meta, meta.num_intervals), vcf_paired]}.groupTuple(),
         dict
     )
 
@@ -183,7 +193,8 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
                         num_intervals:meta.num_intervals,
                         patient:meta.patient,
                         sex:meta.sex,
-                        tumor_id:meta.tumor_id
+                        tumor_id:meta.tumor_id,
+                        variantcaller: "clairs",
                     ]
             [new_meta, vcf_paired]
             }
