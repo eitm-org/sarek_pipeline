@@ -50,6 +50,8 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
             no_intervals: it[0].num_intervals <= 1
         }.set{ clairs_tbi_branch }
     
+    clairs_vcfs_branch.intervals.view()
+    
     // Merge tumor germline VCF
     // Only when using intervals
     MERGE_VCFS_TUMOR_GERMLINE_CLAIRS(
