@@ -4,8 +4,8 @@ process BCFTOOLS_STATS {
 
     conda (params.enable_conda ? "bioconda::bcftools=1.16" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/bcftools:1.16--haef29d1_2':
-        'quay.io/biocontainers/bcftools:1.16--haef29d1_2' }"
+        'https://depot.galaxyproject.org/singularity/bcftools:1.16--hfe4b78e_1':
+        'quay.io/biocontainers/bcftools:1.16--hfe4b78e_1' }"
 
     input:
     tuple val(meta), path(vcf), path(tbi)
@@ -28,7 +28,7 @@ process BCFTOOLS_STATS {
     def samples_file =  samples ? "--samples-file ${samples}" : ""
     """
     bcftools stats \\
-        --debug
+        --verbose \\
         $args \\
         $regions_file \\
         $targets_file \\
