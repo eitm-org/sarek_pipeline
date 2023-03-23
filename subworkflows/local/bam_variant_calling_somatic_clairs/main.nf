@@ -180,7 +180,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
                         tumor_id:meta.tumor_id,
                         variantcaller: "clairs",
                     ]
-            [grouppKey(new_meta, meta.num_intervals), vcf_paired]}.groupTuple(),
+            [groupKey(new_meta, meta.num_intervals), vcf_paired]}.groupTuple(),
         dict
     )
 
