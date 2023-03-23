@@ -170,7 +170,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
 
     //Only when using intervals
     MERGE_VCFS_PAIRED_CLAIRS(
-        clairs_fixed_vcf_paired_branch.intervals..map{meta, vcf_paired ->
+        clairs_fixed_vcf_paired_branch.intervals.map{meta, vcf_paired ->
             new_meta = [
                         id:meta.normal_id + "_vs_" + meta.tumor_id,
                         normal_id:meta.normal_id,
