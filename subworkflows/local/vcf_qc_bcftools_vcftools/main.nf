@@ -28,6 +28,8 @@ workflow VCF_QC_BCFTOOLS_VCFTOOLS {
     vcftools_tstv_counts    = VCFTOOLS_TSTV_COUNT.out.tstv_count
     vcftools_tstv_qual      = VCFTOOLS_TSTV_QUAL.out.tstv_qual
     vcftools_filter_summary = VCFTOOLS_SUMMARY.out.filter_summary
+    vcftools_ldepth = VCFTOOLS_SUMMARY.out.ldepth
+    vcftools_ldepth_mean = VCFTOOLS_SUMMARY.out.ldepth_mean
 
     versions                = ch_versions
 }
