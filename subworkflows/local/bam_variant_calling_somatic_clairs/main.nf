@@ -100,8 +100,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
 
     // Merge tumor germline VCF
     // Only when using intervals
-    ch_clairs_vcf_tumor_germline.view()
-    MERGE_VCFS_TUMOR_GERMLINE_CLAIRS(ch_clairs_vcf_tumor_germline.groupTuple())
+    MERGE_VCFS_TUMOR_GERMLINE_CLAIRS(ch_clairs_vcf_tumor_germline, dict)
 
     clairs_vcf_tumor_germline = Channel.empty().mix(
         MERGE_VCFS_TUMOR_GERMLINE_CLAIRS.out.vcf,
@@ -120,7 +119,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
 
     // Merge tumor pilep VCF
     //Only when using intervals
-    MERGE_VCFS_TUMOR_PILEUP_CLAIRS(ch_clairs_vcf_tumor_pileup)
+    MERGE_VCFS_TUMOR_PILEUP_CLAIRS(ch_clairs_vcf_tumor_pileup, dict)
 
     clairs_vcf_tumor_pileup = Channel.empty().mix(
         MERGE_VCFS_TUMOR_PILEUP_CLAIRS.out.vcf,
@@ -140,7 +139,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     // Merge normal germline VCF
     //Only when using intervals
 
-    MERGE_VCFS_NORMAL_GERMLINE_CLAIRS(ch_clairs_vcf_normal_germline)
+    MERGE_VCFS_NORMAL_GERMLINE_CLAIRS(ch_clairs_vcf_normal_germline, dict)
 
     clairs_vcf_normal_germline = Channel.empty().mix(
         MERGE_VCFS_NORMAL_GERMLINE_CLAIRS.out.vcf,
