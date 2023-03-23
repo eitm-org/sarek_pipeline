@@ -15,7 +15,7 @@ workflow VCF_QC_BCFTOOLS_VCFTOOLS {
 
     vcf.join(tbi).view()
 
-    BCFTOOLS_STATS(vcf.join(tbi), [], [], [])
+    BCFTOOLS_STATS(vcf.join(tbi), target_bed, [], [])
     VCFTOOLS_TSTV_COUNT(vcf, target_bed, [])
     VCFTOOLS_TSTV_QUAL(vcf, target_bed, [])
     VCFTOOLS_SUMMARY(vcf, target_bed, [])
