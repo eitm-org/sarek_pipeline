@@ -7,7 +7,6 @@ include { VCFTOOLS as VCFTOOLS_LDEPTH  } from '../../../modules/nf-core/vcftools
 workflow VCF_QC_BCFTOOLS_VCFTOOLS {
     take:
         vcf
-        tbi
         target_bed
 
     main:
@@ -30,7 +29,6 @@ workflow VCF_QC_BCFTOOLS_VCFTOOLS {
     vcftools_tstv_counts    = VCFTOOLS_TSTV_COUNT.out.tstv_count
     vcftools_tstv_qual      = VCFTOOLS_TSTV_QUAL.out.tstv_qual
     vcftools_filter_summary = VCFTOOLS_SUMMARY.out.filter_summary
-    vcftools_ldepth = VCFTOOLS_LDEPTH.out.ldepth
-
+    vcftools_ldepth         = VCFTOOLS_LDEPTH.out.ldepth
     versions                = ch_versions
 }
