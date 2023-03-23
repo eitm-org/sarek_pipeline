@@ -571,24 +571,6 @@ workflow SAREK {
         if (params.step == 'mapping'){
             if(params.skip_tools && params.skip_tools.split(',').contains('markduplicates')) ch_cram_skip_markduplicates = BAM_TO_CRAM_MAPPING.out.alignment_index
         }
-        // else {
-        //     ch_input_sample.branch{
-        //         bam:  it[0].data_type == "bam"
-        //         cram: it[0].data_type == "cram"
-        //     }.set{ch_convert}
-
-        //     // Convert any input BAMs to CRAM
-        //     BAM_TO_CRAM(ch_convert.bam, fasta, fasta_fai)
-        //     if(params.skip_tools && params.skip_tools.split(',').contains('markduplicates')){
-        //         ch_cram_skip_markduplicates = Channel.empty().mix(ch_convert.cram, BAM_TO_CRAM.out.alignment_index)
-        //     }
-
-        //     // Should it be possible to restart from converted crams?
-        //     // ch_cram_no_markduplicates_restart = ch_convert.cram
-
-        //     ch_versions = ch_versions.mix(BAM_TO_CRAM.out.versions)
-        // }
-
         if (params.skip_tools && params.skip_tools.split(',').contains('markduplicates')) {
 
             CRAM_QC_NO_MD(
@@ -1216,7 +1198,7 @@ def extract_csv(csv_file) {
     // 1. If params.step == "mapping", then each row should specify a lane and the same combination of patient, sample and lane shouldn't be present in different rows.
     // 2. The same sample shouldn't be listed for different patients.
     def patient_sample_lane_combinations_in_samplesheet = []
-    // def sample2patient = [:]
+    def sample2patient = [:]
 
     Channel.of(csv_file).splitCsv(header: true)
         .map{ row ->
@@ -1233,12 +1215,12 @@ def extract_csv(csv_file) {
                     patient_sample_lane_combinations_in_samplesheet.add(patient_sample_lane)
                 }
             }
-            // if (!sample2patient.containsKey(row.sample.toString())) {
-            //     sample2patient[row.sample.toString()] = row.patient.toString()
-            // } else if (sample2patient[row.sample.toString()] != row.patient.toString()) {
-            //     log.error('The sample "' + row.sample.toString() + '" is registered for both patient "' + row.patient.toString() + '" and "' + sample2patient[row.sample.toString()] + '" in the sample sheet.')
-            //     System.exit(1)
-            // }
+            if (!sample2patient.containsKey(row.sample.toString())) {
+                sample2patient[row.sample.toString()] = row.patient.toString()
+            } else if (sample2patient[row.sample.toString()] != row.patient.toString()) {
+                log.error('The sample "' + row.sample.toString() + '" is registered for both patient "' + row.patient.toString() + '" and "' + sample2patient[row.sample.toString()] + '" in the sample sheet.')
+                System.exit(1)
+            }
         }
 
     sample_count_all = 0
