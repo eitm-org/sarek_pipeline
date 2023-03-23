@@ -173,16 +173,16 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     //     [new_meta, vcf_paired]
     // }.set{ch_clairs_vcfs_paired}
     // ch_clairs_vcf_paired_for_fixheader.view()
-    FIX_VCFHEADER_CLAIRS(
-        ch_clairs_vcf_paired_for_fixheader,
-        vcf_header
-    )
-    FIX_VCFHEADER_CLAIRS.out.vcf.branch{
-            intervals:    it[0].num_intervals > 1
-            no_intervals: it[0].num_intervals <= 1
-        }.set{ clairs_fixed_vcf_paired_branch }
+    // FIX_VCFHEADER_CLAIRS(
+    //     ch_clairs_vcf_paired_for_fixheader,
+    //     vcf_header
+    // )
+    // FIX_VCFHEADER_CLAIRS.out.vcf.branch{
+    //         intervals:    it[0].num_intervals > 1
+    //         no_intervals: it[0].num_intervals <= 1
+    //     }.set{ clairs_fixed_vcf_paired_branch }
     
-    FIX_VCFHEADER_CLAIRS.out.vcf.view()
+    // FIX_VCFHEADER_CLAIRS.out.vcf.view()
 
     //Only when using intervals
     MERGE_VCFS_PAIRED_CLAIRS(
