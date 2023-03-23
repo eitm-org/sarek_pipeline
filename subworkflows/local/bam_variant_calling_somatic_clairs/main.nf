@@ -52,8 +52,12 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     
     clairs_vcfs_branch.intervals
         .map{ meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline ->
-
-            new_meta = [
+            [groupKey(meta, meta.num_intervals),  vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline]
+        }.groupTuple().set{clairs_vcfs_branch_grouped}
+    
+    clairs_vcfs_branch_grouped.view()
+    clairs_vcfs_branch_grouped.map{meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline -> 
+        new_meta = [
                         id:meta.tumor_id + "_germline",
                         normal_id:meta.normal_id,
                         num_intervals:meta.num_intervals,
@@ -61,11 +65,8 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
                         sex:meta.sex,
                         tumor_id:meta.tumor_id
                     ]
-            [groupKey(new_meta, meta.num_intervals),  vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline]
-        }.groupTuple().set{clairs_vcfs_branch_grouped}
-    
-    clairs_vcfs_branch_grouped.view()
-    clairs_vcfs_branch_grouped.map{meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline -> [meta, vcf_paired]}.view()
+        [new_meta, vcf_paired]
+    }.view()
     
     // Merge tumor germline VCF
     // Only when using intervals
