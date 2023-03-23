@@ -173,7 +173,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     //             ]
     //     [new_meta, vcf_paired]
     // }.set{ch_clairs_vcfs_paired}
-
+    ch_clairs_vcf_paired_for_fixheader.view()
     FIX_VCFHEADER_CLAIRS(
         ch_clairs_vcf_paired_for_fixheader,
         vcf_header
@@ -185,20 +185,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
 
     //Only when using intervals
     MERGE_VCFS_PAIRED_CLAIRS(
-        clairs_fixed_vcf_paired_branch.intervals
-        .map{ meta, vcf ->
-
-            new_meta = [
-                        id:meta.tumor_id + "_vs_" + meta.normal_id,
-                        normal_id:meta.normal_id,
-                        num_intervals:meta.num_intervals,
-                        patient:meta.patient,
-                        sex:meta.sex,
-                        tumor_id:meta.tumor_id
-                    ]
-
-            [groupKey(new_meta, meta.num_intervals), vcf]
-        }.groupTuple(),
+        clairs_fixed_vcf_paired_branch.intervals.groupTuple(),
         dict
     )
 
