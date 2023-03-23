@@ -34,8 +34,7 @@ process BCFTOOLS_STATS {
         $targets_file \\
         $samples_file \\
         $vcf > ${prefix}.bcftools_stats.txt \\
-        --include DP
-
+        -d 1,50,1
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         bcftools: \$(bcftools --version 2>&1 | head -n1 | sed 's/^.*bcftools //; s/ .*\$//')
