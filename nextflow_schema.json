@@ -369,6 +369,12 @@
                     "description": "Path to vcf header file for fixing clairS vcf outputs when calling with intervals > 1",
                     "help_text": "",
                     "hidden": true
+                },
+                "normal_vcf": {
+                    "type": "string",
+                    "description": "EXPERIMENTAL: Passing normal germline vcf into ClairS to skip normal germline variant calling",
+                    "help_text": "",
+                    "hidden": true
                 }
             }
         },
