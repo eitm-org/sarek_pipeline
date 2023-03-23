@@ -93,9 +93,10 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     }.set{ch_clairs_vcf_normal_germline}
     
 
-    clairs_vcfs_branch_grouped.map{meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline -> 
-        [meta, vcf_paired]
-    }.set{ch_clairs_vcf_paired}
+    clairs_vcfs_branch.intervals
+        .map{ meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline ->
+            [meta,  vcf_paired]
+        }.set{ch_clairs_vcf_paired_for_fixheader}
 
     // Merge tumor germline VCF
     // Only when using intervals
@@ -173,20 +174,20 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     //     [new_meta, vcf_paired]
     // }.set{ch_clairs_vcfs_paired}
     // ch_clairs_vcf_paired_for_fixheader.view()
-    // FIX_VCFHEADER_CLAIRS(
-    //     ch_clairs_vcf_paired_for_fixheader,
-    //     vcf_header
-    // )
-    // FIX_VCFHEADER_CLAIRS.out.vcf.branch{
-    //         intervals:    it[0].num_intervals > 1
-    //         no_intervals: it[0].num_intervals <= 1
-    //     }.set{ clairs_fixed_vcf_paired_branch }
+    FIX_VCFHEADER_CLAIRS(
+        ch_clairs_vcf_paired_for_fixheader,
+        vcf_header
+    )
+    FIX_VCFHEADER_CLAIRS.out.vcf.branch{
+            intervals:    it[0].num_intervals > 1
+            no_intervals: it[0].num_intervals <= 1
+        }.set{ clairs_fixed_vcf_paired_branch }
     
-    // FIX_VCFHEADER_CLAIRS.out.vcf.view()
+    FIX_VCFHEADER_CLAIRS.out.vcf.view()
 
     //Only when using intervals
     MERGE_VCFS_PAIRED_CLAIRS(
-        ch_clairs_vcf_paired,
+        clairs_fixed_vcf_paired_branch.intervals.groupTuple(),
         dict
     )
 
