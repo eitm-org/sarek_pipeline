@@ -51,12 +51,15 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
 
     //TODO: Temporary until the if's can be removed and printing to terminal is prevented with "when" in the modules.config
     freebayes_vcf        = Channel.empty()
+    freebayes_tbi        = Channel.empty()
     manta_vcf            = Channel.empty()
     strelka_vcf          = Channel.empty()
     msisensorpro_output  = Channel.empty()
     mutect2_vcf          = Channel.empty()
+    mutect2_tbi          = Channel.empty()
     tiddit_vcf           = Channel.empty()
     clairs_vcf           = Channel.empty()
+    clairs_tbi           = Channel.empty()
 
     // Remap channel with intervals
     cram_pair_intervals = cram_pair.combine(intervals)
