@@ -35,13 +35,11 @@ process BCFTOOLS_STATS {
 
     bcftools stats \\
         --verbose \\
-        --af-tag AF \\
         $args \\
         $targets_file \\
         $samples_file \\
         $sample_command \\
         $regions_file \\
-        $fasta_command \\
         $vcf > ${prefix}.bcftools_stats.txt 
 
     cat <<-END_VERSIONS > versions.yml
