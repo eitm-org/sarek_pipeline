@@ -29,7 +29,6 @@ process BCFTOOLS_STATS {
     def samples_file =  samples ? "--samples-file ${samples}" : ""
     def sample_command = tbi ? "-s SAMPLE" : ""
     """
-    bcftools +fill-tags $vcf -o $vcf -Ov -- -t all
 
     bcftools stats \\
         --verbose \\
