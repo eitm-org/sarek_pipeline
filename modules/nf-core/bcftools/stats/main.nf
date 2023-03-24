@@ -28,7 +28,6 @@ process BCFTOOLS_STATS {
     def targets_file = targets ? "--targets-file ${targets}" : ""
     def samples_file =  samples ? "--samples-file ${samples}" : ""
     def sample_command = tbi ? "-s SAMPLE" : ""
-    def fasta_command = fasta ? "-F ${fasta}" : ""
     """
 
     bcftools stats \\
