@@ -40,6 +40,7 @@ process BCFTOOLS_STATS {
         $targets_file \\
         $samples_file \\
         $sample_command \\
+        $regions_file \\
         $fasta_command \\
         $vcf > ${prefix}.bcftools_stats.txt 
 
