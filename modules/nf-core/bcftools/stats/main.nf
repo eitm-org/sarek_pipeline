@@ -33,7 +33,7 @@ process BCFTOOLS_STATS {
 
     bcftools stats \\
         --verbose \\
-        --af-tag AF \\
+        -e FILTER>0 \\
         $args \\
         $targets_file \\
         $samples_file \\
