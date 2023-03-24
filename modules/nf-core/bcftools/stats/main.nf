@@ -11,6 +11,8 @@ process BCFTOOLS_STATS {
     input:
     tuple val(meta), path(vcf), path(tbi)
     path regions
+    path fasta
+    path fasta_fai
     path targets
     path samples
 
@@ -27,8 +29,10 @@ process BCFTOOLS_STATS {
     def regions_file = regions ? "--regions-file ${regions}" : ""
     def targets_file = targets ? "--targets-file ${targets}" : ""
     def samples_file =  samples ? "--samples-file ${samples}" : ""
-    def sample_command = tbi ? "-s-" : ""
+    def sample_command = tbi ? "" : ""
+    def fasta_command = fasta ? "-F ${fasta}" : ""
     """
+
     bcftools stats \\
         --verbose \\
         --af-tag AF \\
@@ -36,7 +40,7 @@ process BCFTOOLS_STATS {
         $targets_file \\
         $samples_file \\
         $sample_command \\
-        $regions_file \\
+        $fasta_command \\
         $vcf > ${prefix}.bcftools_stats.txt 
 
     cat <<-END_VERSIONS > versions.yml
