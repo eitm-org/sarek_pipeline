@@ -18,8 +18,8 @@ process CLAIRS {
     tuple   val(meta), 
             path("*.clairs.*.vcf.gz"),
             path("*_tumor_germline_*.vcf.gz"),
-            path("*_tumor_pileup_*.vcf.gz")             emit: vcfs
-    path("*_normal_germline_*.vcf.gz")                  emit: vcf_normal, optional: true
+            path("*_tumor_pileup_*.vcf.gz"),             emit: vcfs
+    tuple val(meta), path("*_normal_germline_*.vcf.gz"), emit: vcf_normal, optional: true
     tuple val(meta), path("*.clairs.*.vcf.gz.tbi"),     emit: tbi
     path "versions.yml",                                emit: versions
 
