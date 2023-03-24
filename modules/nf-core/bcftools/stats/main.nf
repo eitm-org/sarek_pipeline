@@ -32,7 +32,6 @@ process BCFTOOLS_STATS {
 
     bcftools stats \\
         --verbose \\
-        -e QUAL==0 \
         $args \\
         $targets_file \\
         $samples_file \\
