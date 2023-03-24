@@ -5,7 +5,7 @@ process BCFTOOLS_STATS {
     conda (params.enable_conda ? "bioconda::bcftools=1.16" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/bcftools:1.16--hfe4b78e_1':
-        'quay.io/biocontainers/bcftools-snvphyl-plugin' }"
+        'quay.io/biocontainers/bcftools-snvphyl-plugin:1.9--h2559242_7' }"
         // 'quay.io/biocontainers/bcftools:1.16--hfe4b78e_1' }"
 
     input:
