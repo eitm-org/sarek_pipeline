@@ -29,7 +29,7 @@ process BCFTOOLS_STATS {
     def samples_file =  samples ? "--samples-file ${samples}" : ""
     def sample_command = tbi ? "-s SAMPLE" : ""
     """
-    bcftools +fill-tags $vcf -o ${vcf.baseName}.filled.vcf.gz -Ov -- -t all
+    bcftools +fill-tags $vcf -o ${vcf.baseName}.gz -Ov -- -t all
 
     bcftools stats \\
         --verbose \\
@@ -38,7 +38,7 @@ process BCFTOOLS_STATS {
         $samples_file \\
         $sample_command \\
         $regions_file \\
-        ${vcf.baseName}.filled.vcf.gz > ${prefix}.bcftools_stats.txt 
+        ${vcf.baseName}.gz > ${prefix}.bcftools_stats.txt 
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
