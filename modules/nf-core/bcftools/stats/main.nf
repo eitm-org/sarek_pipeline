@@ -11,8 +11,6 @@ process BCFTOOLS_STATS {
     input:
     tuple val(meta), path(vcf), path(tbi)
     path regions
-    path fasta
-    path fasta_fai
     path targets
     path samples
 
