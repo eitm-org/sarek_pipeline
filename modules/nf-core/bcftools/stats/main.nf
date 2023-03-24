@@ -5,7 +5,7 @@ process BCFTOOLS_STATS {
     conda (params.enable_conda ? "bioconda::bcftools=1.16" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/bcftools:1.16--hfe4b78e_1':
-        'quay.io/biocontainers/bcftools-snvphyl-plugin:1.9--h2559242_7' }"
+        'quay.io/biocontainers/bcftools:1.16--hfe4b78e_1' }"
         // 'quay.io/biocontainers/bcftools:1.16--hfe4b78e_1' }"
 
     input:
@@ -32,7 +32,7 @@ process BCFTOOLS_STATS {
     def sample_command = tbi ? "-s -" : ""
     def fasta_command = fasta ? "-F ${fasta}" : ""
     """
-    bcftools +fill-tags $vcf -Ob -o $vcf -- -t 'DP=sum(FORMAT/DP)'
+    bcftools +fill-tags $vcf -Ob -o $vcf -- -t all
 
     bcftools stats \\
         --verbose \\
