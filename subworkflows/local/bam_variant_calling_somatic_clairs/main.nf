@@ -44,6 +44,10 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
             intervals:    it[0].num_intervals > 1
             no_intervals: it[0].num_intervals <= 1
         }.set{ clairs_vcfs_branch }
+    CLAIRS_PAIRED.out.vcf_normal.branch{
+            intervals:    it[0].num_intervals > 1
+            no_intervals: it[0].num_intervals <= 1
+        }.set{ clairs_vcf_normal_branch }
 
     CLAIRS_PAIRED.out.tbi.branch{
             intervals:    it[0].num_intervals > 1
@@ -51,11 +55,18 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         }.set{ clairs_tbi_branch }
     
     clairs_vcfs_branch.intervals
-        .map{ meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline ->
-            [groupKey(meta, meta.num_intervals),  vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline]
+        .map{ meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup ->
+            [groupKey(meta, meta.num_intervals),  vcf_paired, vcf_tumor_germline, vcf_tumor_pileup]
         }.groupTuple().set{clairs_vcfs_branch_grouped}
     
-    clairs_vcfs_branch_grouped.map{meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline -> 
+
+    clairs_vcf_normal_branch.intervals
+        .map{ meta, vcf_normal ->
+            [groupKey(meta, meta.num_intervals), vcf_normal]
+        }.groupTuple().set{clairs_vcf_normal_branch_grouped}
+
+
+    clairs_vcfs_branch_grouped.map{meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup -> 
         new_meta = [
                         id:meta.tumor_id + "_germline",
                         normal_id:meta.normal_id,
@@ -67,7 +78,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         [new_meta, vcf_tumor_germline]
     }.set{ch_clairs_vcf_tumor_germline}
 
-    clairs_vcfs_branch_grouped.map{meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline -> 
+    clairs_vcfs_branch_grouped.map{meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup -> 
         new_meta = [
                         id:meta.tumor_id + "_pileup",
                         normal_id:meta.normal_id,
@@ -79,7 +90,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         [new_meta, vcf_tumor_pileup]
     }.set{ch_clairs_vcf_tumor_pileup}
 
-    clairs_vcfs_branch_grouped.map{meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline -> 
+    clairs_vcf_normal_branch_grouped.map{meta, vcf_normal_germline -> 
         new_meta = [
                         id:meta.normal_id + "_germline",
                         normal_id:meta.normal_id,
@@ -93,7 +104,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     
 
     clairs_vcfs_branch.intervals
-        .map{ meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline ->
+        .map{ meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup ->
             [meta,  vcf_paired]
         }.set{ch_clairs_vcf_paired_for_fixheader}
 
