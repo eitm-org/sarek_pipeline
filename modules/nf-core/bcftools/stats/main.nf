@@ -32,7 +32,7 @@ process BCFTOOLS_STATS {
     def sample_command = tbi ? "-s -" : ""
     def fasta_command = fasta ? "-F ${fasta}" : ""
     """
-    bcftools +fill-tags $vcf -Ob -o $vcf -- -t all
+    bcftools +fill-tags $vcf -Ob -o tmp -- -t 'DP=sum(FORMAT/DP),AN,AC'
 
     bcftools stats \\
         --verbose \\
@@ -42,7 +42,7 @@ process BCFTOOLS_STATS {
         $samples_file \\
         $sample_command \\
         $fasta_command \\
-        $vcf > ${prefix}.bcftools_stats.txt 
+        tmp > ${prefix}.bcftools_stats.txt 
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
