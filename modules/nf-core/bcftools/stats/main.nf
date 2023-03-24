@@ -35,7 +35,6 @@ process BCFTOOLS_STATS {
     bcftools stats \\
         --verbose \\
         $args \\
-        $regions_file \\
         $targets_file \\
         $samples_file \\
         $sample_command \\
