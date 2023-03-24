@@ -4,15 +4,13 @@ process BCFTOOLS_STATS {
 
     conda (params.enable_conda ? "bioconda::bcftools=1.16" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/bcftools:1.16--hfe4b78e_1':
-        'quay.io/biocontainers/bcftools:1.16--hfe4b78e_1' }"
+        'https://depot.galaxyproject.org/singularity/bcftools:1.16--haef29d1_2':
+        'quay.io/biocontainers/bcftools:1.16--haef29d1_2' }"
         // 'quay.io/biocontainers/bcftools:1.16--hfe4b78e_1' }"
 
     input:
     tuple val(meta), path(vcf), path(tbi)
     path regions
-    path fasta
-    path fasta_fai
     path targets
     path samples
 
@@ -29,18 +27,18 @@ process BCFTOOLS_STATS {
     def regions_file = regions ? "--regions-file ${regions}" : ""
     def targets_file = targets ? "--targets-file ${targets}" : ""
     def samples_file =  samples ? "--samples-file ${samples}" : ""
-    def sample_command = tbi ? "-s -" : ""
+    def sample_command = tbi ? "-s SAMPLE" : ""
     def fasta_command = fasta ? "-F ${fasta}" : ""
     """
 
     bcftools stats \\
         --verbose \\
+        --af-tag AF \\
         $args \\
         $targets_file \\
         $samples_file \\
         $sample_command \\
         $regions_file \\
-        $fasta_command \\
         $vcf > ${prefix}.bcftools_stats.txt 
 
     cat <<-END_VERSIONS > versions.yml
