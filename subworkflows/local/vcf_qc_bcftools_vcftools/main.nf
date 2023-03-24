@@ -10,13 +10,13 @@ workflow VCF_QC_BCFTOOLS_VCFTOOLS {
         tbi
         target_bed
         fasta
-        fai
+        fasta_fai
 
     main:
 
     ch_versions = Channel.empty()
     
-    BCFTOOLS_STATS(tbi ? vcf.join(tbi) : vcf, target_bed, fasta, fai, [], [])
+    BCFTOOLS_STATS(tbi ? vcf.join(tbi) : vcf, target_bed, fasta, fasta_fai, [], [])
     VCFTOOLS_TSTV_COUNT(vcf, target_bed, [])
     VCFTOOLS_TSTV_QUAL(vcf, target_bed, [])
     VCFTOOLS_SUMMARY(vcf, target_bed, [])

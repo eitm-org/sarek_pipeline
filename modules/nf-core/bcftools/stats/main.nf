@@ -11,7 +11,7 @@ process BCFTOOLS_STATS {
     tuple val(meta), path(vcf), path(tbi)
     path regions
     path fasta
-    path fai
+    path fasta_fai
     path targets
     path samples
 
@@ -29,7 +29,7 @@ process BCFTOOLS_STATS {
     def targets_file = targets ? "--targets-file ${targets}" : ""
     def samples_file =  samples ? "--samples-file ${samples}" : ""
     def sample_command = tbi ? "-s SAMPLE" : ""
-    def fasta_command = (fasta & fai) ? "-F ${fasta}" : ""
+    def fasta_command = (fasta & fasta_fai) ? "-F ${fasta}" : ""
     """
     bcftools stats \\
         --verbose \\
