@@ -183,7 +183,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     MERGE_VCFS_PAIRED_CLAIRS(
         clairs_fixed_vcf_paired_branch.intervals.map{meta, vcf_paired ->
             new_meta = [
-                        id:meta.normal_id + "_vs_" + meta.tumor_id,
+                        id:meta.tumor_id + "_vs_" + meta.normal_id,
                         normal_id:meta.normal_id,
                         num_intervals:meta.num_intervals,
                         patient:meta.patient,
@@ -199,7 +199,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         MERGE_VCFS_PAIRED_CLAIRS.out.vcf,
         clairs_vcfs_branch.no_intervals.map{meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline ->
             new_meta = [
-                        id:meta.normal_id + "_vs_" + meta.tumor_id,
+                        id:meta.tumor_id + "_vs_" + meta.normal_id,
                         normal_id:meta.normal_id,
                         num_intervals:meta.num_intervals,
                         patient:meta.patient,
