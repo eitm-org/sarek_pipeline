@@ -34,6 +34,7 @@ process BCFTOOLS_STATS {
     """
     bcftools stats \\
         --verbose \\
+        --af-tag AF \\
         $args \\
         $targets_file \\
         $samples_file \\
