@@ -16,6 +16,7 @@ process BCFTOOLS_STATS {
 
     output:
     tuple val(meta), path("*stats.txt"), emit: stats
+    tuple val(meta), path("*.gz")      , emit: filled_vcf
     path  "versions.yml"               , emit: versions
 
     when:
