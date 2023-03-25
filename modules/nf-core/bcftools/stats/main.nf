@@ -30,6 +30,7 @@ process BCFTOOLS_STATS {
     bcftools +fill-tags $vcf -Ob -o $vcf -- -t all
 
     bcftools stats \\
+        --verbose -s SAMPLE \\
         $args \\
         $regions_file \\
         $targets_file \\
