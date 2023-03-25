@@ -36,7 +36,6 @@ process BCFTOOLS_STATS {
         $args \\
         $targets_file \\
         $samples_file \\
-        $regions_file \\
         $vcf > ${prefix}.bcftools_stats.txt 
 
     cat <<-END_VERSIONS > versions.yml
