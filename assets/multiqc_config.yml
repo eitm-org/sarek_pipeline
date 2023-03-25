@@ -71,7 +71,7 @@ extra_fn_clean_exts:
     pattern: "^.*.(md|recal).mosdepth.(global|region).dist"
     module: mosdepth
   - type: regex
-    pattern: "_[0-9]$"
+    pattern: "_[0-9].*"
 
 
 sp:
