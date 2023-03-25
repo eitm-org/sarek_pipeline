@@ -10,7 +10,6 @@ process BCFTOOLS_STATS {
 
     input:
     tuple val(meta), path(vcf)
-    path regions
     path targets
     path samples
 
@@ -28,6 +27,7 @@ process BCFTOOLS_STATS {
     def targets_file = targets ? "--targets-file ${targets}" : ""
     def samples_file =  samples ? "--samples-file ${samples}" : ""
     def sample_command = "-s SAMPLE"
+
     """
     bcftools +fill-tags $vcf -Ob -o $vcf -- -t all
 
