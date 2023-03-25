@@ -57,9 +57,9 @@ module_order:
 
 
 sample_names_replace_regex: True
-# sample_names_replace:
-#   "\\.[0-9]{4}$": ".md" # should match ".0001" but only at the end of strings for module Markduplicates/EstimateLibraryComplexity
-#   module: picard
+sample_names_replace:
+  "\\.[0-9]{4}$": ".md" # should match ".0001" but only at the end of strings for module Markduplicates/EstimateLibraryComplexity
+  module: picard
 
 extra_fn_clean_exts:
   - "_val"
@@ -71,7 +71,7 @@ extra_fn_clean_exts:
     pattern: "^.*.(md|recal).mosdepth.(global|region).dist"
     module: mosdepth
   - type: regex
-    pattern: "_[0-9]"
+    pattern: "_[0-9]$"
 
 
 sp:
