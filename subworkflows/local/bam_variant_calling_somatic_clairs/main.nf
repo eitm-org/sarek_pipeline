@@ -40,9 +40,9 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         dict,
         normal_vcf
     )
-    params.normal_vcf ? "before" : params.normal_vcf.view()
+    // params.normal_vcf ? "before" : params.normal_vcf.view()
     params.normal_vcf = CLAIRS_PAIRED.out.vcf_normal.map{germline, pileup -> [pileup]}
-    params.normal_vcf ? "after" : params.normal_vcf.view()
+    // params.normal_vcf ? "after" : params.normal_vcf.view()
 
     // Figure out if using intervals or no_intervals
     CLAIRS_PAIRED.out.vcfs.branch{
@@ -229,7 +229,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
 
     clairs_vcf = Channel.empty().mix(
         MERGE_VCFS_PAIRED_CLAIRS.out.vcf,
-        clairs_vcfs_branch.no_intervals.map{meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup, vcf_normal_germline ->
+        clairs_vcfs_branch.no_intervals.map{meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup ->
             new_meta = [
                         id:meta.tumor_id + "_vs_" + meta.normal_id,
                         normal_id:meta.normal_id,
