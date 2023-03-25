@@ -29,6 +29,7 @@ process BCFTOOLS_STATS {
     def samples_file =  samples ? "--samples-file ${samples}" : ""
     def sample_command = tbi ? "-s SAMPLE" : ""
     """
+    bcftools annotate -a $vcf -c INFO,^FORMAT/GT $vcf
 
     bcftools stats \\
         --verbose \\
