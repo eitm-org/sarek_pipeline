@@ -72,6 +72,9 @@ extra_fn_clean_exts:
     module: mosdepth
   - type: regex
     pattern: "_[0-9]$"
+  - type: regex
+    pattern: "_[0-9]"
+    module: picard
 
 
 sp:
