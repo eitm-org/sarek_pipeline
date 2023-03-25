@@ -8,7 +8,7 @@ process CLAIRS {
         'clairs_input_normal_vcf:latest' }"
 
     input:
-    tuple val(meta), path(input), path(inputl_index), path(intervals)
+    tuple val(meta), path(input), path(input_index), path(intervals)
     path fasta
     path fai
     path dict

@@ -37,10 +37,10 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         first: it[0].normal_id[-1] == '0'
         rest: it[0].normal_id[-1] != '0'
     }.set{input_branch}
-     input_branch.first.view()
+    input_branch.first.view()
     clairs_paired = Channel.empty()
     CLAIRS_PAIRED_FIRST(
-        input_branch.first,
+        input_branch,
         fasta,
         fai,
         dict,
