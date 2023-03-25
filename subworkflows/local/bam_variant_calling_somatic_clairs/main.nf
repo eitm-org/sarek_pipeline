@@ -42,7 +42,8 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         input_branch.first,
         fasta,
         fai,
-        dict
+        dict,
+        normal_vcf,
     )
     normal_germline_vcf = CLAIRS_PAIRED.out.vcf_normal.first()
     CLAIRS_PAIRED_REST(
