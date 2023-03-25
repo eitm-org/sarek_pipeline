@@ -29,7 +29,9 @@ process BCFTOOLS_STATS {
     def samples_file =  samples ? "--samples-file ${samples}" : ""
     def sample_command = tbi ? "-s SAMPLE" : ""
     """
-    bcftools +fill-tags $vcf -Ob -o $vcf -- -t 'INFO/DP:1=int(sum(FORMAT/DP))'
+    bcftools +fill-tags $vcf -Ob -o $vcf -- -t all
+
+    potato
 
     bcftools stats \\
         --verbose \\
