@@ -19,7 +19,7 @@ process CLAIRS {
             path("*.clairs.*.vcf.gz"),
             path("*_tumor_germline_*.vcf.gz"),
             path("*_tumor_pileup_*.vcf.gz"),             emit: vcfs
-    tuple val(meta), path("*_normal_germline_*.vcf.gz"), emit: vcf_normal, optional: true
+    tuple val(meta), path("*_normal_germline_*.vcf.gz"), path("*_normal_pileup_*.vcf.gz"), emit: vcf_normal, optional: true
     tuple val(meta), path("*.clairs.*.vcf.gz.tbi"),     emit: tbi
     path "versions.yml",                                emit: versions
 
@@ -35,7 +35,8 @@ process CLAIRS {
     def suffix = intervals ? "${intervals.toString()}" : ""
     def bed_command = intervals ? "-b ${intervals}" : ""
     def normal_vcf_fn = normal_vcf ? "--normal_vcf_fn ${normal_vcf}" : "" 
-    def mv_normal_vcf_command = normal_vcf ? "" : "mv tmp/clair3_output/clair3_normal_output/merge_output.vcf.gz ${meta.normal_id}_normal_germline_${suffix}.vcf.gz"
+    def mv_normal_vcf_germline_command = normal_vcf ? "" : "mv tmp/clair3_output/clair3_normal_output/merge_output.vcf.gz ${meta.normal_id}_normal_germline_${suffix}.vcf.gz"
+    def mv_normal_vcf_pileup_command = normal_vcf ? "" : "mv tmp/clair3_output/clair3_normal_output/merge_output.vcf.gz ${meta.normal_id}_normal_pileup_${suffix}.vcf.gz"
 
     """
     /opt/bin/run_clairs \\
@@ -49,7 +50,9 @@ process CLAIRS {
         $args
 
 
-    $mv_normal_vcf_command
+    $mv_normal_vcf_germline_command
+    $mv_normal_vcf_pileup_command
+
     mv tmp/clair3_output/clair3_tumor_output/merge_output.vcf.gz ${meta.tumor_id}_tumor_germline_${suffix}.vcf.gz
     mv tmp/clair3_output/clair3_tumor_output/pileup.vcf.gz ${meta.tumor_id}_tumor_pileup_${suffix}.vcf.gz
 
