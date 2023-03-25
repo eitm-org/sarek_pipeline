@@ -6,9 +6,11 @@ process BCFTOOLS_STATS {
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/bcftools:1.16--haef29d1_2':
         'quay.io/biocontainers/bcftools:1.16--hfe4b78e_1' }"
+        // 'quay.io/biocontainers/bcftools:1.16--hfe4b78e_1' }"
 
     input:
     tuple val(meta), path(vcf)
+    path regions
     path targets
     path samples
 
@@ -25,17 +27,18 @@ process BCFTOOLS_STATS {
     def regions_file = regions ? "--regions-file ${regions}" : ""
     def targets_file = targets ? "--targets-file ${targets}" : ""
     def samples_file =  samples ? "--samples-file ${samples}" : ""
+    def sample_command = "-s SAMPLE"
     """
     bcftools +fill-tags $vcf -Ob -o $vcf -- -t all
 
 
     bcftools stats \\
         --verbose \\
-        -s SAMPLE \\
         $args \\
         $targets_file \\
         $samples_file \\
         $regions_file \\
+        $sample_command \\
         $vcf > ${prefix}.bcftools_stats.txt 
 
     cat <<-END_VERSIONS > versions.yml
