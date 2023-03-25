@@ -73,7 +73,7 @@ extra_fn_clean_exts:
   - type: regex
     pattern: "_[0-9]$"
   - type: regex
-    pattern: "_[0-9]"
+    pattern: "_[0-9]$"
     module: picard
 
 
