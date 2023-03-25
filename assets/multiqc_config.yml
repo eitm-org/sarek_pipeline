@@ -57,7 +57,8 @@ module_order:
 
 extra_fn_clean_exts:
   - "_val"
-  - "_[0-9]"
+  - type: regex
+    pattern: "_[0-9]"
   - "_tagged"
   - ".md"
   - ".clairs"
