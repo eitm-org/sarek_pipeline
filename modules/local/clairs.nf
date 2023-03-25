@@ -69,6 +69,7 @@ process CLAIRS {
     touch ${prefix}.vcf.gz
     touch ${prefix}.vcf.gz.tbi
     touch ${meta.normal_id}_normal_germline_${suffix}.vcf.gz
+    touch ${meta.normal_id}_normal_pileup_${suffix}.vcf.gz
     touch ${meta.tumor_id}_tumor_germline_${suffix}.vcf.gz
     touch ${meta.tumor_id}_tumor_pileup_${suffix}.vcf.gz
 
