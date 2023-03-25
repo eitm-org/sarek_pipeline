@@ -13,7 +13,8 @@ include { GATK4_MERGEVCFS                     as MERGE_VCFS_NORMAL_GERMLINE_CLAI
 include { GATK4_MERGEVCFS                     as MERGE_VCFS_NORMAL_PILEUP_CLAIRS               } from '../../../modules/nf-core/gatk4/mergevcfs'
 
 
-include { CLAIRS                          as CLAIRS_PAIRED               } from '../../../modules/local/clairs'
+include { CLAIRS                          as CLAIRS_PAIRED_FIRST               } from '../../../modules/local/clairs'
+include { CLAIRS                          as CLAIRS_PAIRED_REST               } from '../../../modules/local/clairs'
 
 workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     take:
@@ -32,28 +33,51 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     //
     //Perform variant calling using mutect2 module in tumor single mode.
     //
-    CLAIRS_PAIRED(
-        input,
+    input.branch{
+        first: it[0].normal_id[-1] == '0',
+        rest: it[0].normal_id[-1] != '0',
+    }.set{input_branch}
+    clairs_paired = Channel.empty()
+    CLAIRS_PAIRED_FIRST(
+        input_branch.first,
+        fasta,
+        fai,
+        dict
+    )
+    normal_germline_vcf = CLAIRS_PAIRED.out.vcf_normal.first()
+    CLAIRS_PAIRED_REST(
+        input_branch.rest,
         fasta,
         fai,
         dict,
-        normal_vcf
+        normal_germline_vcf
     )
-    println params.normal_vcf
-    params.normal_vcf = CLAIRS_PAIRED.out.vcf_normal.first()
-    println params.normal_vcf
+    clairs_paired_vcfs = clairs_paired.mix(
+        CLAIRS_PAIRED_FIRST.out.vcfs,
+        CLAIRS_PAIRED_REST.out.vcfs
+    )
+    clairs_paired_tbi = clairs_paired.mix(
+        CLAIRS_PAIRED_FIRST.out.tbi,
+        CLAIRS_PAIRED_REST.out.tbi
+    )
+
+    clairs_paired_normal_vcfs = clairs_paired.mix(
+        CLAIRS_PAIRED_FIRST.out.vcf_normal,
+        CLAIRS_PAIRED_REST.out.vcf_normal
+    )
+
 
     // Figure out if using intervals or no_intervals
-    CLAIRS_PAIRED.out.vcfs.branch{
+    clairs_paired_vcfs.branch{
             intervals:    it[0].num_intervals > 1
             no_intervals: it[0].num_intervals <= 1
         }.set{ clairs_vcfs_branch }
-    CLAIRS_PAIRED.out.vcf_normal.branch{
+    clairs_paired_normal_vcfs.branch{
             intervals:    it[0].num_intervals > 1
             no_intervals: it[0].num_intervals <= 1
         }.set{ clairs_vcf_normal_branch }
 
-    CLAIRS_PAIRED.out.tbi.branch{
+    clairs_paired_tbi.branch{
             intervals:    it[0].num_intervals > 1
             no_intervals: it[0].num_intervals <= 1
         }.set{ clairs_tbi_branch }
@@ -247,7 +271,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         clairs_tbi_branch.no_intervals)
 
     ch_versions = ch_versions.mix(MERGE_VCFS_PAIRED_CLAIRS.out.versions)
-    ch_versions = ch_versions.mix(CLAIRS_PAIRED.out.versions)
+    ch_versions = ch_versions.mix(CLAIRS_PAIRED_FIRST.out.versions)
 
     emit:
     clairs_vcf                  = clairs_vcf
