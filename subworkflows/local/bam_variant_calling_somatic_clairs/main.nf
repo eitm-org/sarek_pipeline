@@ -34,8 +34,8 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     //Perform variant calling using mutect2 module in tumor single mode.
     //
     input.branch{
-        first: it[0].normal_id[-1] == '0',
-        rest: it[0].normal_id[-1] != '0',
+        first: it[0].normal_id[-1] == '0'
+        rest: it[0].normal_id[-1] != '0'
     }.set{input_branch}
     clairs_paired = Channel.empty()
     CLAIRS_PAIRED_FIRST(
