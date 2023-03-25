@@ -40,7 +40,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     input_branch.first.view()
     clairs_paired = Channel.empty()
     CLAIRS_PAIRED_FIRST(
-        input_branch,
+        input,
         fasta,
         fai,
         dict,
