@@ -61,7 +61,6 @@ extra_fn_clean_exts:
   - ".md"
   - ".clairs"
   - ".cram"
-  - "_3"
   - type: regex_keep
     pattern: "^.*.(md|recal).mosdepth.(global|region).dist"
     module: mosdepth
