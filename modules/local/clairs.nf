@@ -36,7 +36,7 @@ process CLAIRS {
     def bed_command = intervals ? "-b ${intervals}" : ""
     def normal_vcf_fn = normal_vcf ? "--normal_vcf_fn ${normal_vcf}" : "" 
     def mv_normal_vcf_germline_command = normal_vcf ? "" : "mv tmp/clair3_output/clair3_normal_output/merge_output.vcf.gz ${meta.normal_id}_normal_germline_${suffix}.vcf.gz"
-    def mv_normal_vcf_pileup_command = normal_vcf ? "" : "mv tmp/clair3_output/clair3_normal_output/merge_output.vcf.gz ${meta.normal_id}_normal_pileup_${suffix}.vcf.gz"
+    def mv_normal_vcf_pileup_command = normal_vcf ? "" : "mv tmp/clair3_output/clair3_normal_output/pileup.vcf.gz ${meta.normal_id}_normal_pileup_${suffix}.vcf.gz"
 
     """
     /opt/bin/run_clairs \\
