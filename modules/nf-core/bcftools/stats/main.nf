@@ -31,15 +31,12 @@ process BCFTOOLS_STATS {
     """
     bcftools +fill-tags $vcf -Ob -o $vcf -- -t all
 
-    potato
 
     bcftools stats \\
         --verbose \\
         $args \\
         $targets_file \\
         $samples_file \\
-        $sample_command \\
-        $regions_file \\
         $vcf > ${prefix}.bcftools_stats.txt 
 
     cat <<-END_VERSIONS > versions.yml
