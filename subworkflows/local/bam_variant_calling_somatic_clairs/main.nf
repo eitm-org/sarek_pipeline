@@ -32,7 +32,6 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     //
     //Perform variant calling using mutect2 module in tumor single mode.
     //
-    params.normal_vcf ? : params.normal_vcf.view()
     CLAIRS_PAIRED(
         input,
         fasta,
@@ -42,7 +41,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     )
     // params.normal_vcf ? "before" : params.normal_vcf.view()
     params.normal_vcf = CLAIRS_PAIRED.out.vcf_normal.map{germline, pileup -> [pileup]}
-    // params.normal_vcf ? "after" : params.normal_vcf.view()
+    params.normal_vcf ? "after" : params.normal_vcf.view()
 
     // Figure out if using intervals or no_intervals
     CLAIRS_PAIRED.out.vcfs.branch{
