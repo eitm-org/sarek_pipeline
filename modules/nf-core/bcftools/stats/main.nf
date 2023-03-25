@@ -30,6 +30,8 @@ process BCFTOOLS_STATS {
     def sample_command = tbi ? "-s SAMPLE" : ""
     """
     bcftools +fill-tags $vcf -Ob -o $vcf -- -t 'INFO/DP:1=int(sum(DP))'
+    bcftools annotate -x FORMAT/DP $vcf
+
     bcftools stats \\
         --verbose \\
         $args \\
