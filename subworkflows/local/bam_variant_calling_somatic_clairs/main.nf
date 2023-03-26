@@ -33,16 +33,14 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     //
     //Perform variant calling using mutect2 module in tumor single mode.
     //
-    input.branch{
-        first: it[0].normal_id[-1] == '0' && it[1]
-        rest:  it[0].normal_id[-1] != '0' && it[1]
-    }.set{input_branch}
-    input_branch.first.view()
-    input_branch.rest.view()
-    clairs_paired = Channel.empty()
+    // input.branch{
+    //     first: it[0].normal_id[-1] == '0' && it[1]
+    //     rest:  it[0].normal_id[-1] != '0' && it[1]
+    // }.set{input_branch}
+    // input_branch.first.view()
+    // input_branch.rest.view()
     CLAIRS_PAIRED_FIRST(
         input,
-        //input_branch.first.map{meta, crams, crais, intervals -> [meta, crams, crais, intervals]},
         fasta,
         fai,
         dict,
@@ -51,13 +49,14 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     normal_vcf_for_rest = CLAIRS_PAIRED_FIRST.out.vcf_normal.first()
     normal_vcf_for_rest = normal_vcf_for_rest ? normal_vcf_for_rest : normal_vcf
     CLAIRS_PAIRED_REST(
-        input_branch.rest.map{meta, crams, crais, intervals -> [meta, crams, crais, intervals]},
+        input,
+        // input_branch.rest.map{meta, crams, crais, intervals -> [meta, crams, crais, intervals]},
         fasta,
         fai,
         dict,
         normal_vcf_for_rest
     )
-    clairs_paired_vcfs = clairs_paired.mix(
+    clairs_paired_vcfs = Channel.empty().mix(
         CLAIRS_PAIRED_FIRST.out.vcfs,
         CLAIRS_PAIRED_REST.out.vcfs
     )
