@@ -37,7 +37,6 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         first: it[0].normal_id[-1] == '0'
         rest:  it[0].normal_id[-1] > '1'
     }.set{input_branch}
-    input_branch.rest.map{ meta, crams, crais, intervals -> [meta, crams, crais, intervals]}.view()
     // input_branch.rest.view()
     CLAIRS_PAIRED_FIRST(
         input_branch.first.map{meta, crams, crais, intervals -> [meta, crams, crais, intervals]},
@@ -59,6 +58,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         CLAIRS_PAIRED_FIRST.out.vcfs,
         CLAIRS_PAIRED_REST.out.vcfs
     )
+    clairs_paired_vcfs.view()
     clairs_paired_tbi = Channel.empty().mix(
         CLAIRS_PAIRED_FIRST.out.tbi,
         CLAIRS_PAIRED_REST.out.tbi
