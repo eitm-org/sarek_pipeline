@@ -274,7 +274,13 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     clairs_vcf                  = clairs_vcf
     clairs_tbi                  = clairs_tbi
     clairs_vcf_tumor_germline   = clairs_vcf_tumor_germline
-    clairs_vcf_tumor_pileup     = clairs_vcf_tumor_pileup 
-    clairs_vcf_normal_germline  = clairs_vcf_normal_germline                                      // channel: [ val(meta), [ vcf ] ]
+    clairs_tbi_tumor_germline   = MERGE_VCFS_TUMOR_GERMLINE_CLAIRS.out.tbi
+    clairs_vcf_tumor_pileup     = clairs_vcf_tumor_pileup
+    clairs_tbi_tumor_pileup     = MERGE_VCFS_TUMOR_PILEUP_CLAIRS.out.tbi 
+    clairs_vcf_normal_germline  = clairs_vcf_normal_germline// channel: [ val(meta), [ vcf ] ]
+    clairs_tbi_normal_germline  = MERGE_VCFS_NORMAL_GERMLINE_CLAIRS.out.tbi
+    clairs_vcf_normal_pileup = clairs_vcf_normal_pileup// channel: [ val(meta), [ vcf ] ]
+    clairs_tbi_normal_pileup  = MERGE_VCFS_NORMAL_PILEUP_CLAIRS.out.tbi
+
     versions                    = ch_versions                                   // channel: [ versions.yml ]
 }
