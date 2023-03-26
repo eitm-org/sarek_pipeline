@@ -45,6 +45,17 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         dict,
         normal_vcf,
     )
+
+    normal_vcf_for_rest = CLAIRS_PAIRED_FIRST.out.vcf_normal.map{meta, germline, pileup -> germline}
+    normal_vcf_for_rest = normal_vcf_for_rest ? normal_vcf_for_rest : normal_vcf
+    CLAIRS_PAIRED_REST(
+        input_branch.rest.map{meta, crams, crais, intervals -> [meta, crams, crais, intervals]},
+        fasta,
+        fai,
+        dict,
+        normal_vcf_for_rest,
+    )
+
     clairs_paired_vcfs = Channel.empty().mix(
         CLAIRS_PAIRED_FIRST.out.vcfs,
         CLAIRS_PAIRED_REST.out.vcfs
@@ -62,15 +73,6 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
 
     clairs_paired_normal_vcfs.view()
 
-    normal_vcf_for_rest = CLAIRS_PAIRED_FIRST.out.vcf_normal.map{meta, germline, pileup -> germline}
-    normal_vcf_for_rest = normal_vcf_for_rest ? normal_vcf_for_rest : normal_vcf
-    CLAIRS_PAIRED_REST(
-        input_branch.rest.map{meta, crams, crais, intervals -> [meta, crams, crais, intervals]},
-        fasta,
-        fai,
-        dict,
-        normal_vcf_for_rest,
-    )
 
 
     // Figure out if using intervals or no_intervals
