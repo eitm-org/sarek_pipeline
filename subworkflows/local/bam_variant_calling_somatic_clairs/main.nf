@@ -118,7 +118,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     )
 
     // normal_vcf_for_rest = normal_vcf_for_rest ? normal_vcf_for_rest : normal_vcf
-    clairs_vcf_normal_germline.reduce{meta, germline -> germline; return germline}.view()
+    clairs_vcf_normal_germline.view()
     clairs_vcf_normal_germline.first().view()
     CLAIRS_PAIRED_REST(
         input_branch.rest,
