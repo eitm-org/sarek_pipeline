@@ -27,7 +27,7 @@ process BCFTOOLS_STATS {
     def targets_file = targets ? "--targets-file ${targets}" : ""
     def samples_file =  samples ? "--samples-file ${samples}" : ""
     """
-    bcftools +fill-tags $vcf -Ob -o ${vcf.baseName}_tagged.vcf.gz -- -t all
+    bcftools +fill-tags $vcf -Ob -o ${vcf.baseName}_tagged.vcf.gz -- -t all,INFO/DP:1=int(sum(FORMAT/DP))
 
     bcftools stats \\
         --verbose -s SAMPLE \\
