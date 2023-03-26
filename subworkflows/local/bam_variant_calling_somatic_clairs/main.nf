@@ -125,7 +125,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         fasta,
         fai,
         dict,
-        normal_vcf,
+        clairs_vcf_normal_germline.map{meta, g -> [g]}.first(),
     )
 
     clairs_paired_vcfs = Channel.empty().mix(
