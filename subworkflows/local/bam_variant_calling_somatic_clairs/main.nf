@@ -161,7 +161,6 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
                     ]
         [new_meta, vcf_tumor_germline]
     }.set{ch_clairs_vcf_tumor_germline}
-    ch_clairs_vcf_tumor_germline.view()
 
     // Merge tumor germline VCF
     // Only when using intervals
