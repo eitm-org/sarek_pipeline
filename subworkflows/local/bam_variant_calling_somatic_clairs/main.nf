@@ -182,6 +182,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
 
     // Merge tumor germline VCF
     // Only when using intervals
+    ch_clairs_vcf_tumor_germline.view()
     MERGE_VCFS_TUMOR_GERMLINE_CLAIRS(ch_clairs_vcf_tumor_germline, dict)
 
     clairs_vcf_tumor_germline = Channel.empty().mix(
