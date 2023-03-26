@@ -35,7 +35,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     //
     input.branch{
         first: it[0].normal_id[-1] == '0'
-        rest:  it[0].normal_id[-1] != '0'
+        rest:  it[0].normal_id[-1] > '1'
     }.set{input_branch}
     // input_branch.first.map{meta, crams, crais, intervals -> [meta, crams, crais, intervals]}.view()
     input_branch.rest.view()
