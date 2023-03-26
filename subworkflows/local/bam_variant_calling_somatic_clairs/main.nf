@@ -49,7 +49,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     normal_vcf_for_rest = CLAIRS_PAIRED_FIRST.out.vcf_normal.first()
     normal_vcf_for_rest = normal_vcf_for_rest ? normal_vcf_for_rest : normal_vcf
     CLAIRS_PAIRED_REST(
-        input_branch.rest.map{meta, crams, crais, intervals -> [meta, crams, crais, intervals]},
+        input_branch.first.map{meta, crams, crais, intervals -> [meta, crams, crais, intervals]},
         fasta,
         fai,
         dict,
