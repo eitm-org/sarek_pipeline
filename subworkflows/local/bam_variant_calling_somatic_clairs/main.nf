@@ -37,7 +37,6 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         first: it[0].normal_id[-1] == '0'
         rest:  it[0].normal_id[-1] != '0'
     }.set{input_branch}
-    // input_branch.rest.view()
     CLAIRS_PAIRED_FIRST(
         input_branch.first.map{meta, crams, crais, intervals -> [meta, crams, crais, intervals]},
         fasta,
@@ -47,6 +46,8 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     )
 
     normal_vcf_for_rest = CLAIRS_PAIRED_FIRST.out.vcf_normal.map{meta, germline, pileup -> [germline]}
+    normal_vcf_for_rest.view()
+
     // normal_vcf_for_rest = normal_vcf_for_rest ? normal_vcf_for_rest : normal_vcf
     CLAIRS_PAIRED_REST(
         input_branch.rest,
@@ -60,7 +61,6 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         CLAIRS_PAIRED_FIRST.out.vcfs,
         CLAIRS_PAIRED_REST.out.vcfs
     )
-    clairs_paired_vcfs.view()
     clairs_paired_tbi = Channel.empty().mix(
         CLAIRS_PAIRED_FIRST.out.tbi,
         CLAIRS_PAIRED_REST.out.tbi
@@ -71,7 +71,6 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         CLAIRS_PAIRED_REST.out.vcf_normal
     )
 
-    clairs_paired_normal_vcfs.view()
 
 
 
