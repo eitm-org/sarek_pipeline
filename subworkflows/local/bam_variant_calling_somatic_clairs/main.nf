@@ -34,14 +34,15 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     //Perform variant calling using mutect2 module in tumor single mode.
     //
     input.branch{
-        first: it[0].normal_id[-1] == '0'
-        rest:  it[0].normal_id[-1] != '0'
+        first: it[0].normal_id[-1] == '0' && it[1]
+        rest:  it[0].normal_id[-1] != '0' && it[1]
     }.set{input_branch}
     input_branch.first.view()
     input_branch.rest.view()
     clairs_paired = Channel.empty()
     CLAIRS_PAIRED_FIRST(
-        input_branch.first.map{meta, crams, crais, intervals -> [meta, crams, crais, intervals]},
+        input,
+        //input_branch.first.map{meta, crams, crais, intervals -> [meta, crams, crais, intervals]},
         fasta,
         fai,
         dict,
