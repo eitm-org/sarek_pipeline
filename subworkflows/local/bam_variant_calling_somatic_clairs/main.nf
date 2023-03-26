@@ -3,8 +3,6 @@
 //
 
 include { GATK4_FIXVCFHEADER                 as FIX_VCFHEADER_CLAIRS               } from '../../../modules/local/gatk_fixvcfheader'
-include { GATK4_FIXVCFHEADER                 as FIX_NORMAL_VCFHEADER_CLAIRS               } from '../../../modules/local/gatk_fixvcfheader'
-include { GATK4_FIXVCFHEADER                 as FIX_TUMOR_VCFHEADER_CLAIRS               } from '../../../modules/local/gatk_fixvcfheader'
 
 include { GATK4_MERGEVCFS                     as MERGE_VCFS_PAIRED_CLAIRS               } from '../../../modules/nf-core/gatk4/mergevcfs'
 include { GATK4_MERGEVCFS                     as MERGE_VCFS_TUMOR_GERMLINE_CLAIRS               } from '../../../modules/nf-core/gatk4/mergevcfs'
