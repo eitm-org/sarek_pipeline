@@ -45,16 +45,16 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         normal_vcf,
     )
 
-    normal_vcf_for_rest = CLAIRS_PAIRED_FIRST.out.vcf_normal.map{meta, germline, pileup -> [germline]}
+    normal_vcf_for_rest = CLAIRS_PAIRED_FIRST.out.vcf_normal.map{meta, germline, pileup -> [meta, germline]}
     normal_vcf_for_rest.view()
 
     // normal_vcf_for_rest = normal_vcf_for_rest ? normal_vcf_for_rest : normal_vcf
     CLAIRS_PAIRED_REST(
         input_branch.rest,
+        normal_vcf_for_rest,
         fasta,
         fai,
         dict,
-        normal_vcf,
     )
 
     clairs_paired_vcfs = Channel.empty().mix(
