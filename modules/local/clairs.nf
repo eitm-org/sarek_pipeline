@@ -9,10 +9,10 @@ process CLAIRS {
 
     input:
     tuple val(meta), path(input), path(input_index), path(intervals)
-    tuple val(meta), path(normal_vcf)
     path fasta
     path fai
     path dict
+    path(normal_vcf)
 
     output:
     tuple   val(meta), 
