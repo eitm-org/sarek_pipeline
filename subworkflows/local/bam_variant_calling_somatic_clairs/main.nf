@@ -161,6 +161,31 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
                     ]
         [new_meta, vcf_tumor_germline]
     }.set{ch_clairs_vcf_tumor_germline}
+    ch_clairs_vcf_tumor_germline.view()
+
+    // Merge tumor germline VCF
+    // Only when using intervals
+    
+    MERGE_VCFS_TUMOR_GERMLINE_CLAIRS(ch_clairs_vcf_tumor_germline, dict)
+
+    clairs_vcf_tumor_germline = Channel.empty().mix(
+        MERGE_VCFS_TUMOR_GERMLINE_CLAIRS.out.vcf,
+        clairs_vcfs_branch.no_intervals.map{ meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup ->
+            new_meta = [
+                        id:meta.tumor_id + '_germline',
+                        normal_id:meta.normal_id,
+                        num_intervals:meta.num_intervals,
+                        patient:meta.patient,
+                        sex:meta.sex,
+                        tumor_id:meta.tumor_id
+                    ]
+            [new_meta, vcf_tumor_germline]
+        }
+    )
+
+
+    // Merge tumor pilep VCF
+    //Only when using intervals
 
     clairs_vcfs_branch_grouped.map{meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup -> 
         new_meta = [
@@ -180,28 +205,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
             [meta,  vcf_paired]
         }.set{ch_clairs_vcf_paired_for_fixheader}
 
-    // Merge tumor germline VCF
-    // Only when using intervals
-    ch_clairs_vcf_tumor_germline.view()
-    MERGE_VCFS_TUMOR_GERMLINE_CLAIRS(ch_clairs_vcf_tumor_germline, dict)
 
-    clairs_vcf_tumor_germline = Channel.empty().mix(
-        MERGE_VCFS_TUMOR_GERMLINE_CLAIRS.out.vcf,
-        clairs_vcfs_branch.no_intervals.map{ meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup ->
-            new_meta = [
-                        id:meta.tumor_id + '_germline',
-                        normal_id:meta.normal_id,
-                        num_intervals:meta.num_intervals,
-                        patient:meta.patient,
-                        sex:meta.sex,
-                        tumor_id:meta.tumor_id
-                    ]
-            [new_meta, vcf_tumor_germline]
-        }
-    )
-
-    // Merge tumor pilep VCF
-    //Only when using intervals
     MERGE_VCFS_TUMOR_PILEUP_CLAIRS(ch_clairs_vcf_tumor_pileup, dict)
 
     clairs_vcf_tumor_pileup = Channel.empty().mix(
