@@ -118,13 +118,13 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
     )
 
     // normal_vcf_for_rest = normal_vcf_for_rest ? normal_vcf_for_rest : normal_vcf
-    clairs_vcf_normal_germline.view()
+    clairs_vcf_normal_germline.last().view()
     CLAIRS_PAIRED_REST(
         input_branch.rest,
         fasta,
         fai,
         dict,
-        clairs_vcf_normal_germline
+        clairs_vcf_normal_germline.last()
     )
 
     clairs_paired_vcfs = Channel.empty().mix(
