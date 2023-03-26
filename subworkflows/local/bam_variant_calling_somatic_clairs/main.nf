@@ -45,7 +45,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         dict,
         normal_vcf,
     )
-    normal_vcf_for_rest = CLAIRS_PAIRED_FIRST.out.vcf_normal.first()[1]
+    normal_vcf_for_rest = CLAIRS_PAIRED_FIRST.out.vcf_normal.map{meta, germline, pileup -> germline}
     normal_vcf_for_rest = normal_vcf_for_rest ? normal_vcf_for_rest : normal_vcf
     normal_vcf_for_rest.view()
     CLAIRS_PAIRED_REST(
