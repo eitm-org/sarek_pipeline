@@ -116,10 +116,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
             [new_meta, vcf_normal_pileup]
         }
     )
-
     normal_vcf_for_rest = clairs_vcf_normal_germline.map{meta, g -> [g]}.first() ? clairs_vcf_normal_germline.map{meta, g -> [g]}.first() : normal_vcf
-
-    clairs_vcf_normal_germline.map{meta, g -> [g]}.view()
     CLAIRS_PAIRED_REST(
         input_branch.rest,
         fasta,
@@ -275,7 +272,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
 
     emit:
     clairs_vcf                  = clairs_vcf
-    clairs_tbi                   = clairs_tbi
+    clairs_tbi                  = clairs_tbi
     clairs_vcf_tumor_germline   = clairs_vcf_tumor_germline
     clairs_vcf_tumor_pileup     = clairs_vcf_tumor_pileup 
     clairs_vcf_normal_germline  = clairs_vcf_normal_germline                                      // channel: [ val(meta), [ vcf ] ]
