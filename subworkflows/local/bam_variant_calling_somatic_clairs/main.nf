@@ -58,7 +58,6 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         CLAIRS_PAIRED_FIRST.out.vcfs,
         // CLAIRS_PAIRED_REST.out.vcfs
     )
-    clairs_paired_vcfs.view()
     clairs_paired_tbi = Channel.empty().mix(
         CLAIRS_PAIRED_FIRST.out.tbi,
         // CLAIRS_PAIRED_REST.out.tbi
