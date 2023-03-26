@@ -117,7 +117,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         }
     )
 
-    // normal_vcf_for_rest = normal_vcf_for_rest ? normal_vcf_for_rest : normal_vcf
+    normal_vcf_for_rest = clairs_vcf_normal_germline.map{meta, g -> [g]}.first() ? clairs_vcf_normal_germline.map{meta, g -> [g]}.first() : normal_vcf
 
     clairs_vcf_normal_germline.map{meta, g -> [g]}.view()
     CLAIRS_PAIRED_REST(
@@ -125,7 +125,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         fasta,
         fai,
         dict,
-        clairs_vcf_normal_germline.map{meta, g -> [g]}.first(),
+        normal_vcf_for_rest,
     )
 
     clairs_paired_vcfs = Channel.empty().mix(
