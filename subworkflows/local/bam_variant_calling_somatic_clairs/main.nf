@@ -53,7 +53,7 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
         fasta,
         fai,
         dict,
-        // normal_vcf_for_rest
+        normal_vcf
     )
     clairs_paired_vcfs = Channel.empty().mix(
         CLAIRS_PAIRED_FIRST.out.vcfs,
