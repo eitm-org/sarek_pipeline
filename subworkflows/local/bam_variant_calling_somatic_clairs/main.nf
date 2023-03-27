@@ -149,7 +149,6 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
             [groupKey(meta, meta.num_intervals),  vcf_paired, vcf_tumor_germline, vcf_tumor_pileup]
         }.groupTuple().set{clairs_vcfs_branch_grouped}
 
-    clairs_vcfs_branch_grouped.view()
     clairs_vcfs_branch_grouped.map{meta, vcf_paired, vcf_tumor_germline, vcf_tumor_pileup -> 
         new_meta_tumor_germline = [
                         id:meta.tumor_id + '_germline',
@@ -164,7 +163,6 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
 
     // Merge tumor germline VCF
     // Only when using intervals
-    ch_clairs_vcf_tumor_germline.view()
     MERGE_VCFS_TUMOR_GERMLINE_CLAIRS(ch_clairs_vcf_tumor_germline, dict)
 
     clairs_vcf_tumor_germline = Channel.empty().mix(
