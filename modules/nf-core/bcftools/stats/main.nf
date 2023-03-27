@@ -26,17 +26,17 @@ process BCFTOOLS_STATS {
     def regions_file = regions ? "--regions-file ${regions}" : ""
     def targets_file = targets ? "--targets-file ${targets}" : ""
     def samples_file =  samples ? "--samples-file ${samples}" : ""
-    def sample_command = tbi ? "-s SAMPLE" : ""
     """
+    bcftools +fill-tags $vcf -Ob -o ${vcf.baseName}_tagged.vcf.gz -- -t all,"INFO/DP:1=int(sum(FORMAT/DP))"
+
     bcftools stats \\
-        --verbose \\
+        --verbose -s SAMPLE \\
         $args \\
         $regions_file \\
         $targets_file \\
         $samples_file \\
-        $sample_command \\
-        $vcf > ${prefix}.bcftools_stats.txt 
-
+        ${vcf.baseName}_tagged.vcf.gz > ${prefix}.bcftools_stats.txt
+    
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         bcftools: \$(bcftools --version 2>&1 | head -n1 | sed 's/^.*bcftools //; s/ .*\$//')
