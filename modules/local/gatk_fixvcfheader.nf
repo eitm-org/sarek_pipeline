@@ -35,7 +35,7 @@ process GATK4_FIXVCFHEADER {
         --OUTPUT tmp.vcf.gz\\
         --HEADER $vcf_header \\
         $args
-    
+
     gatk --java-options "-Xmx${avail_mem}g" RenameSampleInVcf \\
         --INPUT tmp.vcf.gz\\
         --OUTPUT ${vcf.baseName}_fixedheader.vcf.gz \\

@@ -30,7 +30,7 @@ process BCFTOOLS_STATS {
     bcftools +fill-tags $vcf -Ob -o ${vcf.baseName}_tagged.vcf.gz -- -t all,"INFO/DP:1=int(sum(FORMAT/DP))"
 
     bcftools stats \\
-        --verbose -s SAMPLE \\
+        --verbose -s - \\
         $args \\
         $regions_file \\
         $targets_file \\
