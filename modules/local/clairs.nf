@@ -42,7 +42,6 @@ process CLAIRS {
     /opt/bin/run_clairs \\
         $inputs \\
         $normal_vcf_fn \\
-        -s ${meta.id} \\
         --ref_fn ${fasta} \\
         --threads ${task.cpus} \\
         --output_dir . \\
