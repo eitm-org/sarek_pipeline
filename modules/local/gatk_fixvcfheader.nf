@@ -20,7 +20,7 @@ process GATK4_FIXVCFHEADER {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    // def prefix = task.ext.prefix ?: "${meta.id}"
 
 
     def avail_mem = 3
@@ -32,9 +32,14 @@ process GATK4_FIXVCFHEADER {
     """
     gatk --java-options "-Xmx${avail_mem}g" FixVcfHeader \\
         -I $vcf \\
-        --OUTPUT ${vcf.baseName}_fixedheader.vcf.gz\\
+        --OUTPUT tmp.vcf.gz\\
         --HEADER $vcf_header \\
         $args
+
+    gatk --java-options "-Xmx${avail_mem}g" RenameSampleInVcf \\
+        --INPUT tmp.vcf.gz\\
+        --OUTPUT ${vcf.baseName}_fixedheader.vcf.gz \\
+        --NEW_SAMPLE_NAME ${meta.id}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -43,9 +48,9 @@ process GATK4_FIXVCFHEADER {
     """
 
     stub:
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    // def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    touch ${prefix}.vcf.gz
+    touch ${vcf.baseName}_fixedheader.vcf.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
