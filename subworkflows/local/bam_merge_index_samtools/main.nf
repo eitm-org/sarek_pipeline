@@ -21,6 +21,8 @@ workflow BAM_MERGE_INDEX_SAMTOOLS {
         multiple: it[1].size() > 1
     }.set{bam_to_merge}
 
+    // TODO dk: sort before merge
+
     MERGE_BAM(bam_to_merge.multiple, [], [])
     INDEX_MERGE_BAM(bam_to_merge.single.mix(MERGE_BAM.out.bam))
 
