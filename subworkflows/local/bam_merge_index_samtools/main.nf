@@ -22,9 +22,17 @@ process SORT_BAM {
 
     script:
 
-    // TODO: document this sort criterion 
-    // (BAM files staged separate subdirs of workdir)
-    output_files = input_files.sort {it.name.split('/')[1]}
+    // BAM files are staged in subdirs of the work directory:
+    //   1/file_234.bam 
+    //   2/file_123.bam
+    //   ...
+    // We want to sort based on the filename, so we remove
+    // the relative path to the bam file for the sort criterion.
+
+    // this works, but danger of array out of bounds
+    //output_files = input_files.sort {it.name.split('/')[1]}
+
+    output_files = input_files.sort {it.name.replaceAll('.*/','')}
 
     println "***** input_files: " + input_files
     println "***** output_files: " + output_files
