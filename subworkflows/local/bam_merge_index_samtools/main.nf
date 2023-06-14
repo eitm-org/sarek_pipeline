@@ -7,6 +7,34 @@
 include { SAMTOOLS_INDEX as INDEX_MERGE_BAM } from '../../../modules/nf-core/samtools/index/main'
 include { SAMTOOLS_MERGE as MERGE_BAM       } from '../../../modules/nf-core/samtools/merge/main'
 
+
+process SORT_BAM {
+    
+    input:
+    tuple val(meta), path(input_files, stageAs: "?/*")
+ 
+    // TODO: remove stageAs?
+
+    output:
+    tuple val(meta), path(output_files), optional:true, emit: bam
+
+    // TODO: remove optional, emit?
+
+    script:
+
+    // TODO: document this sort criterion 
+    // (BAM files staged separate subdirs of workdir)
+    output_files = input_files.sort {it.name.split('/')[1]}
+
+    println "***** input_files: " + input_files
+    println "***** output_files: " + output_files
+
+    """
+    echo '***** sorting'
+    """
+}
+
+
 workflow BAM_MERGE_INDEX_SAMTOOLS {
     take:
         bam // channel: [mandatory] meta, bam
@@ -24,12 +52,25 @@ workflow BAM_MERGE_INDEX_SAMTOOLS {
     // TODO dk: sort before merge
     //
 
-    MERGE_BAM(bam_to_merge.multiple, [], [])
+    // TODO: remove
+    bam_to_merge.single.view { "***** bam_to_merge.single: $it" }
+    bam_to_merge.multiple.view { "***** bam_to_merge.multiple: $it" }
+
+    bam_to_merge_sorted = SORT_BAM(bam_to_merge.multiple)
+
+    // TODO: remove
+    bam_to_merge_sorted.view { "***** bam_to_merge_sorted: $it" }
+    SORT_BAM.out.bam.view { "***** SORT_BAM.out.bam: $it" }
+
+    MERGE_BAM(bam_to_merge_sorted, [], [])
     INDEX_MERGE_BAM(bam_to_merge.single.mix(MERGE_BAM.out.bam))
 
     bam_bai = bam_to_merge.single.map{meta, bam -> [meta, bam[0]]}
         .mix(MERGE_BAM.out.bam)
         .join(INDEX_MERGE_BAM.out.bai)
+
+    //dk
+    bam_bai.view { "***** bam_bai: $it" }
 
     // Gather versions of all tools used
     ch_versions = ch_versions.mix(INDEX_MERGE_BAM.out.versions.first())
