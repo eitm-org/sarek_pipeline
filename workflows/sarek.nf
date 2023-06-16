@@ -413,7 +413,16 @@ workflow SAREK {
         [new_meta, bam]
     }.groupTuple()
 
-    BAM_MERGE_INDEX_SAMTOOLS(ch_bam_mapped)
+    // dk
+    ch_bam_mapped.view { "***** ch_bam_mapped: $it" }
+
+    ch_bam_sorted = ch_bam_mapped.map{ meta, bam -> 
+        [meta, bam.sort {it.name.replaceAll('.*/','')}]
+    }
+    ch_bam_sorted.view { "***** ch_bam_sorted: $it" }
+    // dk
+
+    BAM_MERGE_INDEX_SAMTOOLS(ch_bam_sorted)
 
     BAM_TO_CRAM_MAPPING(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta, fasta_fai)
     params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
