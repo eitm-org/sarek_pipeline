@@ -413,14 +413,18 @@ workflow SAREK {
         [new_meta, bam]
     }.groupTuple()
 
-    // dk
-    ch_bam_mapped.view { "***** ch_bam_mapped: $it" }
+    // Use map operator to sort BAM files by filename before merging.
+    //
+    // BAM files are staged in subdirs of the work directory:
+    //   1/file_234.bam 
+    //   2/file_123.bam
+    //   ...
+    // We want to sort based on the filename, so we remove
+    // the relative path to the bam file for the sort criterion.
 
     ch_bam_sorted = ch_bam_mapped.map{ meta, bam -> 
         [meta, bam.sort {it.name.replaceAll('.*/','')}]
     }
-    ch_bam_sorted.view { "***** ch_bam_sorted: $it" }
-    // dk
 
     BAM_MERGE_INDEX_SAMTOOLS(ch_bam_sorted)
 
