@@ -413,7 +413,20 @@ workflow SAREK {
         [new_meta, bam]
     }.groupTuple()
 
-    BAM_MERGE_INDEX_SAMTOOLS(ch_bam_mapped)
+    // Use map operator to sort BAM files by filename before merging.
+    //
+    // BAM files are staged in subdirs of the work directory:
+    //   1/file_234.bam 
+    //   2/file_123.bam
+    //   ...
+    // We want to sort based on the filename, so we remove
+    // the relative path to the bam file for the sort criterion.
+
+    ch_bam_sorted = ch_bam_mapped.map{ meta, bam -> 
+        [meta, bam.sort {it.name.replaceAll('.*/','')}]
+    }
+
+    BAM_MERGE_INDEX_SAMTOOLS(ch_bam_sorted)
 
     BAM_TO_CRAM_MAPPING(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta, fasta_fai)
     params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
