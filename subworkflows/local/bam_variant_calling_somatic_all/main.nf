@@ -297,7 +297,8 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
 
         clairs_vcf = BAM_VARIANT_CALLING_SOMATIC_CLAIRS.out.clairs_vcf
         clairs_tbi = BAM_VARIANT_CALLING_SOMATIC_CLAIRS.out.clairs_tbi
-        // TODO dk: get clairs_vcf_normal_germline and re-emit
+        clairs_vcf_normal_germline = BAM_VARIANT_CALLING_SOMATIC_CLAIRS.out.clairs_vcf_normal_germline
+        clairs_tbi_normal_germline = BAM_VARIANT_CALLING_SOMATIC_CLAIRS.out.clairs_tbi_normal_germline
         ch_versions = ch_versions.mix(BAM_VARIANT_CALLING_SOMATIC_CLAIRS.out.versions)
     }
 
@@ -324,6 +325,8 @@ workflow BAM_VARIANT_CALLING_SOMATIC_ALL {
     mutect2_tbi
     clairs_vcf
     clairs_tbi
+    clairs_vcf_normal_germline
+    clairs_tbi_normal_germline
     strelka_vcf
     tiddit_vcf
 
