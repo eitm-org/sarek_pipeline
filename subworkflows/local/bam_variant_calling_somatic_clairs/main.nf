@@ -63,7 +63,8 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
                         num_intervals:meta.num_intervals,
                         patient:meta.patient,
                         sex:meta.sex,
-                        tumor_id:meta.tumor_id
+                        tumor_id:meta.tumor_id,
+                        variantcaller: "clairs",
                     ]
         [new_meta_normal_germline, vcf_normal_germline]
     }.set{ch_clairs_vcf_normal_germline}
@@ -75,7 +76,8 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
                         num_intervals:meta.num_intervals,
                         patient:meta.patient,
                         sex:meta.sex,
-                        tumor_id:meta.tumor_id
+                        tumor_id:meta.tumor_id,
+                        variantcaller: "clairs",
                     ]
         [new_meta_normal_pileup, vcf_normal_pileup]
     }.set{ch_clairs_vcf_normal_pileup}
@@ -92,7 +94,8 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
                         num_intervals:meta.num_intervals,
                         patient:meta.patient,
                         sex:meta.sex,
-                        tumor_id:meta.tumor_id
+                        tumor_id:meta.tumor_id,
+                        variantcaller: "clairs",
                     ]
             [new_meta_normal_germline, vcf_normal_germline]
         }
@@ -109,7 +112,8 @@ workflow BAM_VARIANT_CALLING_SOMATIC_CLAIRS {
                         num_intervals:meta.num_intervals,
                         patient:meta.patient,
                         sex:meta.sex,
-                        tumor_id:meta.tumor_id
+                        tumor_id:meta.tumor_id,
+                        variantcaller: "clairs",
                     ]
             [new_meta_normal_pileup, vcf_normal_pileup]
         }
