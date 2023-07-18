@@ -234,6 +234,7 @@ include { FASTQ_ALIGN_BWAMEM_MEM2_DRAGMAP_MINIMAP2                } from '../sub
 
 // Merge and index BAM files (optional)
 include { BAM_MERGE_INDEX_SAMTOOLS                       } from '../subworkflows/local/bam_merge_index_samtools/main'
+include { MODKIT                                         } from '../modules/local/modkit.nf'
 
 // Convert BAM files
 include { SAMTOOLS_CONVERT as BAM_TO_CRAM                } from '../modules/nf-core/samtools/convert/main'
@@ -427,6 +428,10 @@ workflow SAREK {
     }
 
     BAM_MERGE_INDEX_SAMTOOLS(ch_bam_sorted)
+
+    //dk
+    BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai.view() {"bam_bai: " + it}
+    MODKIT(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai)
 
     BAM_TO_CRAM_MAPPING(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta, fasta_fai)
     params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
