@@ -4,8 +4,8 @@ process CLAIRS {
 
     // conda (params.enable_conda ? "bioconda::gatk4=4.3.0.0" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'docker://hkubal/clairs:latest':
-        'hkubal/clairs:latest' }"
+        'docker://hkubal/clairs:v0.1.4':
+        'hkubal/clairs:v0.1.4' }"
 
     input:
     tuple val(meta), path(input), path(input_index), path(intervals)
