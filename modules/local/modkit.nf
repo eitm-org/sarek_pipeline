@@ -6,6 +6,7 @@ process MODKIT {
 
     input:
     tuple val(meta), path(bam), path(bai)
+    path fasta
 
     output:
     path('*.bed')
@@ -17,6 +18,7 @@ process MODKIT {
     bed = "${prefix}.bed"
     summary = "${prefix}.summary"
     modkit_log = "${prefix}.log"
+    modkit_args = "--ref $fasta"
 
     """
     echo "MODKIT $bam $bed"
@@ -27,6 +29,7 @@ process MODKIT {
 
     date >> $modkit_log
     echo "modkit pileup" >> $modkit_log
-    modkit pileup $bam $bed --log-filepath $modkit_log
+    echo "modkit_args: $modkit_args" >> $modkit_log
+    modkit pileup $modkit_args $bam $bed --log-filepath $modkit_log
     """
 }
