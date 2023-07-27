@@ -18,6 +18,7 @@ process MODKIT {
     path('*.bed')
     path(summary)
     path(modkit_log)
+    path("versions.yml"), emit: versions
 
     script:
 
@@ -47,7 +48,10 @@ process MODKIT {
     echo "modkit pileup" >> $modkit_log
     echo "modkit_args: $modkit_args" >> $modkit_log
     modkit pileup $modkit_args $bam $bed --log-filepath $modkit_log
-    """
 
-    // TODO: versions
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        modkit: \$(echo \$(modkit --version) | sed 's/mod_kit //')
+    END_VERSIONS
+    """
 }

@@ -430,17 +430,15 @@ workflow SAREK {
     BAM_MERGE_INDEX_SAMTOOLS(ch_bam_sorted)
 
     //dk
-    BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai.view() {"bam_bai: " + it}
+    //BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai.view() {"bam_bai: " + it}
     MODKIT(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta)
+    ch_versions = ch_versions.mix(MODKIT.out.versions)
 
     BAM_TO_CRAM_MAPPING(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta, fasta_fai)
     params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
     //BAM files first must be converted to CRAM files since from this step on we base everything on CRAM format
     
     ch_versions = ch_versions.mix(BAM_TO_CRAM_MAPPING.out.versions)
-
-
-
 
     if (params.step == 'mapping') {
 
