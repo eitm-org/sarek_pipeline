@@ -7,7 +7,7 @@ process DEEPVARIANT {
         exit 1, "Conda environments cannot be used with DeepVariant at the moment. Please use Docker or Singularity containers."
     }
 
-    container "google/deepvariant:1.5.0-gpu"
+    container "google/deepvariant:1.5.0"
 
     input:
     tuple val(meta), path(input), path(index), path(intervals)
@@ -29,7 +29,6 @@ process DEEPVARIANT {
 
     """
     /opt/deepvariant/bin/run_deepvariant \\
-        --gpus 1 \\
         --ref=${fasta} \\
         --reads=${input} \\
         --output_vcf=${prefix}.vcf.gz \\

@@ -1060,9 +1060,15 @@ workflow SAREK {
             }
 
         // GERMLINE VARIANT CALLING
+
+        ch_cram_variant_calling.branch{
+            unique: it[0].id[-2..-1] != '_0'
+            other: it[0].id[-2..-1] == '_0'
+        }.set{ch_cram_variant_calling_unique}
+
         BAM_VARIANT_CALLING_GERMLINE_ALL(
             params.tools,
-            ch_cram_variant_calling_status_normal,
+            ch_cram_variant_calling_unique.unique,
             [[id:"bwa"],[]], //bwa_index for tiddit; not used here
             dbsnp,
             dbsnp_tbi,
@@ -1317,7 +1323,7 @@ def extract_csv(csv_file) {
         // Several sample can belong to the same patient
         // Sample should be unique for the patient
         if (row.patient) meta.patient = row.patient.toString()
-        if (row.sample)  meta.sample  = row.sample.toString()
+        if (row.sample)  meta.sample  = row.sample.toString().replaceAll('_[1-9]$','')
         if (row.flowcell)  meta.flowcell  = row.flowcell.toString()
 
         // If no sex specified, sex is not considered
@@ -1385,7 +1391,7 @@ def extract_csv(csv_file) {
             if (!row.bai) {
                 log.error "BAM index (bai) should be provided."
             }
-            meta.id         = "${row.sample}-${row.lane}".toString()
+            meta.id         = "${meta.sample}-${row.lane}".toString()
             def bam         = file(row.bam,   checkIfExists: true)
             def bai         = file(row.bai,   checkIfExists: true)
             def CN          = params.seq_center ? "CN:${params.seq_center}\\t" : ''
