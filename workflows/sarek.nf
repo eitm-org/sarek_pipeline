@@ -429,8 +429,6 @@ workflow SAREK {
 
     BAM_MERGE_INDEX_SAMTOOLS(ch_bam_sorted)
 
-    //dk
-    //BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai.view() {"bam_bai: " + it}
     MODKIT(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta)
     ch_versions = ch_versions.mix(MODKIT.out.versions)
 
