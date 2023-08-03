@@ -6,7 +6,7 @@ process MODKIT {
     container "ghcr.io/eitm-org/modkit"
 
     publishDir "$params.outdir/modkit", mode: params.publish_dir_mode
-    // TODO: do we want to move publishDir info to conf/modules/modules.config
+    // note: publishDir info could be moved to conf/modules/modules.config
 
     input:
 
@@ -33,9 +33,6 @@ process MODKIT {
     modkit_args = " --ref $fasta"
     modkit_args += " -t $task.cpus"
     modkit_args += " --preset traditional" // "--cpg --ignore h --combine-strands"
-
-    // TODO: investigate --interval-size / --region / --include-bed 
-    // for parallelization performance
 
     """
     echo "MODKIT $bam $bed"
