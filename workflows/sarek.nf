@@ -429,8 +429,10 @@ workflow SAREK {
 
     BAM_MERGE_INDEX_SAMTOOLS(ch_bam_sorted)
 
-    MODKIT(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta)
-    ch_versions = ch_versions.mix(MODKIT.out.versions)
+    if (params.tools.split(',').contains('modkit')) {
+        MODKIT(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta)
+        ch_versions = ch_versions.mix(MODKIT.out.versions)
+    }
 
     BAM_TO_CRAM_MAPPING(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta, fasta_fai)
     params.save_output_as_bam ? CHANNEL_ALIGN_CREATE_CSV(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai) : CHANNEL_ALIGN_CREATE_CSV(BAM_TO_CRAM_MAPPING.out.alignment_index)
