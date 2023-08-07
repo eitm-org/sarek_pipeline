@@ -3,7 +3,7 @@ process MODKIT {
 
     tag "$meta.id"
     label 'process_high'
-    container "ghcr.io/eitm-org/modkit"
+    container "ghcr.io/eitm-org/modkit:1.0"
 
     input:
 
