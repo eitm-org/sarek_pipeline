@@ -126,6 +126,7 @@ if (params.joint_germline && (!params.dbsnp || !params.known_indels || !params.k
     log.warn "If Haplotypecaller is specified, without `--dbsnp`, `--known_snps`, `--known_indels` or the associated resource labels (ie `known_snps_vqsr`), no variant recalibration will be done. For recalibration you must provide all of these resources.\nFor more information see VariantRecalibration: https://gatk.broadinstitute.org/hc/en-us/articles/5358906115227-VariantRecalibrator \nJoint germline variant calling also requires intervals in order to genotype the samples. As a result, if `--no_intervals` is set to `true` the joint germline variant calling will not be performed."
 }
 
+
 // Fails when missing tools for variant_calling or annotate
 if ((params.step == 'variant_calling' || params.step == 'annotate') && !params.tools) {
     log.error "Please specify at least one tool when using `--step ${params.step}`.\nhttps://nf-co.re/sarek/parameters#tools"
@@ -429,7 +430,7 @@ workflow SAREK {
 
     BAM_MERGE_INDEX_SAMTOOLS(ch_bam_sorted)
 
-    if (params.tools.split(',').contains('modkit')) {
+    if (params.tools?.split(',')?.contains('modkit')) {
         MODKIT(BAM_MERGE_INDEX_SAMTOOLS.out.bam_bai, fasta)
         ch_versions = ch_versions.mix(MODKIT.out.versions)
     }
@@ -996,8 +997,7 @@ workflow SAREK {
         ch_cram_variant_calling = Channel.empty().mix(BAM_TO_CRAM_MAPPING.out.alignment_index)
     }
 
-    if (params.tools) {
-
+    if (params.tools?.split(',')?.contains('clairs')) {
         if (params.step == 'annotate') ch_cram_variant_calling = Channel.empty()
 
         //
