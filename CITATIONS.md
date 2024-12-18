@@ -34,6 +34,10 @@
 
   > M. Vasimuddin, S. Misra, H. Li and S. Aluru, "Efficient Architecture-Aware Acceleration of BWA-MEM for Multicore Systems," 2019 IEEE International Parallel and Distributed Processing Symposium (IPDPS), 2019, pp. 314-324. doi: 10.1109/IPDPS.2019.00041.
 
+- [ClairS](https://www.biorxiv.org/content/10.1101/2023.08.17.553778v1)
+
+  > Zheng Z, Su J, Chen L, Lee Y-L, Lam T-W, Luo R. Clairs: A deep-learning method for long-read somatic small variant calling. bioRxiv. 2023 Aug 21; doi:10.1101/2023.08.17.553778 
+
 - [CNVKIT](https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004873)
 
   > Talevich E, Shain AH, Botton T, Bastian BC (2016) CNVkit: Genome-Wide Copy Number Detection and Visualization from Targeted DNA Sequencing. PLoS Comput Biol 12(4): e1004873. doi: 10.1371/journal.pcbi.1004873. PubMed PMID: 27100738. PubMed Central PMCID: PMC4839673.
@@ -83,6 +87,10 @@
 - [Manta](https://pubmed.ncbi.nlm.nih.gov/26647377/)
 
   > Chen X, Schulz-Trieglaff O, Shaw R, et al.: Manta: rapid detection of structural variants and indels for germline and cancer sequencing applications. Bioinformatics. 2016 Apr 15;32(8):1220-2. doi: 10.1093/bioinformatics/btv710. PubMed PMID: 26647377.
+
+- [Modkit](https://nanoporetech.github.io/modkit/)
+
+  > Millner A, Baafi E. Modkit: blending and extending approachable platforms for creating computer programs and interactive objects. Proceedings of the 10th International Conference on Interaction Design and Children. 2011 Jun 20;250–3. doi:10.1145/1999030.1999074 
 
 - [Mosdepth](https://academic.oup.com/bioinformatics/article/34/5/867/4583630)
 
