@@ -18,7 +18,7 @@ By default, the pipeline currently performs the following:
 - Overall pipeline run summaries (`MultiQC`)
 
 <p align="center">
-    <img title="Sarek Workflow" src="docs/images/sarek_subway.png" width=60%>
+    <img title="Sarek Workflow" src="docs/images/emi_sarek_pipeline.png" width=60%>
 </p>
 
 ## Quick Start
