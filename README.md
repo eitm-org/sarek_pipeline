@@ -39,6 +39,7 @@ By default, the pipeline currently performs the following:
    ```bash
    nextflow run eitm-org/sarek-pipeline 
      -profile docker -r master --input samplesheet.csv --outdir <Output directory> \
+     --tools <List of variant calling tools, comma-separated> \
      --skip_tools baserecalibrator --igenomes_ignore --step markduplicates \
      --fasta <Path to FASTA genome file> \
      --fasta_fai <Path to FASTA reference index> \
