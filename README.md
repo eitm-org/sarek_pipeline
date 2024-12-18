@@ -44,11 +44,11 @@ By default, the pipeline currently performs the following:
      --fasta_fai <Path to FASTA reference index> \
      --dict <Path to FASTA dictionary file> \
      --intervals <Path to target bed file> \
-     --vcf_header <VCF header file*>
+     --vcf_header <VCF header file>
      --save_mapped -resume > <LOGFILE>
   
    ```
-*See [VCF specs](https://samtools.github.io/hts-specs/VCFv4.1.pdf) for more info.
+See [VCF specs](https://samtools.github.io/hts-specs/VCFv4.1.pdf) for more info about creating the VCF header file.
 
 ## Documentation
 
